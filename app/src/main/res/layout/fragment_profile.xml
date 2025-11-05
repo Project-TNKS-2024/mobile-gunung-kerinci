@@ -176,7 +176,35 @@
             android:text="Pengaturan Akun"
             android:fontFamily="@font/poppins_semibold"
             android:textSize="20sp"
+            android:textColor="@color/black2"
             android:layout_marginTop="20dp"/>
+
+        <!--Menu: Data Pribadi-->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingVertical="14dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:src="@drawable/ic_data"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_marginStart="15dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Data Pribadi"
+                android:textSize="18sp"
+                android:fontFamily="@font/plus_jakarta_sans_medium"
+                android:textColor="@color/black2"
+                android:layout_marginStart="15dp"/>
+
+
+
+        </LinearLayout>
 
     </LinearLayout>
 
