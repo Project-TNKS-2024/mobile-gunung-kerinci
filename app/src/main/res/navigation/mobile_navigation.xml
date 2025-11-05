@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@id/navigation_beranda">
+
+    <fragment
+        android:id="@+id/navigation_beranda"
+        android:name="com.dicoding.gunungkerinci.Homepage.HomeFragment"
+        android:label="Beranda"
+        tools:layout="@layout/fragment_home"/>
+
+    <fragment
+        android:id="@+id/navigation_tiket"
+        android:name="com.dicoding.gunungkerinci.Ticket.TiketFragment"
+        android:label="Tiket"
+        tools:layout="@layout/fragment_tiket"/>
+
+    <fragment
+        android:id="@+id/navigation_jejak"
+        android:name="com.dicoding.gunungkerinci.JejakFragment"
+        android:label="Jejak"
+        tools:layout="@layout/fragment_jejak"/>
+
+    <fragment
+        android:id="@+id/navigation_tour"
+        android:name="com.dicoding.gunungkerinci.TourFragment"
+        android:label="Tiket"
+        tools:layout="@layout/fragment_navigation"/>
+
+    <fragment
+        android:id="@+id/navigation_profile"
+        android:name="com.dicoding.gunungkerinci.Profile.ProfileFragment"
+        android:label="Tiket"
+        tools:layout="@layout/fragment_profile"/>
+
+</navigation>
+

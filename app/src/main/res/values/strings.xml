@@ -1,0 +1,250 @@
+<resources>
+    <string name="app_name">Gunung Kerinci</string>
+
+    <!-- res/values/strings.xml -->
+    <string name="default_web_client_id">918231784522-j396jbu1nnpuk9kbq093dhlmnssu8jen.apps.googleusercontent.com</string>
+
+    <string name="newPass">Buat Kata Sandi Baru</string>
+    <string name="deskPass">Gunakan kata sandi yang unik dan rahasiakan untuk keamanan akun anda.</string>
+
+    <string name="newForgetEmail">Lupa Kata Sandi</string>
+    <string name="deskEmail">Jangan khawatir! Silahkan masukkan alamat email yang terhubung dengan
+        akun Anda, untuk  mengkonfirmasi penggantian kata sandi baru.</string>
+
+    <string name="kirim">Kirim Ulang</string>
+    <string name="verif">Menunggu Verifikasi</string>
+    <string name="deskVerif">Silahkan cek email anda secara berkala untuk “Verifikasi Akun”</string>
+
+    <string name="beranda">Beranda</string>
+    <string name="tiket">Tiket Saya</string>
+    <string name="jejak">Jejak</string>
+    <string name="vr_tour">VR Tour</string>
+    <string name="profile">Profile</string>
+    <string name="selanjutnya">Selanjutnya</string>
+    <string name="pending">Pending</string>
+    <string name="selesai">Selesai</string>
+
+    <string name="language">IND</string>
+    <string name="skip">Lewati</string>
+    <string name="masuk">Masuk</string>
+    <string name="daftar">Daftar</string>
+    <string name="save">Simpan</string>
+    <string name="send">Kirim</string>
+
+    <string name="datang">Selamat Datang</string>
+    <string name="input">Email Anda</string>
+    <string name="pass">Kata Sandi</string>
+    <string name="forget">Lupa Kata Sandi?</string>
+    <string name="deskReg">Halo, silahkan selesaikan pendaftaran Anda agar mendapat akun untuk masuk</string>
+    <string name="deskLog">Silahkan masuk ke akun Anda atau lanjutkan melalui akun Google yang sudah terdaftar</string>
+
+    <string name="google">Lanjutkan dengan Google</string>
+
+    <string name="JBerita">Gunung Kerinci</string>
+    <string name="DBerita">Gunung Kerinci adalah gunung berapi tertinggi di Indonesia. Lorem ipsum
+    lorem ipsumlorem ipsumlorem ipsumlorem ipsum</string>
+    <string name="Deskripsi">Gunung Kerinci adalah gunung berapi tertinggi di Indonesia dengan
+        ketinggian 3.805 meter di atas permukaan laut. Terletak di Provinsi Jambi, gunung ini menjadi
+        bagian dari Taman Nasional Kerinci Seblat yang juga merupakan situs warisan dunia UNESCO.
+        Gunung Kerinci populer di kalangan pendaki karena lorem ipsum lorem ipsum lorem ipsum lorem ipsum</string>
+
+    <string name="onboarding1">Jelajahi Gunung Kerinci dengan Mudah</string>
+    <string name="penjelasan1">Pesan tiket pendakian secara online, tanpa ribet!</string>
+
+    <string name="onboarding2">Akses Cepat &amp; Praktis</string>
+    <string name="penjelasan2">Scan QR langsung di gerbang untuk masuk tanpa antre</string>
+
+    <string name="onboarding3">Pendakian Lebih Aman &amp; Nyaman</string>
+    <string name="penjelasan3">Dapatkan info cuaca dan kondisi keamanan gunung secara real-time</string>
+
+    <string name="judulSOP">STANDAR OPERASIONAL PROSEDUR (SOP)  PENDAKIAN GUNUNG KERINCI DI TAMAN NASIONAL KERINCI SEBLAT</string>
+    <string name="pendahuluan">PENDAHULUAN</string>
+    <string name="laber">A. Latar Belakang</string>
+    <string name="deskLaber">Dalam rangka untuk melakukan pelayanan prima kepada pengunjung dan untuk
+        mewujudkan pengelolaan ekowisata yang profesional, efektif dan efisien dalam hal pengelolaan
+        ekowisata Pendakian Gunung Kerinci maka diperlukan Standar Operasional Prosedur (yang selanjutnya
+        di singkat SOP) pada seluruh proses penyelenggaraan pengelolaannya.\n
+        \n
+        Salah satu objek daya tarik wisata alam di Taman Nasional Kerinci Seblat (TNKS) adalah Gunung
+        Kerinci yang merupakan gunung berapi aktif tertinggi di Indonesia (3.805 mdpl) yang terletak
+        di dua Provinsi yaitu Jambi dan Sumatera Barat. Sehingga perlu disusun SOP yang merupakan
+        pedoman atau acuan untuk melaksanakan tugas pekerjaan sesuai dengan Tugas dan fungsi pokok
+        pengelola wisata. SOP juga merupakan alat penilaian kinerja berdasarkan indikator indikator
+        teknis, administrasif dan prosedural sesuai dengan tata kerja, prosedur dan sistem kerja
+        pada unit kerja yang bersangkutan. SOP berisi Prosedur Kerja yaitu urutan-urutan yang telah
+        dibuat dalam melakukan suatu pekerjaan dimana terdapat tahapan demi tahapan yang harus dilalui
+        sehingga terlihat jelas adanya aturan yang harus ditaati oleh orang yang akan menjalankan
+        prosedur kerja pada bidang tugas yang telah mereka kerjakan dan membuat suatu pekerjaan itu
+        mudah dimengerti dan dipahami. Dengan adanya standar operasional prosedur ini kedepannya
+        bisa dilakukan evaluasi dan peningkatan kualitas kerja yang lebih baik seiring dengan
+        berjalannya waktu.</string>
+    <string name="japen">B. Jalur Pendakian</string>
+    <string name="deskJapen">
+        <![CDATA[
+        Terdapat 2 (dua) jalur pendakian Gunung Kerinci:<br/><br/>
+        1.&nbsp;Jalur pendakian melalui Pusat informasi R10 Kersik Tuo Kabupaten Kerinci  Provinsi Jambi. <br/>
+        2.&nbsp;Jalur pendakian melalui Camping Ground Bangun Rejo Kabupaten Solok  Selatan Provinsi Sumatera Barat.
+        ]]>
+    </string>
+    <string name="judKeten">KETENTUAN</string>
+    <string name="keten">A. Ketentuan</string>
+    <string name="deskKeten">
+        <![CDATA[
+        1.&nbsp;Para pendaki wajib menjaga keamanan, ketertiban dan menghormati
+        nilai-nilai budaya/kearifan lokal masyarakat sekitar jalur pendakian;<br/>
+        2.&nbsp;Setiap pendakian di Gunung Kerinci melalui jalur pendakian Pusat  informasi R10 Kersik Tuo
+        Kabupaten Kerinci Provinsi Jambi wajib  melakukan booking online sesuai ketersediaan kuota,
+        tidak diperkenankan mendaftar secara offline;<br/>
+        3.&nbsp;Setiap pendakian di Gunung Kerinci melalui jalur pendakian Camping  Ground Bangun Rejo
+        Kabupaten Solok Selatan Provinsi Sumatera Barat melakukan booking online sesuai ketersediaan
+        kuota setelah mendapatkan  SIMAKSI. Pengurusan SIMAKSI dilakukan secara langsung di Kantor
+        BBTNKS di Sungai Penuh atau Kantor Bidang Pengelolaan TN Wilayah II  Sumatera Barat di Padang
+        atau Kantor Seksi Pengelolaan TN Wilayah IV  Sangir pada hari jam/ kerja dan dapat dilakukan
+        2 bulan hingga 1 hari  sebelum pendakian. Setiap SIMAKSI pendakian dikeluarkan untuk grup
+        pendaki dengan jumlah minimum 3 (tiga) orang dan maksimum 10  (sepuluh) orang pendaki, serta
+        untuk mengurangi resiko kecelakaan  diwajibkan menggunakan jasa pemanduan;<br/>
+        4.&nbsp;Bagi pendaki yang naik dari pintu masuk Kersik Tuo dan turun melalui  pintu masuk Camping
+        Ground Bangun Rejo Kabupaten Solok Selatan wajib  menggunakan SIMAKSI;<br/>
+        5.&nbsp;Batas waktu pendakian melalui Pos R10 Kersik Tuo Kabupaten Kerinci  Provinsi Jambi adalah
+        2 (dua) hari dan pendakian melalui Camping Ground  Bangun Rejo Kabupaten Solok Selatan Provinsi
+        Sumatera Barat adalah 4  (empat) hari;<br/>
+        6.&nbsp;Tanggung jawab dan keselamatan pendaki menjadi tangggung jawab pribadi  dan tidak akan
+        menuntut pihak pengelola (Balai Besar TNKS), pemandu,  porter, pemerintah dan pemerintah daerah;<br/>
+        7.&nbsp;Jumlah pendaki yang di ijinkan naik maksimum 102 orang/hari untuk jalur  pendakian melalui
+        Pos R10 Kersik Tuo Kabupaten Kerinci Provinsi Jambi  dan 46 orang/hari untuk jalur pendakian
+        melalui Camping Ground Bangun  Rejo Kabupaten Solok Selatan Provinsi Sumatera Barat;<br/>
+        8.&nbsp;Bagi Warga Negara Asing (WNA) yang akan mendaki diwajibkan untuk  menggunakan jasa pemanduan;<br/>
+        9.&nbsp;Membayar karcis masuk sesuai dengan peraturan yang berlaku dan  asuransi keselamatan;<br/>
+        10.&nbsp;Seluruh calon pendaki wajib membuat akun melalui melalui  https://eticket.tnkerinciseblat.com/beranda
+        menu register (https://eticket.tnkerinciseblat.com/register);<br/>
+        11.&nbsp;Pengunjung melakukan login memakai akun yg sudah didaftarkan dengan  memasukkan email yg
+        sudah didaftarkan  (https://eticket.tnkerinciseblat.com/login);<br/>
+        12.&nbsp;Pengunjung booking online di menu booking online di  https://eticket.tnkerinciseblat.com/booking/1 ;<br/>
+        13.&nbsp;Pengunjung akan mendapatkan kode pembayaran, setelah bayar akan  mendapatkan tiket elektronik;<br/>
+        14.&nbsp;Pendaki yang melakukan tujuan khusus seperti penelitian, pengambilan  foto dan atau
+        video dll harus mengurus izin ke kantor Balai Besar TNKS.
+        ]]>
+        </string>
+    <string name="penWaj">B. Pendaki DIwajibkan</string>
+    <string name="deskPenwaj">
+        <![CDATA[
+        1.&nbsp;Berbadan sehat pada saat melakukan pendakian dengan menunjukan Surat
+        Keterangan Dokter (asli);<br/>
+        2.&nbsp;Masuk jalur pendakian antara pukul 07.30 s/d 15.00 WIB dan mendaki  pada jalur yang sudah
+        ditentukan/jalur resmi;<br/>
+        3.&nbsp;Mematuhi semua rambu-rambu dan informasi keselamatan yang ada di  sepanjang jalur pendakian;<br/>
+        4.&nbsp;Melakukan evakuasi mandiri terhadap diri dan rekannya yang sakit sebelum  mendapatkan bantuan
+        dari petugas;<br/>
+        5.&nbsp;Memakai dan membawa perlengkapan standar pendakian gunung serta  perbekalan pendakian yang cukup;<br/>
+        6.&nbsp;Mengisi form isian barang bawaan yang berpotensi menghasilkan sampah;<br/>
+        7.&nbsp;Membawa trash bag kantong sampah dan membawa sampah bawaannya ke  luar kawasan taman nasional;<br/>
+        8. Memprioritaskan penanganan bagi wanita yang sedang menstruasi  utamanya segera membawa
+        turun korban tersebut apabila sudah menderita  sakit;<br/>
+        9.&nbsp;Membawa kelengkapan P3K standar, dan survival kit standar;<br/>
+        10. Menjaga norma agama, norma susila dan kearifan lokal;<br/>
+        11. Mengikuti jalur pendakian yang sudah ditetapkan Balai Besar TNKS. Petugas Balai Besar
+        TNKS akan memeriksa barang bawaan, karcis dan  SIMAKSI sebelum dan sesudah memasuki kawasan.<br/><br/>
+        Dalam rangka  penanggulangan sampah di Gunung Kerinci oleh para pendaki diwajibkan  untuk
+        meninggalkan salah satu identitas asli pribadi kepada petugas akan  dikembalikan kepada
+        pendaki apabila barang bawaan yang menghasilkan  sampah dibawa kembali keluar TNKS.
+        ]]>
+        </string>
+    <string name="penDil">C. Setiap Pendaki Dilarang</string>
+    <string name="deskPendil">
+        <![CDATA[
+        1. Membawa satwa atau tumbuhan dan/atau bagian-bagiannya dari luar dan
+        dari dalam kawasan TNKS; \n
+        2. Mengambil, merusak, semua jenis tanaman dan/atau bagian-bagiannya di  dalam kawasan TNKS; \n
+        3. Membunuh, melukai, mengambil satwa beserta bagian-bagiannya dari  dalam kawasan TNKS; \n
+        4. Memetik, memindahkan, memotong, menebang, mencabut tumbuhan di  dalam kawasan TNKS; \n
+        5. Membawa senjata api, senjata tajam (parang, golok dan sejenisnya) kecuali  pisau lipat,
+        pisau saku/pisau kecil; \n
+        6. Melakukan aktifitas yang menyebabkan kebakaran hutan di dalam kawasan  TNKS; \n
+        7. Membuang sampah di dalam kawasan TNKS; \n
+        8. Mengganggu, memindahkan dan merusak fasilitas yang tersedia di dalam  kawasan TNKS; \n
+        9. Melakukan vandalisme dalam kawasan TNKS; \n
+        10. Melakukan pendakian antara jam 15.00 s/d 07.30 WIB; \n
+        11. Mengganti identitas diri pada saat booking online dan pengurusan SIMAKSI; \n
+        12. Menggunakan SIMAKSI pendakian untuk kegiatan Diklat pencinta  alam/kegiatan orientasi
+        pencinta alam; \n
+        13. Buang Air Besar dialiran sungai/mata air dan di sepanjang jalur pendakian; \n
+        14. Membawa dan menggunakan Narkotika dan obat-obatan Terlarang  (NARKOBA), Miras dan
+        bahan-bahan yang dilarang oleh undang-undang  Republik Indonesia didalam kawasan TNKS dan sekitarnya.
+        ]]>
+        </string>
+    <string name="sanksi">E. Sanksi</string>
+    <string name="deskSanksi">
+        <![CDATA[
+        Sanksi dikenakan kepada Pendaki apabila melanggar ketentuan sebagai
+        berikut:<br><br/>
+        1. Bagi pendaki yang memasuki kawasan TNKS lebih dari pukul 15.00 WIB  diwajib untuk menunggu
+        di lokasi berkemah (camping) atau homestay  terdekat sampai pukul 07.30 WIB;<br/>
+        2. Bagi pendaki yang tidak membawa alat pendakian sesuai standar maka  harus melengkapinya atau
+        tidak diizinkan melakukan pendakian;<br/>
+        3. Bagi yang melanggar aturan tersebut pada point A, B dan C, maka pendaki  yang bersangkutan
+        dan organisasinya akan masuk Daftar Hitam  (BLACKLIST) dan tidak diperbolehkan untuk melakukan
+        pendakian  kembali ke Gunung Kerinci sampai batas waktu yang diberikan Balai Besar  TNKS.<br/>
+        Bagi para Pendaki yang melakukan perbuatan hukum yang melanggar  Peraturan Perundang-undangan
+        yang berlaku di Republik Indonesia,  dilakukan tindakan sesuai dengan Peraturan Perundang-undangan
+        Republik Indonesia serta sesuai dengan Kitab Undang-Undang Hukum  Acara Indonesia.
+        ]]>
+        </string>
+
+    <string name="pilUmum">Paket ini dirancang untuk individu atau kelompok kecil yang ingin menikmati
+    pengalaman mendaki Gunung Kerinci. Minimal 2 pendaki.</string>
+    <string name="pilRom">Paket ini dirancang khusus untuk kelompok besar pelajar atau mahasiswa yang
+        ingin melakukan kegiatan pendakian sebagai bagian dari kegiatan sekolah, kampus, atau
+        organisasi. Miminal 5 pendaki.</string>
+
+
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="previous">Previous</string>
+    <string name="lorem_ipsum">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris
+        volutpat, dolor id interdum ullamcorper, risus dolor egestas lectus, sit amet mattis purus
+        dui nec risus. Maecenas non sodales nisi, vel dictum dolor. Class aptent taciti sociosqu ad
+        litora torquent per conubia nostra, per inceptos himenaeos. Suspendisse blandit eleifend
+        diam, vel rutrum tellus vulputate quis. Aliquam eget libero aliquet, imperdiet nisl a,
+        ornare ex. Sed rhoncus est ut libero porta lobortis. Fusce in dictum tellus.\n
+        Suspendisse interdum ornare ante. Aliquam nec cursus lorem. Morbi id magna felis. Vivamus
+        egestas, est a condimentum egestas, turpis nisl iaculis ipsum, in dictum tellus dolor sed
+        neque. Morbi tellus erat, dapibus ut sem a, iaculis tincidunt dui. Interdum et malesuada
+        fames ac ante ipsum primis in faucibus. Curabitur et eros porttitor, ultricies urna vitae,
+        molestie nibh. Phasellus at commodo eros, non aliquet metus. Sed maximus nisl nec dolor
+        bibendum, vel congue leo egestas.\n
+        Sed interdum tortor nibh, in sagittis risus mollis quis. Curabitur mi odio, condimentum sit
+        amet auctor at, mollis non turpis. Nullam pretium libero vestibulum, finibus orci vel,
+        molestie quam. Fusce blandit tincidunt nulla, quis sollicitudin libero facilisis et. Integer
+        interdum nunc ligula, et fermentum metus hendrerit id. Vestibulum lectus felis, dictum at
+        lacinia sit amet, tristique id quam. Cras eu consequat dui. Suspendisse sodales nunc ligula,
+        in lobortis sem porta sed. Integer id ultrices magna, in luctus elit. Sed a pellentesque
+        est.\n
+        Aenean nunc velit, lacinia sed dolor sed, ultrices viverra nulla. Etiam a venenatis nibh.
+        Morbi laoreet, tortor sed facilisis varius, nibh orci rhoncus nulla, id elementum leo dui
+        non lorem. Nam mollis ipsum quis auctor varius. Quisque elementum eu libero sed commodo. In
+        eros nisl, imperdiet vel imperdiet et, scelerisque a mauris. Pellentesque varius ex nunc,
+        quis imperdiet eros placerat ac. Duis finibus orci et est auctor tincidunt. Sed non viverra
+        ipsum. Nunc quis augue egestas, cursus lorem at, molestie sem. Morbi a consectetur ipsum, a
+        placerat diam. Etiam vulputate dignissim convallis. Integer faucibus mauris sit amet finibus
+        convallis.\n
+        Phasellus in aliquet mi. Pellentesque habitant morbi tristique senectus et netus et
+        malesuada fames ac turpis egestas. In volutpat arcu ut felis sagittis, in finibus massa
+        gravida. Pellentesque id tellus orci. Integer dictum, lorem sed efficitur ullamcorper,
+        libero justo consectetur ipsum, in mollis nisl ex sed nisl. Donec maximus ullamcorper
+        sodales. Praesent bibendum rhoncus tellus nec feugiat. In a ornare nulla. Donec rhoncus
+        libero vel nunc consequat, quis tincidunt nisl eleifend. Cras bibendum enim a justo luctus
+        vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
+    </string>
+    <string name="back">Back</string>
+    <string name="tombol">Tombol untuk \nKeadaan Darurat</string>
+    <string name="tekan">Tahan tombol selama 3 detik \nuntuk mengaktifkan fitur ini</string>
+    <string name="singkat">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in
+        scelerisque sem. Mauris volutpat, dolor id interdum ullamcorper, risus dolor egestas
+        lectus, sit amet mattis purus dui nec risus.</string>
+    <string name="unggah">Unggah disini</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="defaul_web_client_id">519630177463-aqpttusb47s3f8e2schim200eb9u27on.apps.googleusercontent.com</string>
+</resources>

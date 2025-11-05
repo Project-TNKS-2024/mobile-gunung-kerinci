@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Login.VerificationActivity">
+
+    <LinearLayout
+        android:id="@+id/buttonLanguage"
+        android:layout_width="wrap_content"
+        android:layout_height="37dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintEnd_toStartOf="@id/lineKanan"
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="@drawable/border_langblack"
+        android:layout_marginTop="20dp">
+
+        <ImageView
+            android:id="@+id/iconLanguage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_translatebl"
+            android:layout_marginStart="10dp" />
+
+        <TextView
+            android:id="@+id/textLanguage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black2"
+            android:text="@string/language"
+            android:textSize="16sp"
+            android:fontFamily="@font/plus_jakarta_sans_medium"
+            android:layout_marginStart="7dp"/>
+
+        <ImageView
+            android:id="@+id/iconDrop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_dropdown"
+            android:layout_marginStart="7dp"
+            android:layout_marginEnd="10dp"/>
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/imageWait"
+        android:layout_width="245dp"
+        android:layout_height="223dp"
+        android:src="@drawable/wait"
+        app:layout_constraintEnd_toStartOf="@id/lineKanan"
+        app:layout_constraintStart_toEndOf="@id/lineKiri"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="130dp"/>
+
+    <TextView
+        android:id="@+id/textVerif"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/verif"
+        android:fontFamily="@font/plus_jakarta_sans_bold"
+        android:textSize="24sp"
+        app:layout_constraintStart_toEndOf="@id/lineKiri"
+        app:layout_constraintTop_toBottomOf="@id/imageWait"
+        app:layout_constraintEnd_toStartOf="@id/lineKanan"
+        android:textColor="@color/bluedark"
+        android:layout_marginTop="20dp"/>
+
+    <TextView
+        android:id="@+id/textDeskVerif"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:text="@string/deskVerif"
+        android:fontFamily="@font/plus_jakarta_sans_medium"
+        android:textSize="16sp"
+        app:layout_constraintStart_toEndOf="@id/lineKiri"
+        app:layout_constraintTop_toBottomOf="@id/textVerif"
+        app:layout_constraintEnd_toStartOf="@id/lineKanan"
+        android:textAlignment="center"
+        android:textColor="@color/softgrey"
+        android:layout_marginTop="15dp"/>
+
+    <TextView
+        android:id="@+id/textTimer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="00:59"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/bluedark"
+        app:layout_constraintTop_toBottomOf="@id/textDeskVerif"
+        app:layout_constraintBottom_toTopOf="@id/buttonKirimUlang"
+        app:layout_constraintStart_toEndOf="@id/lineKiri"
+        app:layout_constraintEnd_toStartOf="@id/lineKanan"/>
+
+    <LinearLayout
+        android:id="@+id/buttonKirimUlang"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintEnd_toStartOf="@id/lineKanan"
+        app:layout_constraintStart_toEndOf="@id/lineKiri"
+        app:layout_constraintTop_toBottomOf="@id/lineTengahHor"
+        android:layout_marginTop="210dp"
+        android:background="@drawable/border_blue">
+
+        <TextView
+            android:id="@+id/textSend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/primary"
+            android:text="@string/kirim"
+            android:textSize="16sp"
+            android:fontFamily="@font/plus_jakarta_sans_bold"
+            android:layout_marginStart="7dp"/>
+
+    </LinearLayout>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/lineTengahHor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.500684" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/lineKiri"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="404dp"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/lineKanan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="8dp"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

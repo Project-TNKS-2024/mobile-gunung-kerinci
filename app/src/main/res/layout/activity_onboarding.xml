@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SplashScreen.OnboardingActivity">
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPageronboard"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <com.tbuonomo.viewpagerdotsindicator.WormDotsIndicator
+        android:id="@+id/dotsIndicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        app:layout_constraintStart_toEndOf="@id/lineKiri"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="20dp"
+        app:dotsColor="@color/white" />
+
+    <LinearLayout
+        android:id="@+id/buttonLanguage"
+        android:layout_width="wrap_content"
+        android:layout_height="37dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintStart_toStartOf="@id/lineKiri"
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="@drawable/border_language"
+        android:layout_marginTop="20dp">
+
+        <ImageView
+            android:id="@+id/iconLanguage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_translatewh"
+            android:layout_marginStart="10dp"/>
+
+        <TextView
+            android:id="@+id/textLanguage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:text="@string/language"
+            android:textSize="16sp"
+            android:fontFamily="@font/plus_jakarta_sans_medium"
+            android:layout_marginStart="7dp"/>
+
+        <ImageView
+            android:id="@+id/iconDrop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_arrow_down"
+            android:layout_marginStart="7dp"
+            android:layout_marginEnd="10dp"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/buttonSkip"
+        android:layout_width="wrap_content"
+        android:layout_height="37dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintEnd_toStartOf="@id/lineKanan"
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="@drawable/border_skip"
+        android:layout_marginTop="20dp">
+
+        <TextView
+            android:id="@+id/textSkip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:fontFamily="@font/plus_jakarta_sans_medium"
+            android:text="@string/skip"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/buttonMasuk"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:text="Masuk"
+        android:textSize="14sp"
+        android:fontFamily="@font/plus_jakarta_sans_medium"
+        app:layout_constraintEnd_toStartOf="@id/lineKanan"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="20dp"
+        android:backgroundTint="@color/primary"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/lineKiri"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="404dp"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/lineKanan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="8dp"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

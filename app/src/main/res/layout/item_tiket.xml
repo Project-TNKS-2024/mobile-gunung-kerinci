@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/abumuda">
+
+    <View
+        android:id="@+id/lineAtas"
+        android:layout_width="0dp"
+        android:layout_height="2dp"
+        android:background="@color/abu"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <TextView
+        android:id="@+id/textPembeli"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pembeli"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:textSize="16sp"
+        android:textColor="@color/primary"
+        android:fontFamily="@font/plus_jakarta_sans_semibold"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginStart="10dp"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="@drawable/border_tiket"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Menunggu Pembayaran"
+            android:textSize="14sp"
+            android:fontFamily="@font/plus_jakarta_sans"
+            android:textColor="@color/black2"
+            android:paddingStart="15dp"
+            android:paddingEnd="15dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"/>
+
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tanggalBooking"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="11 Januari 2025"
+        app:layout_constraintTop_toBottomOf="@id/textPembeli"
+        app:layout_constraintStart_toStartOf="@id/textPembeli"
+        android:fontFamily="@font/plus_jakarta_sans"
+        android:textSize="14sp"
+        android:textColor="@color/black2"
+        android:layout_marginTop="5dp"/>
+
+    <View
+        android:id="@+id/viewDivider"
+        android:layout_width="0dp"
+        android:layout_height="2dp"
+        android:background="@color/abu"
+        app:layout_constraintTop_toBottomOf="@id/tanggalBooking"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="6dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"/>
+
+    <ImageView
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:src="@drawable/pendaki"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/viewDivider"
+        android:layout_marginTop="17dp"/>
+
+    <TextView
+        android:id="@+id/textMasuk"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Masuk"
+        app:layout_constraintTop_toBottomOf="@id/viewDivider"
+        app:layout_constraintStart_toStartOf="@id/tanggalBooking"
+        android:fontFamily="@font/plus_jakarta_sans_medium"
+        android:textSize="14sp"
+        android:textColor="@color/softgrey"
+        android:layout_marginTop="5dp"/>
+
+    <TextView
+        android:id="@+id/textKeluar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Keluar"
+        app:layout_constraintTop_toTopOf="@id/textMasuk"
+        app:layout_constraintBottom_toBottomOf="@id/textMasuk"
+        app:layout_constraintEnd_toEndOf="@id/viewDivider"
+        android:fontFamily="@font/plus_jakarta_sans_medium"
+        android:textSize="14sp"
+        android:textColor="@color/softgrey"/>
+
+    <TextView
+        android:id="@+id/tanggalMasuk"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="20 Februari 2025"
+        app:layout_constraintStart_toStartOf="@id/textMasuk"
+        app:layout_constraintTop_toBottomOf="@id/textMasuk"
+        android:fontFamily="@font/plus_jakarta_sans_medium"
+        android:textSize="14sp"
+        android:textColor="@color/black2"
+        android:layout_marginTop="5dp"/>
+
+    <TextView
+        android:id="@+id/tanggalKeluar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="25 Februari 2025"
+        app:layout_constraintTop_toBottomOf="@id/textKeluar"
+        app:layout_constraintEnd_toEndOf="@id/textKeluar"
+        android:fontFamily="@font/plus_jakarta_sans_medium"
+        android:textSize="14sp"
+        android:textColor="@color/black2"
+        android:layout_marginTop="5dp"/>
+
+    <TextView
+        android:id="@+id/textPendaki"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pendaki"
+        app:layout_constraintTop_toBottomOf="@id/tanggalMasuk"
+        app:layout_constraintStart_toStartOf="@id/tanggalMasuk"
+        android:fontFamily="@font/plus_jakarta_sans_medium"
+        android:textSize="14sp"
+        android:textColor="@color/softgrey"
+        android:layout_marginTop="7dp"/>
+
+    <TextView
+        android:id="@+id/textPembayaran"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Total Pembayaran"
+        app:layout_constraintTop_toBottomOf="@id/tanggalKeluar"
+        app:layout_constraintEnd_toEndOf="@id/tanggalKeluar"
+        app:layout_constraintBottom_toBottomOf="@id/textPendaki"
+        android:fontFamily="@font/plus_jakarta_sans_medium"
+        android:textSize="14sp"
+        android:textColor="@color/softgrey"
+        android:layout_marginTop="7dp"/>
+
+    <TextView
+        android:id="@+id/jumlahPendaki"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="5"
+        app:layout_constraintTop_toBottomOf="@id/textPendaki"
+        app:layout_constraintStart_toStartOf="@id/textPendaki"
+        android:fontFamily="@font/plus_jakarta_sans_medium"
+        android:textSize="14sp"
+        android:textColor="@color/black2"
+        android:layout_marginTop="5dp"/>
+
+    <TextView
+        android:id="@+id/textOrang"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Orang"
+        app:layout_constraintTop_toTopOf="@id/jumlahPendaki"
+        app:layout_constraintBottom_toBottomOf="@id/jumlahPendaki"
+        app:layout_constraintStart_toEndOf="@id/jumlahPendaki"
+        android:layout_marginStart="3dp"
+        android:fontFamily="@font/plus_jakarta_sans_medium"
+        android:textSize="14sp"
+        android:textColor="@color/black2"/>
+
+    <TextView
+        android:id="@+id/Total"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="15.000"
+        app:layout_constraintTop_toBottomOf="@id/textPembayaran"
+        app:layout_constraintEnd_toEndOf="@id/textPembayaran"
+        app:layout_constraintBottom_toBottomOf="@id/textOrang"
+        android:fontFamily="@font/plus_jakarta_sans_medium"
+        android:textSize="14sp"
+        android:textColor="@color/black2"
+        android:layout_marginTop="5dp"/>
+
+    <TextView
+        android:id="@+id/textRupiah"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Rp"
+        app:layout_constraintTop_toTopOf="@id/Total"
+        app:layout_constraintBottom_toBottomOf="@id/Total"
+        app:layout_constraintEnd_toStartOf="@id/Total"
+        android:layout_marginEnd="2dp"
+        android:fontFamily="@font/plus_jakarta_sans_medium"
+        android:textSize="14sp"
+        android:textColor="@color/black2"/>
+
+    <View
+        android:id="@+id/lineBawah"
+        android:layout_width="0dp"
+        android:layout_height="2dp"
+        android:background="@color/abu"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

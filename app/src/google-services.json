@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "519630177463",
+    "firebase_url": "https://gunung-kerinci-default-rtdb.firebaseio.com",
+    "project_id": "gunung-kerinci",
+    "storage_bucket": "gunung-kerinci.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:519630177463:android:77890a47c107f22146f932",
+        "android_client_info": {
+          "package_name": "com.dicoding.gunungkerinci"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "519630177463-0h3huqq4dm5utttbii1niti7er39t2ec.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dicoding.gunungkerinci",
+            "certificate_hash": "b77b05451fad4f4b1e3db8edc0e67478c2092b6b"
+          }
+        },
+        {
+          "client_id": "519630177463-aqpttusb47s3f8e2schim200eb9u27on.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDc40QfSv2kdLLXYSo0b3oYrUlZtOG2uA0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "519630177463-aqpttusb47s3f8e2schim200eb9u27on.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

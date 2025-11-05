@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/primary"
+    tools:context=".SplashScreen.SplashScreeanActivity">
+
+    <View
+        android:id="@+id/transparant"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="bottom"
+        android:background="#40000000"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <ImageView
+        android:id="@+id/lambangKLHK"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/lambang_klhk"
+        app:layout_constraintTop_toTopOf="@id/lambangTNKS"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/lambangTNKS"
+        android:layout_marginEnd="120dp"/>
+
+    <ImageView
+        android:id="@+id/lambangTNKS"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/lambang_tnks"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="90dp"
+        android:layout_marginStart="120dp"/>
+
+    <TextView
+        android:id="@+id/textSplash1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:fontFamily="@font/plus_jakarta_sans_bold"
+        android:text="Balai Besar"
+        android:textColor="@color/white"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="@id/lambangKLHK"
+        app:layout_constraintStart_toStartOf="@id/lambangTNKS"
+        app:layout_constraintTop_toBottomOf="@id/lambangTNKS" />
+
+    <TextView
+        android:id="@+id/textSplash2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/plus_jakarta_sans_bold"
+        android:text="Taman Nasional Kerinci Seblat"
+        android:textSize="24sp"
+        app:layout_constraintTop_toBottomOf="@id/textSplash1"
+        app:layout_constraintStart_toStartOf="@id/textSplash1"
+        app:layout_constraintEnd_toEndOf="@id/textSplash1"
+        android:textColor="@color/white"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

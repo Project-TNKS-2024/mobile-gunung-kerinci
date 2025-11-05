@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="FormLabelStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:textColor">@color/black2</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">@font/plus_jakarta_sans_semibold</item>
+    </style>
+
+    <style name="FormInputDisabled">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:background">@drawable/border_input</item>
+        <item name="android:enabled">false</item>
+        <item name="android:layout_marginTop">5dp</item>
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:textColor">@color/black2</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">@font/plus_jakarta_sans_medium</item>
+    </style>
+</resources>

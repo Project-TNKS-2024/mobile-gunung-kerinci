@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".SplashScreen.OnboardingFragment">
+
+    <ImageView
+        android:id="@+id/imageSplash"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/splash1"
+        android:scaleType="centerCrop"/>
+
+    <View
+        android:id="@+id/transparant"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="bottom"
+        android:background="#40000000"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <TextView
+        android:id="@+id/textBesar"
+        android:layout_width="380dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/plus_jakarta_sans_semibold"
+        android:text="Judul"
+        android:textSize="42sp"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toTopOf="@id/lineTengahHor"
+        app:layout_constraintStart_toStartOf="@id/lineKiri"
+        android:layout_marginTop="100dp"/>
+
+    <TextView
+        android:id="@+id/textDeskripsi"
+        android:layout_width="380dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/plus_jakarta_sans_medium"
+        android:text="Deskripsi"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="@id/lineKiri"
+        app:layout_constraintTop_toBottomOf="@id/textBesar"
+        android:layout_marginTop="15dp"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/lineTengahHor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.500684" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/lineTengahVer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintGuide_end="206dp"
+        android:orientation="vertical"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/lineKiri"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="404dp"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/lineKanan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="8dp"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

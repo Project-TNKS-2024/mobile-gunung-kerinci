@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_marginVertical="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="3dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/tvCardTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Perkiraan Cuaca Jalur Kersik Tuo"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tvForecast"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Selasa, 1 April 2025 - Hujan"
+            android:textSize="14sp"
+            android:layout_marginTop="8dp" />
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

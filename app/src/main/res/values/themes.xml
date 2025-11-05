@@ -1,0 +1,44 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.GunungKerinci" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <item name="colorPrimary">@color/primary</item>
+    </style>
+
+    <!-- Lengkungan foto splash screen {LAMA}
+    <style name="RoundedTopCorners">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">56dp</item>
+        <item name="cornerSizeTopRight">56dp</item>
+    </style>
+    -->
+
+    <!-- Lengkungan foto detail artikel -->
+    <style name="CustomShapeAppearance" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">15dp</item>
+    </style>
+
+    <!-- Lengkungan foto item artikel di beranda -->
+    <style name="CustomShapeRadius" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">4dp</item>
+    </style>
+
+    <!-- Lengkungan foto item artikel di beranda -->
+    <style name="CustomShapeRadius2" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">20dp</item>
+    </style>
+
+    <style name="CustomButtonStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="fontFamily">@font/poppins_regular</item>
+        <item name="android:textSize">12sp</item>
+        <item name="cornerRadius">8sp</item>
+    </style>
+
+    <style name="Theme.GunungKerinci" parent="Base.Theme.GunungKerinci" />
+</resources>

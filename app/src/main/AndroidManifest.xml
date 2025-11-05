@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.GunungKerinci"
+        tools:targetApi="31">
+        <activity
+            android:name=".Ticket.DetailDataPendakiActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Ticket.RincianPembayaranTiketActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Homepage.Pemberitahuan.PemberitahuanActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Homepage.Cuaca.CuacaActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Homepage.Wisata.DeskWisataActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Homepage.Wisata.WisataActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Login.ForgetEmailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Profile.EditProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Ticket.TiketFormDataPendakiActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Ticket.PilihTiketActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Ticket.TiketDataPendakiActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Ticket.CekKuotaTiketActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Ticket.TiketSOPActivity"
+            android:exported="false" />
+        <activity
+            android:name=".PembayaranBerhasilActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SeluruhBeritaActivity"
+            android:exported="false" />
+        <activity
+            android:name=".DetailBeritaActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Homepage.Panduan.PanduanActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Homepage.Sop.SopActivity"
+            android:exported="false" />
+        <activity
+            android:name=".EmergencyActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SuksesPasswordActivity"
+            android:exported="false" />
+        <activity
+            android:name=".NewPasswordActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Login.VerificationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Login.ForgetPassActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Login.RegistrationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Login.LoginActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SplashScreen.SplashScreeanActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".SplashScreen.OnboardingActivity"
+            android:exported="false" />
+
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
+    </application>
+
+</manifest>

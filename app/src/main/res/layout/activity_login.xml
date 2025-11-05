@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Login.LoginActivity">
+
+    <TextView
+        android:id="@+id/textAwalan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/datang"
+        android:fontFamily="@font/plus_jakarta_sans_bold"
+        android:textSize="36sp"
+        app:layout_constraintStart_toEndOf="@id/lineKiri"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="80dp"
+        android:textColor="@color/bluedark"/>
+
+    <LinearLayout
+        android:id="@+id/buttonLanguage"
+        android:layout_width="wrap_content"
+        android:layout_height="37dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintEnd_toStartOf="@id/lineKanan"
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="@drawable/border_langblack"
+        android:layout_marginTop="20dp">
+
+        <ImageView
+            android:id="@+id/iconLanguage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_translatebl"
+            android:layout_marginStart="10dp" />
+
+        <TextView
+            android:id="@+id/textLanguage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black2"
+            android:text="@string/language"
+            android:textSize="16sp"
+            android:fontFamily="@font/plus_jakarta_sans_medium"
+            android:layout_marginStart="7dp"/>
+
+        <ImageView
+            android:id="@+id/iconDrop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_dropdown"
+            android:layout_marginStart="7dp"
+            android:layout_marginEnd="10dp"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textDesk"
+        android:layout_width="380dp"
+        android:layout_height="wrap_content"
+        android:text="@string/deskLog"
+        android:textColor="@color/softgrey"
+        android:textSize="16sp"
+        android:fontFamily="@font/plus_jakarta_sans_medium"
+        app:layout_constraintTop_toBottomOf="@id/textAwalan"
+        app:layout_constraintStart_toEndOf="@id/lineKiri"
+        android:layout_marginTop="7dp"/>
+
+    <TextView
+        android:id="@+id/textEmail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Email"
+        android:textColor="@color/bluedark"
+        android:textSize="16sp"
+        android:fontFamily="@font/plus_jakarta_sans_semibold"
+        app:layout_constraintTop_toBottomOf="@id/textDesk"
+        app:layout_constraintStart_toEndOf="@id/lineKiri"
+        android:layout_marginTop="20dp"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/emailTextLayout"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        app:boxCornerRadiusBottomEnd="12dp"
+        app:boxCornerRadiusBottomStart="12dp"
+        app:boxCornerRadiusTopEnd="12dp"
+        app:boxCornerRadiusTopStart="12dp"
+        app:boxStrokeWidth="1dp"
+        app:layout_constraintEnd_toEndOf="@id/lineKanan"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/textEmail"
+        app:layout_constraintTop_toBottomOf="@+id/textEmail"
+        tools:alpha="1"
+        android:layout_marginTop="8dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/emailEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="@string/input"
+            android:textColor="@color/bluedark"
+            android:textSize="16sp"
+            android:fontFamily="@font/plus_jakarta_sans_medium"
+            android:inputType="textEmailAddress" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/textPassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Password"
+        android:textColor="@color/bluedark"
+        android:textSize="16sp"
+        android:fontFamily="@font/plus_jakarta_sans_semibold"
+        app:layout_constraintTop_toBottomOf="@id/emailTextLayout"
+        app:layout_constraintStart_toEndOf="@id/lineKiri"
+        android:layout_marginTop="15dp"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/passwordTextLayout"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        app:boxCornerRadiusBottomEnd="12dp"
+        app:boxCornerRadiusBottomStart="12dp"
+        app:boxCornerRadiusTopEnd="12dp"
+        app:boxCornerRadiusTopStart="12dp"
+        app:boxStrokeWidth="1dp"
+        app:endIconMode="password_toggle"
+        app:layout_constraintEnd_toEndOf="@id/lineKanan"
+        app:layout_constraintStart_toStartOf="@+id/textPassword"
+        app:layout_constraintTop_toBottomOf="@+id/textPassword"
+        tools:alpha="1"
+        android:layout_marginTop="8dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/passwordEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="@string/pass"
+            android:fontFamily="@font/plus_jakarta_sans_medium"
+            android:textColor="@color/bluedark"
+            android:textSize="16sp"
+            android:inputType="textPassword" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <LinearLayout
+        android:id="@+id/buttonForgetPass"
+        android:layout_width="wrap_content"
+        android:layout_height="37dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintEnd_toStartOf="@id/lineKanan"
+        app:layout_constraintTop_toBottomOf="@id/passwordTextLayout"
+        android:background="@drawable/border_skip"
+        android:layout_marginTop="5dp">
+
+        <TextView
+            android:id="@+id/textForgetPass"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/forget"
+            android:textSize="14sp"
+            android:textColor="@color/softgrey"
+            android:fontFamily="@font/plus_jakarta_sans_medium"
+            android:layout_marginEnd="10dp"
+            android:layout_marginStart="10dp"/>
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/buttonMasuk"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:text="@string/masuk"
+        android:textSize="16sp"
+        android:fontFamily="@font/plus_jakarta_sans_bold"
+        app:layout_constraintEnd_toStartOf="@id/lineKanan"
+        app:layout_constraintStart_toEndOf="@id/lineKiri"
+        app:layout_constraintTop_toBottomOf="@id/lineTengahHor"
+        android:layout_marginTop="120dp"
+        android:backgroundTint="@color/primary"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="atau"
+        android:textSize="16sp"
+        android:fontFamily="@font/plus_jakarta_sans_medium"
+        android:textColor="@color/bluedark"
+        app:layout_constraintTop_toBottomOf="@id/buttonMasuk"
+        app:layout_constraintBottom_toTopOf="@id/buttonGoogle"
+        app:layout_constraintStart_toEndOf="@id/lineKiri"
+        app:layout_constraintEnd_toStartOf="@id/lineKanan"/>
+
+    <LinearLayout
+        android:id="@+id/buttonGoogle"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintEnd_toStartOf="@id/lineKanan"
+        app:layout_constraintStart_toEndOf="@id/lineKiri"
+        app:layout_constraintTop_toBottomOf="@id/lineTengahHor"
+        android:layout_marginTop="210dp"
+        android:background="@drawable/border_blue">
+
+        <ImageView
+            android:id="@+id/iconGoogle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/google"/>
+
+        <TextView
+            android:id="@+id/textLanjutGoogle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/primary"
+            android:text="@string/google"
+            android:textSize="16sp"
+            android:fontFamily="@font/plus_jakarta_sans_bold"
+            android:layout_marginStart="7dp"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textBelum"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Belum punya akun?"
+        android:textSize="16sp"
+        android:textColor="@color/bluedark"
+        android:fontFamily="@font/plus_jakarta_sans_medium"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/lineTengahVer"
+        android:layout_marginBottom="30dp"/>
+
+    <TextView
+        android:id="@+id/buttonRegisNow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Daftar Sekarang"
+        android:textSize="16sp"
+        android:textColor="@color/primary"
+        android:fontFamily="@font/plus_jakarta_sans_medium"
+        android:layout_marginStart="7dp"
+        app:layout_constraintStart_toEndOf="@id/textBelum"
+        app:layout_constraintTop_toTopOf="@id/textBelum"
+        app:layout_constraintBottom_toBottomOf="@id/textBelum"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/lineTengahHor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.500684" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/lineTengahVer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintGuide_end="206dp"
+        android:orientation="vertical"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/lineKiri"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="403dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/lineKanan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="8dp"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

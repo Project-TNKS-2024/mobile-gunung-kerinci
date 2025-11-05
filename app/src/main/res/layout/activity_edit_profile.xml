@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Profile.EditProfileActivity">
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="30dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="30dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="15dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_end="70dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="65dp" />
+
+    <ImageButton
+        android:id="@+id/buttonBack"
+        android:layout_width="41dp"
+        android:layout_height="41dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/border_back2"
+        android:contentDescription="@string/back"
+        android:src="@drawable/ic_back"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="TouchTargetSizeCheck" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Edit Profile"
+        android:fontFamily="@font/poppins_medium"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        app:layout_constraintTop_toTopOf="@id/guideline4"
+        app:layout_constraintStart_toStartOf="@id/guideline2"
+        app:layout_constraintEnd_toEndOf="@id/guideline3"/>
+
+    <TextView
+        android:id="@+id/textNama"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Nama Lengkap"
+        android:fontFamily="@font/poppins_regular"
+        android:textSize="16sp"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toTopOf="@id/guideline6"
+        app:layout_constraintStart_toStartOf="@id/guideline2" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/namaInputLayout"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="65dp"
+        app:boxStrokeWidth="1dp"
+        app:boxCornerRadiusBottomEnd="8dp"
+        app:boxCornerRadiusBottomStart="8dp"
+        app:boxCornerRadiusTopEnd="8dp"
+        app:boxCornerRadiusTopStart="8dp"
+        app:layout_constraintEnd_toEndOf="@id/guideline3"
+        app:layout_constraintStart_toStartOf="@id/guideline2"
+        app:layout_constraintTop_toBottomOf="@id/textNama">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/namaEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="@string/input"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            android:fontFamily="@font/poppins_light"
+            android:inputType="text" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/textViewNIK"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:fontFamily="@font/poppins_regular"
+        android:text="NIK"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@id/namaInputLayout"
+        app:layout_constraintStart_toStartOf="@id/guideline2" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/nikInputLayout"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="65dp"
+        app:boxCornerRadiusBottomEnd="8dp"
+        app:boxCornerRadiusBottomStart="8dp"
+        app:boxCornerRadiusTopEnd="8dp"
+        app:boxCornerRadiusTopStart="8dp"
+        app:boxStrokeWidth="1dp"
+        app:layout_constraintEnd_toEndOf="@id/guideline3"
+        app:layout_constraintStart_toStartOf="@id/textViewNIK"
+        app:layout_constraintTop_toBottomOf="@id/textViewNIK">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/nikEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="@string/input"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            android:fontFamily="@font/poppins_light"
+            android:inputType="number"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/textViewNoHp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:fontFamily="@font/poppins_regular"
+        android:text="No Handphone"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@id/nikInputLayout"
+        app:layout_constraintStart_toStartOf="@id/guideline2" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/nohpInputLayout"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="65dp"
+        app:boxCornerRadiusBottomEnd="8dp"
+        app:boxCornerRadiusBottomStart="8dp"
+        app:boxCornerRadiusTopEnd="8dp"
+        app:boxCornerRadiusTopStart="8dp"
+        app:boxStrokeWidth="1dp"
+        app:layout_constraintEnd_toEndOf="@id/guideline3"
+        app:layout_constraintStart_toStartOf="@id/textViewNoHp"
+        app:layout_constraintTop_toBottomOf="@id/textViewNoHp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/nohpEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="@string/input"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            android:fontFamily="@font/poppins_light"
+            android:inputType="number"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/textJenisKelamin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Jenis Tipe Identitas"
+        android:fontFamily="@font/poppins_regular"
+        android:textSize="16sp"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toBottomOf="@id/nohpInputLayout"
+        app:layout_constraintStart_toStartOf="@id/guideline2"
+        android:layout_marginTop="10dp"/>
+
+    <RadioGroup
+        android:id="@+id/pilihanJenisKelamin"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/textJenisKelamin"
+        app:layout_constraintStart_toStartOf="@id/guideline2"
+        app:layout_constraintEnd_toEndOf="@id/guideline3"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/rb_ktp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Laki-Laki"
+            android:fontFamily="@font/poppins_regular"
+            android:textSize="16dp"
+            android:textColor="@color/black"/>
+
+        <RadioButton
+            android:id="@+id/rb_passport"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Perempuan"
+            android:fontFamily="@font/poppins_regular"
+            android:textSize="16dp"
+            android:textColor="@color/black"/>
+
+    </RadioGroup>
+
+    <TextView
+        android:id="@+id/textTglLahir"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tanggal Lahir"
+        android:fontFamily="@font/poppins_regular"
+        android:textSize="16sp"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toBottomOf="@id/pilihanJenisKelamin"
+        app:layout_constraintStart_toStartOf="@id/guideline2"
+        android:layout_marginTop="10dp"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/lahirInputText"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="65dp"
+        app:boxStrokeWidth="1dp"
+        app:boxCornerRadiusBottomEnd="8dp"
+        app:boxCornerRadiusBottomStart="8dp"
+        app:boxCornerRadiusTopEnd="8dp"
+        app:boxCornerRadiusTopStart="8dp"
+        app:endIconDrawable="@drawable/ic_calender"
+        app:endIconMode="custom"
+        app:layout_constraintEnd_toEndOf="@id/guideline3"
+        app:layout_constraintStart_toStartOf="@id/guideline2"
+        app:layout_constraintTop_toBottomOf="@id/textTglLahir">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/lahirEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="@string/input"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            android:fontFamily="@font/poppins_light"
+            android:focusable="false"
+            android:inputType="" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/textAlamat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Alamat"
+        android:fontFamily="@font/poppins_regular"
+        android:textSize="16sp"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toBottomOf="@id/lahirInputText"
+        app:layout_constraintStart_toStartOf="@id/guideline2"
+        android:layout_marginTop="10dp"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/alamatInputLayout"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="65dp"
+        app:boxStrokeWidth="1dp"
+        app:boxCornerRadiusBottomEnd="8dp"
+        app:boxCornerRadiusBottomStart="8dp"
+        app:boxCornerRadiusTopEnd="8dp"
+        app:boxCornerRadiusTopStart="8dp"
+        app:layout_constraintEnd_toEndOf="@id/guideline3"
+        app:layout_constraintStart_toStartOf="@id/guideline2"
+        app:layout_constraintTop_toBottomOf="@id/textAlamat">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/alamatEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="@string/input"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            android:fontFamily="@font/poppins_light"
+            android:inputType="text" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <Button
+        android:id="@+id/btnSimpan"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:text="Simpan"
+        android:textSize="16dp"
+        android:fontFamily="@font/poppins_medium"
+        app:layout_constraintTop_toTopOf="@+id/guideline5"
+        app:layout_constraintEnd_toStartOf="@+id/guideline3"
+        app:layout_constraintStart_toStartOf="@+id/guideline2"
+        android:layout_marginTop="5dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

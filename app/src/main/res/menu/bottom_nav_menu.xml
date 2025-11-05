@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_beranda"
+        android:icon="@drawable/beranda"
+        android:title="Beranda"/>
+
+    <item
+        android:id="@+id/navigation_tiket"
+        android:icon="@drawable/ticket"
+        android:title="Tiket"/>
+
+    <item
+        android:id="@+id/navigation_jejak"
+        android:icon="@drawable/map"
+        android:title="Jejak"/>
+
+    <item
+        android:id="@+id/navigation_vr"
+        android:icon="@drawable/laporan"
+        android:title="Laporan"/>
+
+    <item
+        android:id="@+id/navigation_profile"
+        android:icon="@drawable/profile"
+        android:title="Akun"/>
+
+</menu>

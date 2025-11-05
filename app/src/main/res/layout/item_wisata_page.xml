@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="210dp"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:cardPreventCornerOverlap="false"
+    app:cardCornerRadius="15dp"
+    android:layout_marginBottom="20dp"
+    app:cardElevation="6dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/fotoWisata"
+            android:transitionName="image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@tools:sample/avatars"
+            app:shapeAppearanceOverlay="@style/CustomShapeRadius"/>
+
+        <TextView
+            android:id="@+id/JudulWisata"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/plus_jakarta_sans_semibold"
+            android:textColor="@color/white"
+            android:text="@string/JBerita"
+            android:textSize="24sp"
+            android:textAlignment="textStart"
+            app:layout_constraintStart_toStartOf="@id/DeskSingkat"
+            app:layout_constraintBottom_toTopOf="@id/DeskSingkat"
+            android:paddingStart="15dp"
+            android:paddingEnd="15dp"
+            android:layout_marginBottom="5dp"/>
+
+        <TextView
+            android:id="@+id/DeskSingkat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_regular"
+            android:text="@string/DBerita"
+            android:transitionName="article"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            android:maxLines="2"
+            android:ellipsize="end"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/SeeDetail"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:paddingEnd="15dp"
+            android:paddingStart="15dp"
+            android:layout_marginBottom="5dp"/>
+
+        <TextView
+            android:id="@+id/SeeDetail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Lihat Detail"
+            android:fontFamily="@font/poppins_regular"
+            android:textSize="12sp"
+            android:textColor="@color/primary"
+            app:layout_constraintStart_toStartOf="@id/buttonRute"
+            app:layout_constraintBottom_toTopOf="@id/buttonRute"
+            android:layout_marginBottom="5dp"/>
+
+        <Button
+            android:id="@+id/buttonRute"
+            android:layout_width="165dp"
+            android:layout_height="40dp"
+            android:text="Rute Pendakian"
+            android:fontFamily="@font/plus_jakarta_sans_semibold"
+            android:textSize="14sp"
+            android:textAlignment="center"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="15dp"
+            android:layout_marginStart="15dp"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>

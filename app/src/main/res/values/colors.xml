@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!--warna design baru-->
+    <color name="primary">#0169BF</color>
+    <color name="card">#CCE1F2</color>
+
+    <!--warna design lama-->
+    <color name="satu">#CCE0F3</color>
+    <color name="lima">#80B3E1</color>
+    <color name="tujuh">#5699D7</color>
+    <color name="sembilan">#2C80CD</color>
+    <color name="sepuluh">#0155A2</color>
+    <color name="delapan">#014482</color>
+    <color name="enam">#013361</color>
+    <color name="empat">#002241</color>
+    <color name="dua">#001427</color>
+
+    <!--warna design baru-->
+    <color name="transBlack">#B3000000</color>
+    <color name="trans">#00000000</color>
+    <color name="bluedark">#1E232C</color>
+    <color name="black2">#1E1E1E</color>
+    <color name="darkgrey">#242424</color>
+    <color name="abutua">#434343</color>
+    <color name="softgrey">#777474</color>
+    <color name="abuabu">#787474</color>
+    <color name="grey">#8E8E8E</color>
+    <color name="abu">#969696</color>
+    <color name="pstlabu">#E0E0E0</color>
+    <color name="red">#F84233</color>
+    <color name="yellow">#FBC433</color>
+    <color name="softyellow">#FDEBBB</color>
+    <color name="lightblue">#CCE1F2</color>
+    <color name="sop">#EDF0FA</color>
+    <color name="sukses">#4CB050</color>
+    <color name="sukses2">#C3E4C4</color>
+    <color name="softblue">#CCE1F2</color>
+    <color name="lembut">#EDF0FA</color>
+
+
+    <color name="tosca">#35C2C1</color>
+    <color name="abumuda">#E8ECF4</color>
+    <color name="pink">#FDD3D0</color>
+</resources>

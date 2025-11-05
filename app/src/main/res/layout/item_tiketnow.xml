@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="360dp"
+    android:layout_height="190dp"
+    app:cardCornerRadius="15dp"
+    app:cardPreventCornerOverlap="false"
+    app:cardBackgroundColor="@color/primary">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:layout_width="135dp"
+            android:layout_height="135dp"
+            android:src="@drawable/tnks_bw"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="64dp"
+            android:layout_marginStart="247dp"/>
+
+        <TextView
+            android:id="@+id/textPembelian"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pembelian"
+            android:fontFamily="@font/plus_jakarta_sans_medium"
+            android:textSize="14sp"
+            android:textColor="@color/white"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"/>
+
+        <TextView
+            android:id="@+id/dateBeli"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="11 Januari 2025"
+            android:fontFamily="@font/poppins_regular"
+            android:textSize="14sp"
+            android:textColor="@color/white"
+            app:layout_constraintStart_toStartOf="@id/textPembelian"
+            app:layout_constraintTop_toBottomOf="@id/textPembelian"/>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/statusPay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="@id/textPembelian"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="20dp"
+            app:cardCornerRadius="8dp"
+            app:cardBackgroundColor="@color/yellow">
+
+            <TextView
+                android:id="@+id/textPay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Menunggu Pembayaran"
+                android:textSize="14sp"
+                android:textColor="@color/black"
+                android:fontFamily="@font/poppins_regular"
+                android:paddingStart="7dp"
+                android:paddingEnd="7dp"
+                android:paddingBottom="3dp"
+                android:paddingTop="3dp"/>
+
+        </androidx.cardview.widget.CardView>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/line"
+            app:layout_constraintStart_toStartOf="@id/dateBeli"
+            app:layout_constraintEnd_toEndOf="@id/statusPay"
+            app:layout_constraintTop_toBottomOf="@id/dateBeli"
+            android:layout_marginTop="7dp"/>
+
+        <TextView
+            android:id="@+id/textMasuk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Masuk"
+            android:textSize="14sp"
+            android:textColor="@color/black"
+            android:fontFamily="@font/plus_jakarta_sans_medium"
+            app:layout_constraintTop_toBottomOf="@id/dateBeli"
+            app:layout_constraintStart_toStartOf="@id/dateBeli"
+            android:layout_marginTop="15dp"/>
+
+        <TextView
+            android:id="@+id/dateMasuk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="20 Februari 2025"
+            android:textSize="14sp"
+            android:textColor="@color/white"
+            android:fontFamily="@font/plus_jakarta_sans_medium"
+            app:layout_constraintTop_toBottomOf="@id/textMasuk"
+            app:layout_constraintStart_toStartOf="@id/textMasuk"/>
+
+        <TextView
+            android:id="@+id/textPendaki"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pendaki"
+            android:textSize="14sp"
+            android:textColor="@color/black"
+            android:fontFamily="@font/plus_jakarta_sans_medium"
+            app:layout_constraintBottom_toTopOf="@id/jmlhPendaki"
+            app:layout_constraintStart_toStartOf="@id/jmlhPendaki"/>
+
+
+        <TextView
+            android:id="@+id/jmlhPendaki"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="5"
+            android:textColor="@color/white"
+            android:fontFamily="@font/plus_jakarta_sans_medium"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="20dp"
+            android:layout_marginBottom="20dp"/>
+
+        <TextView
+            android:id="@+id/textOrang"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Orang"
+            android:textColor="@color/white"
+            android:fontFamily="@font/plus_jakarta_sans_medium"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="@id/jmlhPendaki"
+            app:layout_constraintStart_toEndOf="@id/jmlhPendaki"
+            app:layout_constraintTop_toTopOf="@id/jmlhPendaki"
+            android:layout_marginStart="5dp"/>
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/orang"
+            app:layout_constraintStart_toEndOf="@id/dateMasuk"
+            app:layout_constraintEnd_toStartOf="@id/dateKeluar"
+            app:layout_constraintTop_toTopOf="@id/textMasuk"
+            android:layout_marginTop="10dp"/>
+
+        <TextView
+            android:id="@+id/textKeluar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Keluar"
+            android:textSize="14sp"
+            android:fontFamily="@font/plus_jakarta_sans_medium"
+            android:textColor="@color/black"
+            app:layout_constraintTop_toTopOf="@id/textMasuk"
+            app:layout_constraintBottom_toBottomOf="@id/textMasuk"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="20dp"/>
+
+        <TextView
+            android:id="@+id/dateKeluar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="25 Februari 2025"
+            android:textSize="14sp"
+            android:fontFamily="@font/plus_jakarta_sans_medium"
+            android:textColor="@color/white"
+            app:layout_constraintTop_toBottomOf="@id/textKeluar"
+            app:layout_constraintEnd_toEndOf="@id/textKeluar"/>
+
+        <TextView
+            android:id="@+id/textTotal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Total Pembayaran"
+            android:textSize="14sp"
+            android:fontFamily="@font/plus_jakarta_sans_medium"
+            android:textColor="@color/black"
+            app:layout_constraintTop_toTopOf="@id/textPendaki"
+            app:layout_constraintBottom_toBottomOf="@id/textPendaki"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="20dp"/>
+
+        <TextView
+            android:id="@+id/Total"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Rp 150.000"
+            android:textSize="14sp"
+            android:fontFamily="@font/plus_jakarta_sans_semibold"
+            android:textColor="@color/white"
+            app:layout_constraintTop_toBottomOf="@id/textTotal"
+            app:layout_constraintBottom_toBottomOf="@id/jmlhPendaki"
+            app:layout_constraintEnd_toEndOf="@id/textTotal"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</androidx.cardview.widget.CardView>

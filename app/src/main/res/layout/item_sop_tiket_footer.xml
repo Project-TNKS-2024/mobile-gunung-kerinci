@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:paddingTop="30dp"
+    android:gravity="center_horizontal">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <CheckBox
+            android:id="@+id/checkBoxPersetujuan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <TextView
+            android:id="@+id/textCheckBox"
+            android:layout_width="355dp"
+            android:layout_height="wrap_content"
+            android:text="Saya telah membaca, menyetujui dan siap melaksanakan syarat dan ketentuan pendakian"
+            android:textSize="16sp"
+            android:textColor="@color/abutua"
+            android:fontFamily="@font/plus_jakarta_sans_medium"
+            app:layout_constraintTop_toTopOf="@id/checkBoxPersetujuan"
+            app:layout_constraintStart_toEndOf="@id/checkBoxPersetujuan"/>
+
+        <FrameLayout
+            android:id="@+id/btnSelanjutnya"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/border_blue2"
+            app:layout_constraintTop_toBottomOf="@id/textCheckBox"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
+            android:clickable="true">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Selanjutnya"
+                android:gravity="center"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:fontFamily="@font/plus_jakarta_sans_bold"/>
+
+        </FrameLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</LinearLayout>

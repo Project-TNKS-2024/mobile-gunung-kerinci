@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Ticket.TiketDataPendakiActivity"
+    android:paddingBottom="20dp"
+    android:paddingTop="20dp"
+    android:paddingStart="10dp"
+    android:paddingEnd="10dp">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageButton
+                    android:id="@+id/buttonBack"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="@drawable/border_back2"
+                    android:contentDescription="@string/back"
+                    android:src="@drawable/ic_back"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"/>
+
+                <TextView
+                    android:id="@+id/textTiket"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tiket"
+                    android:fontFamily="@font/plus_jakarta_sans_bold"
+                    android:textColor="@color/primary"
+                    android:textSize="24sp"
+                    app:layout_constraintTop_toTopOf="@id/buttonBack"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintBottom_toBottomOf="@id/buttonBack"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+                <TextView
+                    android:id="@+id/textIsiDataPendakian"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Isi Data Pendakian"
+                    android:textSize="18sp"
+                    android:fontFamily="@font/plus_jakarta_sans_bold"
+                    android:textColor="@color/black2"
+                    app:layout_constraintTop_toBottomOf="@id/buttonBack"
+                    android:layout_marginTop="25dp"
+                    app:layout_constraintStart_toStartOf="parent"/>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/lytPastikan"
+                    android:layout_width="match_parent"
+                    android:layout_height="70dp"
+                    app:layout_constraintTop_toBottomOf="@id/textIsiDataPendakian"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:layout_marginTop="20dp"
+                    android:background="@drawable/border_bgpastikan">
+
+                    <androidx.appcompat.widget.LinearLayoutCompat
+                        android:id="@+id/background"
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        android:background="@drawable/border_pastikan"
+                        android:layout_marginStart="20dp"/>
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_perhatikan"
+                        app:layout_constraintTop_toTopOf="@id/background"
+                        app:layout_constraintBottom_toBottomOf="@id/background"
+                        app:layout_constraintStart_toStartOf="@id/background"
+                        app:layout_constraintEnd_toEndOf="@id/background"/>
+
+                    <TextView
+                        android:layout_width="300dp"
+                        android:layout_height="wrap_content"
+                        android:text="Pastikan semua pendaki telah memiliki ID Pendaki!"
+                        android:textColor="@color/black2"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/plus_jakarta_sans"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/background"
+                        android:layout_marginStart="13dp"/>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <TextView
+                    android:id="@+id/textPilPem"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Pilih Pemandu Tim"
+                    android:textSize="16sp"
+                    android:fontFamily="@font/plus_jakarta_sans_bold"
+                    android:textColor="@color/black2"
+                    app:layout_constraintTop_toBottomOf="@id/lytPastikan"
+                    android:layout_marginTop="20dp"
+                    app:layout_constraintStart_toStartOf="parent"/>
+
+                <!-- CONTAINER DINAMIS UNTUK DAFTAR PENDAKI -->
+                <LinearLayout
+                    android:id="@+id/containerPendaki"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:dividerPadding="8dp"
+                    android:showDividers="middle"
+                    app:layout_constraintTop_toBottomOf="@id/textPilPem"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:layout_marginTop="20dp"/>
+
+                <TextView
+                    android:id="@+id/textDokIndividu"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Dokumen Bawaan Wajib bagi Individu"
+                    android:textSize="16sp"
+                    android:fontFamily="@font/plus_jakarta_sans_bold"
+                    android:textColor="@color/black2"
+                    app:layout_constraintTop_toBottomOf="@id/containerPendaki"
+                    android:layout_marginTop="20dp"
+                    app:layout_constraintStart_toStartOf="parent"/>
+
+                <TextView
+                    android:id="@+id/isiDokIndividu"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="• KTP\n• Surat keterangan sehat\n• Surat izin orang tua/wali untuk usia <17 th"
+                    android:textSize="16sp"
+                    android:fontFamily="@font/plus_jakarta_sans_medium"
+                    android:textColor="@color/black2"
+                    app:layout_constraintTop_toBottomOf="@id/textDokIndividu"
+                    android:layout_marginTop="7dp"
+                    android:layout_marginStart="10dp"
+                    app:layout_constraintStart_toStartOf="parent"/>
+
+                <TextView
+                    android:id="@+id/textBarangTim"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Barang Bawaan Wajib bagi TIM"
+                    android:textSize="16sp"
+                    android:fontFamily="@font/plus_jakarta_sans_bold"
+                    android:textColor="@color/black2"
+                    app:layout_constraintTop_toBottomOf="@id/isiDokIndividu"
+                    android:layout_marginTop="20dp"
+                    app:layout_constraintStart_toStartOf="parent"/>
+
+                <TextView
+                    android:id="@+id/isiBarangTim"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="• Perlengkapan standar pendakian gunung\n• Trash Bag\n• P3K standar\n• Survival kit standar"
+                    android:textSize="16sp"
+                    android:fontFamily="@font/plus_jakarta_sans_medium"
+                    android:textColor="@color/black2"
+                    app:layout_constraintTop_toBottomOf="@id/textBarangTim"
+                    android:layout_marginTop="7dp"
+                    android:layout_marginStart="10dp"
+                    app:layout_constraintStart_toStartOf="parent"/>
+
+                <CheckBox
+                    android:id="@+id/checkBoxPersetujuan"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@id/isiBarangTim"
+                    app:layout_constraintStart_toStartOf="parent"
+                    android:layout_marginTop="15dp"/>
+
+                <TextView
+                    android:layout_width="300dp"
+                    android:layout_height="wrap_content"
+                    android:text="Saya setuju untuk membawa barang bawaan wajib individu dan tim"
+                    android:textSize="16sp"
+                    android:fontFamily="@font/plus_jakarta_sans_medium"
+                    android:textColor="@color/abutua"
+                    app:layout_constraintStart_toEndOf="@id/checkBoxPersetujuan"
+                    app:layout_constraintTop_toTopOf="@id/checkBoxPersetujuan"
+                    app:layout_constraintBottom_toBottomOf="@id/checkBoxPersetujuan"/>
+
+                <FrameLayout
+                    android:id="@+id/btnSelanjutnya"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/border_blue2"
+                    app:layout_constraintTop_toBottomOf="@id/checkBoxPersetujuan"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="10dp"
+                    android:layout_marginTop="20dp"
+                    android:clickable="true">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="Selanjutnya"
+                        android:gravity="center"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/plus_jakarta_sans_bold"/>
+
+                </FrameLayout>
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/lineTengahVer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintGuide_end="206dp"
+                    android:orientation="vertical"/>
+
+                <LinearLayout
+                    android:id="@+id/btnSimpanDraft"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="@drawable/border_blue"
+                    app:layout_constraintTop_toBottomOf="@id/btnSelanjutnya"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="@id/lineTengahVer"
+                    android:paddingTop="5dp"
+                    android:paddingBottom="5dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginStart="15dp">
+
+                    <TextView
+                        android:id="@+id/textSimpanDarft"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/primary"
+                        android:text="Simpan Draft"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/plus_jakarta_sans_bold" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/btnBatalkan"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="@drawable/border_red"
+                    app:layout_constraintTop_toBottomOf="@id/btnSelanjutnya"
+                    app:layout_constraintEnd_toEndOf="@id/lineTengahVer"
+                    app:layout_constraintStart_toStartOf="parent"
+                    android:paddingTop="5dp"
+                    android:paddingBottom="5dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginEnd="15dp">
+
+                    <TextView
+                        android:id="@+id/textBatlkan"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/red"
+                        android:text="Batlkan"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/plus_jakarta_sans_bold" />
+
+                </LinearLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
