@@ -8,7 +8,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical"
         android:paddingBottom="20dp"
         android:paddingTop="20dp"
@@ -112,7 +112,7 @@
             android:layout_marginTop="20dp">
 
             <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/fotoWisata"
+                android:id="@+id/fotoProfile"
                 android:transitionName="image"
                 android:layout_width="60dp"
                 android:layout_height="60dp"
@@ -183,31 +183,284 @@
         <LinearLayout
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:paddingVertical="14dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp">
 
-            <ImageView
-                android:src="@drawable/ic_data"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:layout_marginStart="15dp"/>
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Data Pribadi"
-                android:textSize="18sp"
-                android:fontFamily="@font/plus_jakarta_sans_medium"
-                android:textColor="@color/black2"
-                android:layout_marginStart="15dp"/>
+                <ImageView
+                    android:id="@+id/imageData"
+                    android:src="@drawable/ic_data"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:layout_marginStart="15dp"/>
 
+                <TextView
+                    android:id="@+id/textData"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Data Pribadi"
+                    android:textSize="18sp"
+                    android:fontFamily="@font/plus_jakarta_sans_medium"
+                    android:textColor="@color/black2"
+                    app:layout_constraintStart_toEndOf="@id/imageData"
+                    app:layout_constraintTop_toTopOf="@id/imageData"
+                    app:layout_constraintBottom_toBottomOf="@id/imageData"
+                    android:layout_marginStart="15dp"/>
 
+                <TextView
+                    android:id="@+id/btnIsiBiodata"
+                    android:layout_width="130dp"
+                    android:layout_height="28dp"
+                    android:text="Isi Biodata"
+                    android:background="@drawable/border_blue3"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    android:fontFamily="@font/plus_jakarta_sans_medium"
+                    android:gravity="center"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/imageData"
+                    app:layout_constraintBottom_toBottomOf="@id/imageData"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/pstlabu"
+            android:layout_marginTop="10dp"/>
+
+        <!--Menu: Kata Sandi-->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/imageSandi"
+                    android:src="@drawable/ic_sandi"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:layout_marginStart="15dp"/>
+
+                <TextView
+                    android:id="@+id/textSandi"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Kata Sandi"
+                    android:textSize="18sp"
+                    android:fontFamily="@font/plus_jakarta_sans_medium"
+                    android:textColor="@color/black2"
+                    app:layout_constraintStart_toEndOf="@id/imageSandi"
+                    app:layout_constraintTop_toTopOf="@id/imageSandi"
+                    app:layout_constraintBottom_toBottomOf="@id/imageSandi"
+                    android:layout_marginStart="15dp"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/pstlabu"
+            android:layout_marginTop="10dp"/>
+
+        <!--SEPUTAR APLIKASI-->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Seputar Aplikasi"
+            android:fontFamily="@font/poppins_semibold"
+            android:textSize="20sp"
+            android:textColor="@color/black2"
+            android:layout_marginTop="25dp"/>
+
+        <!--Menu: Tentang Aplikasi-->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/imageTentang"
+                    android:src="@drawable/ic_about"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:layout_marginStart="15dp"/>
+
+                <TextView
+                    android:id="@+id/textTentang"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tentang Aplikasi"
+                    android:textSize="18sp"
+                    android:fontFamily="@font/plus_jakarta_sans_medium"
+                    android:textColor="@color/black2"
+                    app:layout_constraintStart_toEndOf="@id/imageTentang"
+                    app:layout_constraintTop_toTopOf="@id/imageTentang"
+                    app:layout_constraintBottom_toBottomOf="@id/imageTentang"
+                    android:layout_marginStart="15dp"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/pstlabu"
+            android:layout_marginTop="10dp"/>
+
+        <!--Menu: Pengaturan Bahasa-->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/imageBahasa"
+                    android:src="@drawable/ic_bahasa"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:layout_marginStart="15dp"/>
+
+                <TextView
+                    android:id="@+id/textBahasa"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Pengaturan Bahasa"
+                    android:textSize="18sp"
+                    android:fontFamily="@font/plus_jakarta_sans_medium"
+                    android:textColor="@color/black2"
+                    app:layout_constraintStart_toEndOf="@id/imageBahasa"
+                    app:layout_constraintTop_toTopOf="@id/imageBahasa"
+                    app:layout_constraintBottom_toBottomOf="@id/imageBahasa"
+                    android:layout_marginStart="15dp"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/pstlabu"
+            android:layout_marginTop="10dp"/>
+
+        <!--Menu: Bantuan Layanan-->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/imageBantuan"
+                    android:src="@drawable/ic_bantuan"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:layout_marginStart="15dp"/>
+
+                <TextView
+                    android:id="@+id/textBantuan"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Bantuan Layanan Pengguna"
+                    android:textSize="18sp"
+                    android:fontFamily="@font/plus_jakarta_sans_medium"
+                    android:textColor="@color/black2"
+                    app:layout_constraintStart_toEndOf="@id/imageBantuan"
+                    app:layout_constraintTop_toTopOf="@id/imageBantuan"
+                    app:layout_constraintBottom_toBottomOf="@id/imageBantuan"
+                    android:layout_marginStart="15dp"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </LinearLayout>
+
+        <!--Menu: Lohout-->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="100dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/imageLogout"
+                    android:src="@drawable/ic_logout"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:layout_marginStart="15dp"/>
+
+                <TextView
+                    android:id="@+id/textLogout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Logout"
+                    android:textSize="18sp"
+                    android:fontFamily="@font/plus_jakarta_sans_medium"
+                    android:textColor="@color/red"
+                    app:layout_constraintStart_toEndOf="@id/imageLogout"
+                    app:layout_constraintTop_toTopOf="@id/imageLogout"
+                    app:layout_constraintBottom_toBottomOf="@id/imageLogout"
+                    android:layout_marginStart="15dp"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/pstlabu"
+            android:layout_marginTop="10dp"/>
+
     </LinearLayout>
-
-
 
 </androidx.core.widget.NestedScrollView>
