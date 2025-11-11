@@ -11,10 +11,10 @@
         android:layout_height="match_parent">
 
         <TextView
-            android:id="@+id/textBatalkan"
+            android:id="@+id/textSimpan"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Batalkan Pemesanan?"
+            android:text="Simpan Perubahan?"
             android:textColor="@color/primary"
             android:textSize="20dp"
             android:fontFamily="@font/plus_jakarta_sans_bold"
@@ -22,18 +22,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginTop="15dp"/>
-
+        
         <TextView
             android:id="@+id/textYakin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Anda yakin ingin\nmembatalkan pesanan?"
+            android:text="Anda yakin ingin mengubah\nbahasa aplikasi?"
             android:lineSpacingExtra="2dp"
-            android:fontFamily="@font/plus_jakarta_sans_medium"
             android:textSize="16sp"
             android:textColor="@color/black2"
             android:textAlignment="center"
-            app:layout_constraintTop_toBottomOf="@id/textBatalkan"
+            android:fontFamily="@font/plus_jakarta_sans_medium"
+            app:layout_constraintTop_toBottomOf="@id/textSimpan"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toTopOf="@id/lytButton"/>
@@ -52,7 +52,7 @@
 
             <!-- Tombol Batal -->
             <Button
-                android:id="@+id/btnBatalPemesanan"
+                android:id="@+id/btnBatalBahasa"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -65,15 +65,15 @@
                 android:layout_marginEnd="15dp"
                 android:layout_marginStart="15dp"/>
 
-            <!-- Tombol Yakin -->
+            <!-- Tombol Simpan -->
             <Button
-                android:id="@+id/btnYakinPemesanan"
+                android:id="@+id/btnSimpanBahasa"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginStart="15dp"
                 android:layout_marginEnd="15dp"
-                android:text="Yakin"
+                android:text="Simpan"
                 android:textSize="14sp"
                 android:textColor="@color/text_popup_selector"
                 android:background="@drawable/btn_popup_selector"

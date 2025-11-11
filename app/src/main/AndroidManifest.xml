@@ -20,6 +20,12 @@
         android:theme="@style/Theme.GunungKerinci"
         tools:targetApi="31">
         <activity
+            android:name=".Profile.ProfileAboutAppActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Profile.ProfileLanguageActivity"
+            android:exported="false" />
+        <activity
             android:name=".Profile.ProfileDataPribadiActivity"
             android:exported="false" />
         <activity
@@ -44,7 +50,7 @@
             android:name=".Login.ForgetEmailActivity"
             android:exported="false" />
         <activity
-            android:name=".Profile.EditProfileActivity"
+            android:name=".Profile.ProfileKataSandiActivity"
             android:exported="false" />
         <activity
             android:name=".Ticket.TiketFormDataPendakiActivity"
