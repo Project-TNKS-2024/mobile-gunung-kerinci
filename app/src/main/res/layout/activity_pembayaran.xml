@@ -1,0 +1,537 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Ticket.PembayaranActivity">
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp"
+            android:orientation="vertical">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageButton
+                    android:id="@+id/buttonBack"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="@drawable/border_back2"
+                    android:contentDescription="@string/back"
+                    android:src="@drawable/ic_back"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"/>
+
+                <TextView
+                    android:id="@+id/textTiket"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tiket"
+                    android:fontFamily="@font/plus_jakarta_sans_bold"
+                    android:textColor="@color/primary"
+                    android:textSize="24sp"
+                    app:layout_constraintTop_toTopOf="@id/buttonBack"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintBottom_toBottomOf="@id/buttonBack"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- ====== RIWAYAT PEMBAYARAN ====== -->
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Riwayat Pembayaran"
+                android:fontFamily="@font/plus_jakarta_sans_bold"
+                android:textColor="@color/black2"
+                android:textSize="18sp"
+                android:layout_marginTop="20dp"/>
+
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:background="@drawable/border_pembayaran"
+                android:padding="5dp">
+
+                <TableRow>
+                    <TextView
+                        android:text="Tanggal"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/plus_jakarta_sans_semibold"
+                        android:textColor="@color/black2"
+                        android:layout_weight="1"
+                        android:gravity="center"/>
+                    <TextView
+                        android:text="Status"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/plus_jakarta_sans_semibold"
+                        android:textColor="@color/black2"
+                        android:layout_weight="1"
+                        android:gravity="center"/>
+                    <TextView
+                        android:text="Keterangan"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/plus_jakarta_sans_semibold"
+                        android:textColor="@color/black2"
+                        android:layout_weight="1"
+                        android:gravity="center"/>
+                    <TextView
+                        android:text="Bukti"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/plus_jakarta_sans_semibold"
+                        android:textColor="@color/black2"
+                        android:layout_weight="1"
+                        android:gravity="center"/>
+                </TableRow>
+                
+                <TableRow>
+                    <TextView
+                        android:text="-"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/plus_jakarta_sans_semibold"
+                        android:textColor="@color/black2"
+                        android:layout_weight="1"
+                        android:gravity="center"/>
+                    <TextView
+                        android:text="-"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/plus_jakarta_sans_semibold"
+                        android:textColor="@color/black2"
+                        android:layout_weight="1"
+                        android:gravity="center"/>
+                    <TextView
+                        android:text="-"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/plus_jakarta_sans_semibold"
+                        android:textColor="@color/black2"
+                        android:layout_weight="1"
+                        android:gravity="center"/>
+                    <TextView
+                        android:text="-"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/plus_jakarta_sans_semibold"
+                        android:textColor="@color/black2"
+                        android:layout_weight="1"
+                        android:gravity="center"/>
+                </TableRow>
+
+            </TableLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp">
+
+                <ImageView
+                    android:id="@+id/imageUnduh"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_down"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+
+                <TextView
+                    android:id="@+id/textUnduh"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Unduh Invoice Pembayaran"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/plus_jakarta_sans_medium"
+                    android:textColor="@color/primary"
+                    app:layout_constraintTop_toTopOf="@id/imageUnduh"
+                    app:layout_constraintStart_toEndOf="@id/imageUnduh"
+                    app:layout_constraintBottom_toBottomOf="@id/imageUnduh"
+                    android:layout_marginStart="7dp"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- ====== UPLOAD BUKTI PEMBAYARAN ====== -->
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Unggah Bukti Pembayaran"
+                android:textSize="18sp"
+                android:textColor="@color/black2"
+                android:fontFamily="@font/plus_jakarta_sans_bold"
+                android:layout_marginTop="20dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Metode Pembayaran"
+                android:textSize="16sp"
+                android:fontFamily="@font/plus_jakarta_sans_semibold"
+                android:textColor="@color/black2"
+                android:layout_marginTop="15dp"/>
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/dropMetode"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/bg_counter_box"
+                android:layout_marginTop="10dp"
+                android:hint="Pilih metode pambayaran"
+                android:padding="12dp"
+                android:drawableEnd="@drawable/ic_dropdown"
+                android:textSize="16sp"
+                android:fontFamily="@font/plus_jakarta_sans_medium"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Bukti Pembayaran"
+                android:textSize="16sp"
+                android:fontFamily="@font/plus_jakarta_sans_semibold"
+                android:textColor="@color/black2"
+                android:layout_marginTop="15dp"/>
+
+            <LinearLayout
+                android:id="@+id/blnPilihFile"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/bg_counter_box"
+                android:layout_marginTop="10dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Pilih File"
+                    android:textColor="@color/primary"
+                    android:textSize="16sp"
+                    android:fontFamily="@font/plus_jakarta_sans_bold"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ukuran gambar maks 2 MB"
+                    android:textColor="@color/grey"
+                    android:textSize="16sp"
+                    android:fontFamily="@font/plus_jakarta_sans_medium"
+                    android:layout_marginStart="30dp"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="* Foto struk pembayaran"
+                android:textColor="@color/grey"
+                android:textSize="14sp"
+                android:fontFamily="@font/plus_jakarta_sans_medium"
+                android:layout_marginTop="5dp"/>
+
+            <!-- ====== BUTTON ====== -->
+
+            <FrameLayout
+                android:id="@+id/btnKirim"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/border_blue2"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:layout_marginTop="20dp"
+                android:clickable="true">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Kirim"
+                    android:gravity="center"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:fontFamily="@font/plus_jakarta_sans_bold"/>
+
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/btnBatalkan"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/border_red"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:layout_marginTop="10dp"
+                android:clickable="true">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Batalkan Pemesanan"
+                    android:gravity="center"
+                    android:textColor="@color/red"
+                    android:textSize="16sp"
+                    android:fontFamily="@font/plus_jakarta_sans_bold"/>
+
+            </FrameLayout>
+
+            <!-- ====== TATA CARA PEMBAYARAN ====== -->
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tata Cara Pembayaran"
+                android:textColor="@color/black2"
+                android:layout_marginTop="20dp"
+                android:textSize="18sp"
+                android:fontFamily="@font/plus_jakarta_sans_bold"/>
+
+            <!-- ====== TRANSFER BANK (EXPANDABLE) ====== -->
+
+            <LinearLayout
+                android:id="@+id/sectionTransfer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="15dp"
+                android:padding="15dp"
+                android:background="@drawable/border_pembayaran2">
+
+                <!-- HEADER -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:src="@drawable/ic_card"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Transfer Antar Bank"
+                        android:textSize="18sp"
+                        android:textColor="@color/black2"
+                        android:fontFamily="@font/plus_jakarta_sans_bold"
+                        android:layout_marginStart="10dp"/>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <ImageView
+                            android:id="@+id/iconDownTf"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:src="@drawable/ic_dropdown"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"/>
+
+                        <ImageView
+                            android:id="@+id/iconUpTf"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:src="@drawable/ic_dropup"
+                            android:visibility="gone"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"/>
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </LinearLayout>
+
+                <!-- ISI (HIDDEN) -->
+                <LinearLayout
+                    android:id="@+id/contentTransfer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/pstlabu"/>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="15dp">
+
+                        <TextView
+                            android:id="@+id/textNoRek"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0017-01-004912-30-1"
+                            android:textColor="@color/black2"
+                            android:textSize="18sp"
+                            android:fontFamily="@font/plus_jakarta_sans_bold"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"/>
+
+                        <ImageView
+                            android:id="@+id/copy"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_copy"
+                            app:layout_constraintStart_toEndOf="@id/textNoRek"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="@id/textNoRek"
+                            android:layout_marginStart="10dp"/>
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/logo_bri"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"/>
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:text="A/n Balai Besar Taman Nasional Kerinci Seblat"
+                            app:layout_constraintEnd_toStartOf="@id/copy"
+                            app:layout_constraintTop_toBottomOf="@id/textNoRek"
+                            app:layout_constraintStart_toStartOf="parent"
+                            android:layout_marginTop="12dp"
+                            android:textSize="16sp"
+                            android:fontFamily="@font/plus_jakarta_sans_medium"
+                            android:textColor="@color/black2"
+                            android:lineSpacingExtra="4dp"/>
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/pstlabu"
+                        android:layout_marginTop="15dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Cara Pembayaran"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/plus_jakarta_sans_medium"
+                        android:textColor="@color/black2"
+                        android:layout_marginTop="15dp"/>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        tools:listitem="@layout/item_cara"
+                        android:layout_marginTop="5dp"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- ====== QRIS (EXPANDABLE) ====== -->
+
+            <LinearLayout
+                android:id="@+id/sectionQris"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="15dp"
+                android:background="@drawable/border_pembayaran2">
+
+                <!-- HEADER -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:src="@drawable/qris"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="QRIS"
+                        android:textSize="18sp"
+                        android:textColor="@color/black2"
+                        android:fontFamily="@font/plus_jakarta_sans_bold"
+                        android:layout_marginStart="10dp"/>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <ImageView
+                            android:id="@+id/iconDownQris"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:src="@drawable/ic_dropdown"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"/>
+
+                        <ImageView
+                            android:id="@+id/iconUpQris"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:src="@drawable/ic_dropup"
+                            android:visibility="gone"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"/>
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </LinearLayout>
+
+                <!-- ISI (HIDDEN) -->
+                <LinearLayout
+                    android:id="@+id/contentQris"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:orientation="vertical">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/pstlabu"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Pilih Qris yang sesuai dengan Gerbang Masuk"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/plus_jakarta_sans_semibold"
+                        android:textColor="@color/black2"
+                        android:textAlignment="center"
+                        android:layout_marginTop="15dp"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

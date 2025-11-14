@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Laporan.FormLaporanActivity"
+    android:paddingEnd="10dp"
+    android:paddingBottom="20dp"
+    android:paddingStart="10dp"
+    android:paddingTop="20dp">
+
+    <ImageButton
+        android:id="@+id/buttonBack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/border_back2"
+        android:contentDescription="@string/back"
+        android:src="@drawable/ic_x"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <Button
+        android:id="@+id/buttonPosting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Posting"
+        android:textSize="16sp"
+        android:textColor="@color/white"
+        android:fontFamily="@font/plus_jakarta_sans_medium"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/fotoProfile"
+        android:transitionName="image"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:scaleType="centerCrop"
+        tools:src="@tools:sample/avatars"
+        android:layout_marginTop="25dp"
+        app:layout_constraintTop_toBottomOf="@id/buttonPosting"
+        app:layout_constraintStart_toStartOf="parent"
+        app:shapeAppearanceOverlay="@style/CustomShapeRadius2"/>
+
+    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+        android:id="@+id/dropLokasiA"
+        android:layout_width="140dp"
+        android:layout_height="30dp"
+        android:hint="Lokasi"
+        android:drawableEnd="@drawable/ic_dropdown2"
+        android:paddingStart="15dp"
+        android:paddingEnd="10dp"
+        android:background="@drawable/bg_counter_box3"
+        android:textSize="16sp"
+        android:fontFamily="@font/plus_jakarta_sans_medium"
+        app:layout_constraintTop_toTopOf="@id/fotoProfile"
+        app:layout_constraintStart_toEndOf="@id/fotoProfile"
+        app:layout_constraintBottom_toBottomOf="@id/fotoProfile"
+        android:layout_marginStart="10dp"/>
+
+    <TextView
+        android:id="@+id/panah"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:text="➜"
+        android:textColor="@color/grey"
+        android:textSize="25sp"
+        app:layout_constraintStart_toEndOf="@id/dropLokasiA"
+        app:layout_constraintTop_toTopOf="@id/dropLokasiA"
+        app:layout_constraintBottom_toBottomOf="@id/dropLokasiA"/>
+
+    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+        android:id="@+id/dropLokasiB"
+        android:layout_width="140dp"
+        android:layout_height="30dp"
+        android:hint="Lokasi"
+        android:drawableEnd="@drawable/ic_dropdown2"
+        android:paddingStart="15dp"
+        android:paddingEnd="10dp"
+        android:background="@drawable/bg_counter_box3"
+        android:textSize="16sp"
+        android:fontFamily="@font/plus_jakarta_sans_medium"
+        app:layout_constraintTop_toTopOf="@id/panah"
+        app:layout_constraintStart_toEndOf="@id/panah"
+        app:layout_constraintBottom_toBottomOf="@id/panah"
+        android:layout_marginStart="10dp"/>
+
+    <!-- EDIT TEXT DESKRIPSI -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/inputDeskripsi"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:hint="Tambahkan apa yang sedang terjadi disini?"
+        android:background="@drawable/border_ticket"
+        app:layout_constraintTop_toBottomOf="@id/fotoProfile">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etDeskripsi"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:gravity="center"
+            android:textSize="16sp"
+            android:background="@android:color/transparent"
+            android:fontFamily="@font/plus_jakarta_sans_medium"
+            android:maxLines="10" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- PREVIEW GAMBAR -->
+    <com.google.android.flexbox.FlexboxLayout
+        android:id="@+id/layoutPreviewFoto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:clipToPadding="false"
+        app:flexDirection="row"
+        app:flexWrap="wrap"
+        app:justifyContent="flex_start"
+        app:layout_constraintTop_toBottomOf="@id/inputDeskripsi" />
+
+    <!--   BAGIAN BAWAH: KAMERA + FOTO -->
+    <HorizontalScrollView
+        android:id="@+id/scrollFotoTerbaru"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:scrollbars="none"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <LinearLayout
+            android:id="@+id/containerFotoTerbaru"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp">
+
+            <!-- BUTTON KAMERA -->
+            <LinearLayout
+                android:id="@+id/buttonKamera"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:gravity="center"
+                android:background="@drawable/border_blue4"
+                android:layout_marginEnd="10dp">
+
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:src="@drawable/ic_camera_blue"
+                    android:contentDescription="camera"/>
+
+            </LinearLayout>
+
+            <!-- 10 FOTO TERBARU HP -->
+            <LinearLayout
+                android:id="@+id/fotoTerbaruList"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <!-- Contoh 1 item, sisanya ditambah di Kotlin -->
+                <ImageView
+                    android:id="@+id/sampleFoto"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/splash2"
+                    android:background="@drawable/bg_image_border"
+                    android:layout_marginEnd="10dp"/>
+
+            </LinearLayout>
+
+            <!-- KOTAK GALERI -->
+            <LinearLayout
+                android:id="@+id/buttonGaleri"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:gravity="center"
+                android:layout_marginStart="10dp"
+                android:background="@drawable/border_blue4">
+
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:src="@drawable/ic_gallery"
+                    android:contentDescription="gallery"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </HorizontalScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
