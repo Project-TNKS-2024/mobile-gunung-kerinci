@@ -1,12 +1,13 @@
-package com.dicoding.gunungkerinci
+package com.dicoding.gunungkerinci.Laporan
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.dicoding.gunungkerinci.R
 
-class TourFragment : Fragment() {
+class LaporanFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,7 +21,7 @@ class TourFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_navigation, container, false)
+        return inflater.inflate(R.layout.fragment_laporan, container, false)
     }
 
 }

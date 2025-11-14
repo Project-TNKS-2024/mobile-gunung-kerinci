@@ -25,9 +25,9 @@
 
     <fragment
         android:id="@+id/navigation_tour"
-        android:name="com.dicoding.gunungkerinci.TourFragment"
+        android:name="com.dicoding.gunungkerinci.Laporan.LaporanFragment"
         android:label="Tiket"
-        tools:layout="@layout/fragment_navigation"/>
+        tools:layout="@layout/fragment_laporan"/>
 
     <fragment
         android:id="@+id/navigation_profile"
