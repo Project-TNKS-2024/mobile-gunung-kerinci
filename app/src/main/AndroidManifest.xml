@@ -68,28 +68,10 @@
             android:name=".Ticket.TiketSOPActivity"
             android:exported="false" />
         <activity
-            android:name=".PembayaranBerhasilActivity"
-            android:exported="false" />
-        <activity
-            android:name=".SeluruhBeritaActivity"
-            android:exported="false" />
-        <activity
-            android:name=".DetailBeritaActivity"
-            android:exported="false" />
-        <activity
             android:name=".Homepage.Panduan.PanduanActivity"
             android:exported="false" />
         <activity
             android:name=".Homepage.Sop.SopActivity"
-            android:exported="false" />
-        <activity
-            android:name=".EmergencyActivity"
-            android:exported="false" />
-        <activity
-            android:name=".SuksesPasswordActivity"
-            android:exported="false" />
-        <activity
-            android:name=".NewPasswordActivity"
             android:exported="false" />
         <activity
             android:name=".Login.VerificationActivity"
@@ -117,6 +99,9 @@
         </activity>
         <activity
             android:name=".SplashScreen.OnboardingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Laporan.FormLaporanActivity"
             android:exported="false" />
 
         <meta-data
