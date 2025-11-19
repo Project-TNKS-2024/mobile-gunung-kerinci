@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:elevation="4dp"
+        android:clipToPadding="false"
+        app:cardUseCompatPadding="true"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:paddingTop="30dp"
+            android:paddingBottom="20dp"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TIKET PENDAKIAN GUNUNG KERINCI"
+                android:textSize="16sp"
+                android:fontFamily="@font/plus_jakarta_sans_semibold"
+                android:textColor="@color/black2"/>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp">
+
+                <TextView
+                    android:id="@+id/textSeri"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="No. Seri:"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/plus_jakarta_sans"
+                    android:textColor="@color/black2"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+                <TextView
+                    android:id="@+id/textNoSeri"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="001-00"
+                    app:layout_constraintStart_toEndOf="@id/textSeri"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_marginStart="5dp"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/plus_jakarta_sans"
+                    android:textColor="@color/black2"/>
+
+                <TextView
+                    android:id="@+id/textTNKSNUS"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="/TNKS/NUS"
+                    app:layout_constraintStart_toEndOf="@id/textNoSeri"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/plus_jakarta_sans"
+                    android:textColor="@color/black2"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="20dp"
+                android:weightSum="2">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:text="Nama Pemesan"
+                        android:textColor="@color/softgrey"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/plus_jakarta_sans_medium" />
+
+                    <TextView
+                        android:id="@+id/tvNamaPemesan"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:text="Diah Ambarwati"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/plus_jakarta_sans_medium" />
+
+                    <TextView
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:text="Gerbang Masuk"
+                        android:textColor="@color/softgrey"
+                        android:textSize="14sp"
+                        android:layout_marginTop="10dp"
+                        android:fontFamily="@font/plus_jakarta_sans_medium" />
+
+                    <TextView
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:id="@+id/tvGerbangMasuk"
+                        android:text="Kersik Tuo"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/plus_jakarta_sans_medium" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:text="Jumlah Anggota"
+                        android:textColor="@color/softgrey"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/plus_jakarta_sans_medium" />
+
+                    <TextView
+                        android:id="@+id/tvJumlahAnggota"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:text="2 WNI + 1 WNA"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/plus_jakarta_sans_medium" />
+
+                    <TextView
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:text="Gerbang Keluar"
+                        android:textColor="@color/softgrey"
+                        android:textSize="14sp"
+                        android:layout_marginTop="10dp"
+                        android:fontFamily="@font/plus_jakarta_sans_medium" />
+
+                    <TextView
+                        android:id="@+id/tvGerbangKeluar"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:text="Camping Ground"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/plus_jakarta_sans_medium" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="10dp"
+                android:weightSum="2">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Masuk"
+                        android:textColor="@color/softgrey"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/plus_jakarta_sans_medium"/>
+
+                    <TextView
+                        android:id="@+id/tvTanggalMasuk"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="01 April 2025"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/plus_jakarta_sans_medium"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:text="Keluar"
+                        android:textColor="@color/softgrey"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/plus_jakarta_sans_medium"/>
+
+                    <TextView
+                        android:id="@+id/tvTanggalKeluar"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:text="02 April 2025"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/plus_jakarta_sans_medium"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+            
+            <ImageView
+                android:id="@+id/rvQRCodeTim"
+                android:layout_width="250dp"
+                android:layout_height="250dp"
+                android:src="@drawable/qrcode"
+                android:layout_marginTop="50dp"
+                android:adjustViewBounds="true"/>
+            
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Kode Pemesanan"
+                android:textColor="@color/black2"
+                android:textSize="24sp"
+                android:fontFamily="@font/plus_jakarta_sans"
+                android:layout_marginTop="20dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="A7XSFOLD"
+                android:textColor="@color/black2"
+                android:textSize="42sp"
+                android:fontFamily="@font/plus_jakarta_sans_bold"
+                android:layout_marginTop="10dp"/>
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -39,9 +39,11 @@
     <color name="sukses2">#C3E4C4</color>
     <color name="softblue">#CCE1F2</color>
     <color name="lembut">#EDF0FA</color>
+    <color name="buttongerbang">#FAFBFF</color>
 
 
     <color name="tosca">#35C2C1</color>
     <color name="abumuda">#E8ECF4</color>
     <color name="pink">#FDD3D0</color>
+
 </resources>

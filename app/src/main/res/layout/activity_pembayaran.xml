@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Ticket.PembayaranActivity">
+    tools:context=".Ticket.PembayaranActivity"
+    android:background="@color/white">
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollView"
@@ -509,7 +510,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:visibility="gone">
 
                     <View
                         android:layout_width="match_parent"
@@ -525,6 +527,63 @@
                         android:textColor="@color/black2"
                         android:textAlignment="center"
                         android:layout_marginTop="15dp"/>
+
+                    <FrameLayout
+                        android:id="@+id/menuContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:layout_marginTop="15dp">
+
+                        <!-- Two menu labels in horizontal -->
+                        <LinearLayout
+                            android:id="@+id/menuRow"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal"
+                            android:background="@drawable/bg_qris_tab_right">
+
+                            <TextView
+                                android:id="@+id/tvMenuLeft"
+                                android:layout_weight="1"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:text="Gerbang Kersik Tuo"
+                                android:textSize="14sp"
+                                android:fontFamily="@font/plus_jakarta_sans_semibold"
+                                android:textColor="@color/black2"/>
+
+                            <TextView
+                                android:id="@+id/tvMenuRight"
+                                android:layout_weight="1"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:text="Gerbang Bangun Rejo"
+                                android:textSize="14sp"
+                                android:fontFamily="@font/plus_jakarta_sans_semibold"
+                                android:textColor="@color/darkgrey"/>
+
+                        </LinearLayout>
+
+                        <!-- Indicator: tinggi 3dp, latar biru, akan digeser via kode -->
+                        <View
+                            android:id="@+id/viewIndicator"
+                            android:layout_width="0dp"
+                            android:layout_height="3dp"
+                            android:layout_gravity="bottom"
+                            android:background="@color/lightblue"/>
+
+                    </FrameLayout>
+
+                    <ImageView
+                        android:id="@+id/imgQris"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:adjustViewBounds="true"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/qris_bangunrejo"/>
 
                 </LinearLayout>
 

@@ -75,100 +75,100 @@
                         android:textSize="18sp"
                         android:layout_gravity="center_horizontal" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="15dp"
-                    android:weightSum="2">
-
                     <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:layout_height="wrap_content">
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="15dp"
+                        android:weightSum="2">
 
-                        <TextView
-                            android:layout_height="wrap_content"
-                            android:layout_width="wrap_content"
-                            android:text="Nama Pemesan"
-                            android:textColor="@color/softgrey"
-                            android:textSize="14sp"
-                            android:fontFamily="@font/plus_jakarta_sans_medium" />
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_height="wrap_content">
 
-                        <TextView
-                            android:id="@+id/tvNamaPemesan"
-                            android:layout_height="wrap_content"
-                            android:layout_width="wrap_content"
-                            android:text="Diah Ambarwati"
-                            android:textColor="@color/black"
-                            android:textSize="16sp"
-                            android:fontFamily="@font/plus_jakarta_sans_medium" />
+                            <TextView
+                                android:layout_height="wrap_content"
+                                android:layout_width="wrap_content"
+                                android:text="Nama Pemesan"
+                                android:textColor="@color/softgrey"
+                                android:textSize="14sp"
+                                android:fontFamily="@font/plus_jakarta_sans_medium" />
 
-                        <TextView
-                            android:layout_height="wrap_content"
-                            android:layout_width="wrap_content"
-                            android:text="Gerbang Masuk"
-                            android:textColor="@color/softgrey"
-                            android:textSize="14sp"
-                            android:layout_marginTop="10dp"
-                            android:fontFamily="@font/plus_jakarta_sans_medium" />
+                            <TextView
+                                android:id="@+id/tvNamaPemesan"
+                                android:layout_height="wrap_content"
+                                android:layout_width="wrap_content"
+                                android:text="Diah Ambarwati"
+                                android:textColor="@color/black"
+                                android:textSize="16sp"
+                                android:fontFamily="@font/plus_jakarta_sans_medium" />
 
-                        <TextView
-                            android:layout_height="wrap_content"
-                            android:layout_width="wrap_content"
-                            android:id="@+id/tvGerbangMasuk"
-                            android:text="Kersik Tuo"
-                            android:textColor="@color/black"
-                            android:textSize="16sp"
-                            android:fontFamily="@font/plus_jakarta_sans_medium" />
+                            <TextView
+                                android:layout_height="wrap_content"
+                                android:layout_width="wrap_content"
+                                android:text="Gerbang Masuk"
+                                android:textColor="@color/softgrey"
+                                android:textSize="14sp"
+                                android:layout_marginTop="10dp"
+                                android:fontFamily="@font/plus_jakarta_sans_medium" />
+
+                            <TextView
+                                android:layout_height="wrap_content"
+                                android:layout_width="wrap_content"
+                                android:id="@+id/tvGerbangMasuk"
+                                android:text="Kersik Tuo"
+                                android:textColor="@color/black"
+                                android:textSize="16sp"
+                                android:fontFamily="@font/plus_jakarta_sans_medium" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_height="wrap_content">
+
+                            <TextView
+                                android:layout_height="wrap_content"
+                                android:layout_width="wrap_content"
+                                android:text="Jumlah Anggota"
+                                android:textColor="@color/softgrey"
+                                android:textSize="14sp"
+                                android:fontFamily="@font/plus_jakarta_sans_medium" />
+
+                            <TextView
+                                android:id="@+id/tvJumlahAnggota"
+                                android:layout_height="wrap_content"
+                                android:layout_width="wrap_content"
+                                android:text="2 WNI + 1 WNA"
+                                android:textColor="@color/black"
+                                android:textSize="16sp"
+                                android:fontFamily="@font/plus_jakarta_sans_medium" />
+
+                            <TextView
+                                android:layout_height="wrap_content"
+                                android:layout_width="wrap_content"
+                                android:text="Gerbang Keluar"
+                                android:textColor="@color/softgrey"
+                                android:textSize="14sp"
+                                android:layout_marginTop="10dp"
+                                android:fontFamily="@font/plus_jakarta_sans_medium" />
+
+                            <TextView
+                                android:id="@+id/tvGerbangKeluar"
+                                android:layout_height="wrap_content"
+                                android:layout_width="wrap_content"
+                                android:text="Camping Ground"
+                                android:textColor="@color/black"
+                                android:textSize="16sp"
+                                android:fontFamily="@font/plus_jakarta_sans_medium" />
+
+                        </LinearLayout>
 
                     </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:layout_height="wrap_content">
-
-                        <TextView
-                            android:layout_height="wrap_content"
-                            android:layout_width="wrap_content"
-                            android:text="Jumlah Anggota"
-                            android:textColor="@color/softgrey"
-                            android:textSize="14sp"
-                            android:fontFamily="@font/plus_jakarta_sans_medium" />
-
-                        <TextView
-                            android:id="@+id/tvJumlahAnggota"
-                            android:layout_height="wrap_content"
-                            android:layout_width="wrap_content"
-                            android:text="2 WNI + 1 WNA"
-                            android:textColor="@color/black"
-                            android:textSize="16sp"
-                            android:fontFamily="@font/plus_jakarta_sans_medium" />
-
-                        <TextView
-                            android:layout_height="wrap_content"
-                            android:layout_width="wrap_content"
-                            android:text="Gerbang Keluar"
-                            android:textColor="@color/softgrey"
-                            android:textSize="14sp"
-                            android:layout_marginTop="10dp"
-                            android:fontFamily="@font/plus_jakarta_sans_medium" />
-
-                        <TextView
-                            android:id="@+id/tvGerbangKeluar"
-                            android:layout_height="wrap_content"
-                            android:layout_width="wrap_content"
-                            android:text="Camping Ground"
-                            android:textColor="@color/black"
-                            android:textSize="16sp"
-                            android:fontFamily="@font/plus_jakarta_sans_medium" />
-
-                    </LinearLayout>
-
-                </LinearLayout>
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -195,7 +195,7 @@
                                 android:id="@+id/tvTanggalMasuk"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="01 Apr 2025"
+                                android:text="01 April 2025"
                                 android:textColor="@color/black"
                                 android:textSize="16sp"
                                 android:fontFamily="@font/plus_jakarta_sans_medium"/>
@@ -220,7 +220,7 @@
                                 android:id="@+id/tvTanggalKeluar"
                                 android:layout_height="wrap_content"
                                 android:layout_width="wrap_content"
-                                android:text="02 Apr 2025"
+                                android:text="02 April 2025"
                                 android:textColor="@color/black"
                                 android:textSize="16sp"
                                 android:fontFamily="@font/plus_jakarta_sans_medium"/>

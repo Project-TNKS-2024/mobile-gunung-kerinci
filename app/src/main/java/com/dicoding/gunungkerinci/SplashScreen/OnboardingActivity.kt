@@ -12,6 +12,7 @@ import com.dicoding.gunungkerinci.Homepage.Sop.SopActivity
 import com.dicoding.gunungkerinci.Login.LoginActivity
 import com.dicoding.gunungkerinci.MainActivity
 import com.dicoding.gunungkerinci.R
+import com.dicoding.gunungkerinci.Ticket.BarcodeTiketActivity
 import com.tbuonomo.viewpagerdotsindicator.WormDotsIndicator
 
 class OnboardingActivity: AppCompatActivity() {
@@ -78,7 +79,7 @@ class OnboardingActivity: AppCompatActivity() {
     }
 
     private fun goToMain() {
-        val intent = Intent(this, MainActivity::class.java)
+        val intent = Intent(this, BarcodeTiketActivity::class.java)
         startActivity(intent)
         finish()
     }
