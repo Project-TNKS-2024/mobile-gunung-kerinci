@@ -13,7 +13,9 @@ class VerificationActivity : AppCompatActivity() {
     private lateinit var binding: ActivityVerificationBinding
     private var email: String? = null
     private var countDownTimer: CountDownTimer? = null
-    private var timeLeftInMillis: Long = 3 * 60 * 1000 //3 menit
+
+    //Timer 10 detik
+    private var timeLeftInMillis: Long = 10 * 1000 //3 * 60 * 1000 //3 menit
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,8 +25,13 @@ class VerificationActivity : AppCompatActivity() {
         //Ambil email dari intent (dikirim dari RegistrationActivity)
         email = intent.getStringExtra("email")
 
+        //Popup saat masuk halaman
+        Toast.makeText(this, "Silahkan cek email Anda untuk verifikasi", Toast.LENGTH_SHORT).show()
+
+        //Mulai timer
         startTimer()
 
+        //Tombol kirim ulang link
         binding.buttonKirimUlang.setOnClickListener {
             if (timeLeftInMillis <= 0) {
                 sendVerificationEmail(email)
@@ -49,13 +56,23 @@ class VerificationActivity : AppCompatActivity() {
             override fun onFinish() {
                 timeLeftInMillis = 0
                 binding.textTimer.text = "00:00"
+
+                /*Kode sebenarnya
                 Toast.makeText(this@VerificationActivity, "Waktu habis, silakan kirim ulang email", Toast.LENGTH_SHORT).show()
+                 */
+
+                //Auto pindah dahulu ke login saat timer habis (untuk demo)
+                Toast.makeText(this@VerificationActivity, "Email berhasil di verifikasi", Toast.LENGTH_SHORT).show()
+
+                val intent = Intent(this@VerificationActivity, LoginActivity::class.java)
+                startActivity(intent)
+                finish()
             }
         }.start()
     }
 
     private fun resetTimer() {
-        timeLeftInMillis = 3 * 60 * 1000 // reset 3 menit
+        timeLeftInMillis = 10 * 1000 //3 * 60 * 1000 // reset 3 menit
         startTimer()
     }
 

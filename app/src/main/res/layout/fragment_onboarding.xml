@@ -6,21 +6,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".SplashScreen.OnboardingFragment">
 
-    <ImageView
-        android:id="@+id/imageSplash"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:src="@drawable/splash1"
-        android:scaleType="centerCrop"/>
-
-    <View
-        android:id="@+id/transparant"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="bottom"
-        android:background="#40000000"
-        app:layout_constraintBottom_toBottomOf="parent"/>
-
     <TextView
         android:id="@+id/textBesar"
         android:layout_width="380dp"

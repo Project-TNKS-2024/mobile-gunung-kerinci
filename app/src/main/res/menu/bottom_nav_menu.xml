@@ -13,11 +13,11 @@
 
     <item
         android:id="@+id/navigation_jejak"
-        android:icon="@drawable/map"
+        android:icon="@drawable/vr"
         android:title="Jejak"/>
 
     <item
-        android:id="@+id/navigation_vr"
+        android:id="@+id/navigation_laporan"
         android:icon="@drawable/laporan"
         android:title="Laporan"/>
 

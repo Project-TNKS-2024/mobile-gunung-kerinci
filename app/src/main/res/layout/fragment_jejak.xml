@@ -3,10 +3,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".JejakFragment">
+    tools:context=".JejakFragment"
+    android:paddingEnd="10dp"
+    android:paddingStart="10dp"
+    android:paddingBottom="20dp"
+    android:paddingTop="20dp">
+
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="JEJAK" />
+        android:layout_height="wrap_content"
+        android:text="VR JALUR PENDAKIAN"
+        android:layout_gravity="center_vertical"
+        android:textAlignment="center"
+        tools:ignore="RtlCompat"
+        android:textSize="40dp"
+        android:fontFamily="@font/plus_jakarta_sans_bold"
+        android:textColor="@color/black2"/>
 
 </FrameLayout>

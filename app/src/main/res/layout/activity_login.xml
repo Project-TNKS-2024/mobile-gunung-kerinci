@@ -4,7 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Login.LoginActivity">
+    tools:context=".Login.LoginActivity"
+    android:paddingEnd="10dp"
+    android:paddingStart="10dp"
+    android:paddingBottom="20dp"
+    android:paddingTop="20dp">
 
     <TextView
         android:id="@+id/textAwalan"
@@ -13,11 +17,12 @@
         android:text="@string/datang"
         android:fontFamily="@font/plus_jakarta_sans_bold"
         android:textSize="36sp"
-        app:layout_constraintStart_toEndOf="@id/lineKiri"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="30dp"
         android:textColor="@color/bluedark"/>
 
+    <!--
     <LinearLayout
         android:id="@+id/buttonLanguage"
         android:layout_width="wrap_content"
@@ -57,17 +62,19 @@
             android:layout_marginEnd="10dp"/>
 
     </LinearLayout>
+    -->
 
     <TextView
         android:id="@+id/textDesk"
-        android:layout_width="380dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/deskLog"
         android:textColor="@color/softgrey"
         android:textSize="16sp"
         android:fontFamily="@font/plus_jakarta_sans_medium"
         app:layout_constraintTop_toBottomOf="@id/textAwalan"
-        app:layout_constraintStart_toEndOf="@id/lineKiri"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="7dp"/>
 
     <TextView
@@ -79,25 +86,24 @@
         android:textSize="16sp"
         android:fontFamily="@font/plus_jakarta_sans_semibold"
         app:layout_constraintTop_toBottomOf="@id/textDesk"
-        app:layout_constraintStart_toEndOf="@id/lineKiri"
+        app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="20dp"/>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/emailTextLayout"
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="60dp"
         app:boxCornerRadiusBottomEnd="12dp"
         app:boxCornerRadiusBottomStart="12dp"
         app:boxCornerRadiusTopEnd="12dp"
         app:boxCornerRadiusTopStart="12dp"
         app:boxStrokeWidth="1dp"
-        app:layout_constraintEnd_toEndOf="@id/lineKanan"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/textEmail"
         app:layout_constraintTop_toBottomOf="@+id/textEmail"
         tools:alpha="1"
-        android:layout_marginTop="8dp">
+        android:layout_marginTop="7dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/emailEditText"
@@ -121,13 +127,13 @@
         android:textSize="16sp"
         android:fontFamily="@font/plus_jakarta_sans_semibold"
         app:layout_constraintTop_toBottomOf="@id/emailTextLayout"
-        app:layout_constraintStart_toEndOf="@id/lineKiri"
+        app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="15dp"/>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/passwordTextLayout"
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="60dp"
         app:boxCornerRadiusBottomEnd="12dp"
         app:boxCornerRadiusBottomStart="12dp"
@@ -135,11 +141,10 @@
         app:boxCornerRadiusTopStart="12dp"
         app:boxStrokeWidth="1dp"
         app:endIconMode="password_toggle"
-        app:layout_constraintEnd_toEndOf="@id/lineKanan"
         app:layout_constraintStart_toStartOf="@+id/textPassword"
         app:layout_constraintTop_toBottomOf="@+id/textPassword"
         tools:alpha="1"
-        android:layout_marginTop="8dp">
+        android:layout_marginTop="7dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/passwordEditText"
@@ -162,10 +167,10 @@
         android:gravity="center"
         android:clickable="true"
         android:focusable="true"
-        app:layout_constraintEnd_toStartOf="@id/lineKanan"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/passwordTextLayout"
         android:background="@drawable/border_skip"
-        android:layout_marginTop="5dp">
+        android:layout_marginTop="7dp">
 
         <TextView
             android:id="@+id/textForgetPass"
@@ -182,18 +187,19 @@
 
     <Button
         android:id="@+id/buttonMasuk"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="48dp"
         android:text="@string/masuk"
         android:textSize="16sp"
         android:fontFamily="@font/plus_jakarta_sans_bold"
-        app:layout_constraintEnd_toStartOf="@id/lineKanan"
-        app:layout_constraintStart_toEndOf="@id/lineKiri"
-        app:layout_constraintTop_toBottomOf="@id/lineTengahHor"
-        android:layout_marginTop="120dp"
+        app:layout_constraintTop_toBottomOf="@id/passwordTextLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="100dp"
         android:backgroundTint="@color/primary"/>
 
     <TextView
+        android:id="@+id/atau"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="atau"
@@ -201,22 +207,22 @@
         android:fontFamily="@font/plus_jakarta_sans_medium"
         android:textColor="@color/bluedark"
         app:layout_constraintTop_toBottomOf="@id/buttonMasuk"
-        app:layout_constraintBottom_toTopOf="@id/buttonGoogle"
-        app:layout_constraintStart_toEndOf="@id/lineKiri"
-        app:layout_constraintEnd_toStartOf="@id/lineKanan"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="7dp"/>
 
     <LinearLayout
         android:id="@+id/buttonGoogle"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="48dp"
         android:orientation="horizontal"
         android:gravity="center"
         android:clickable="true"
         android:focusable="true"
-        app:layout_constraintEnd_toStartOf="@id/lineKanan"
-        app:layout_constraintStart_toEndOf="@id/lineKiri"
-        app:layout_constraintTop_toBottomOf="@id/lineTengahHor"
-        android:layout_marginTop="210dp"
+        app:layout_constraintTop_toBottomOf="@id/atau"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="10dp"
         android:background="@drawable/border_blue">
 
         <ImageView
@@ -237,57 +243,38 @@
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/textBelum"
-        android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Belum punya akun?"
-        android:textSize="16sp"
-        android:textColor="@color/bluedark"
-        android:fontFamily="@font/plus_jakarta_sans_medium"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/lineTengahVer"
-        android:layout_marginBottom="30dp"/>
+        app:layout_constraintBottom_toBottomOf="parent">
 
-    <TextView
-        android:id="@+id/buttonRegisNow"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Daftar Sekarang"
-        android:textSize="16sp"
-        android:textColor="@color/primary"
-        android:fontFamily="@font/plus_jakarta_sans_medium"
-        android:layout_marginStart="7dp"
-        app:layout_constraintStart_toEndOf="@id/textBelum"
-        app:layout_constraintTop_toTopOf="@id/textBelum"
-        app:layout_constraintBottom_toBottomOf="@id/textBelum"/>
+        <TextView
+            android:id="@+id/textBelum"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Belum punya akun?"
+            android:textSize="16sp"
+            android:textColor="@color/bluedark"
+            android:fontFamily="@font/plus_jakarta_sans_medium"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginStart="55dp"/>
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/lineTengahHor"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.500684" />
+        <TextView
+            android:id="@+id/buttonRegisNow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Daftar Sekarang"
+            android:textSize="16sp"
+            android:textColor="@color/primary"
+            android:fontFamily="@font/plus_jakarta_sans_medium"
+            android:layout_marginStart="7dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginEnd="55dp"/>
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/lineTengahVer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintGuide_end="206dp"
-        android:orientation="vertical"/>
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/lineKiri"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_end="403dp" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/lineKanan"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_end="8dp"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

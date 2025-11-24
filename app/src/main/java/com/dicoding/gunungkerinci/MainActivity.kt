@@ -17,9 +17,9 @@ class MainActivity : AppCompatActivity() {
 
         R.id.navigation_tiket to Pair(R.drawable.ticket, R.drawable.ticket_fill),
 
-        R.id.navigation_jejak to Pair(R.drawable.map, R.drawable.map_fill),
+        R.id.navigation_jejak to Pair(R.drawable.vr, R.drawable.vr_fill),
 
-        R.id.navigation_vr to Pair(R.drawable.laporan, R.drawable.laporan),
+        R.id.navigation_laporan to Pair(R.drawable.laporan, R.drawable.laporan_fill),
 
         R.id.navigation_profile to Pair(R.drawable.profile, R.drawable.profile_fill)
     )
@@ -31,7 +31,14 @@ class MainActivity : AppCompatActivity() {
 
         val navView : BottomNavigationView = binding.bottomNavigationView
         val navController = findNavController(R.id.nav_host_fragment)
+
         navView.setupWithNavController(navController)
+
+        val openFragment = intent.getStringExtra("open_fragment")
+        if (openFragment == "profile") {
+            navView.selectedItemId = R.id.navigation_profile
+            navController.navigate(R.id.navigation_profile)
+        }
 
         navView.setOnNavigationItemSelectedListener { menuItem ->
             when(menuItem.itemId){
@@ -50,8 +57,8 @@ class MainActivity : AppCompatActivity() {
                     updateIcon(menuItem.itemId)
                     true
                 }
-                R.id.navigation_tour -> {
-                    navController.navigate(R.id.navigation_tour)
+                R.id.navigation_laporan -> {
+                    navController.navigate(R.id.navigation_laporan)
                     updateIcon(menuItem.itemId)
                     true
                 }
@@ -59,21 +66,18 @@ class MainActivity : AppCompatActivity() {
                     navController.navigate(R.id.navigation_profile)
                     updateIcon(menuItem.itemId)
                     true
-                }
-                else -> false
+                } else -> false
             }
         }
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
-    private fun updateIcon(iconResId: Int) {
-        iconMap.forEach { (id, pair) ->
+    private fun updateIcon(activeId: Int) {
+        iconMap.forEach { (id, iconPair) ->
             val menuItem = binding.bottomNavigationView.menu.findItem(id)
-            if (id == iconResId) {
-                menuItem.icon = getDrawable(pair.second)
-            } else {
-                menuItem.icon = getDrawable(pair.first)
+            menuItem.icon = getDrawable(
+                if (id == activeId) iconPair.second else iconPair.first
+            )
             }
         }
     }
-}

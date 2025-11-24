@@ -7,6 +7,23 @@
     android:layout_height="match_parent"
     tools:context=".SplashScreen.OnboardingActivity">
 
+    <!-- Background gambar statis -->
+    <ImageView
+        android:id="@+id/bgOnboard"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/splash1"
+        android:layout_marginBottom="0dp" />
+
+    <View
+        android:id="@+id/transparant"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="bottom"
+        android:background="#40000000"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPageronboard"
         android:layout_width="match_parent"
@@ -22,6 +39,7 @@
         android:layout_marginBottom="20dp"
         app:dotsColor="@color/white" />
 
+    <!--
     <LinearLayout
         android:id="@+id/buttonLanguage"
         android:layout_width="wrap_content"
@@ -61,6 +79,7 @@
             android:layout_marginEnd="10dp"/>
 
     </LinearLayout>
+    -->
 
     <LinearLayout
         android:id="@+id/buttonSkip"

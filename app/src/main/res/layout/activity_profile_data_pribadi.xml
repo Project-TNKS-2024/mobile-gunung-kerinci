@@ -196,6 +196,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 android:layout_marginTop="10dp"/>
 
+            <!--
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/wargaInputText"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
@@ -223,6 +224,21 @@
                     android:inputType="text" />
 
             </com.google.android.material.textfield.TextInputLayout>
+            -->
+
+            <AutoCompleteTextView
+                android:id="@+id/wargaEditText"
+                android:layout_width="match_parent"
+                android:layout_height="65dp"
+                android:textColor="@color/black2"
+                android:textSize="16sp"
+                android:fontFamily="@font/plus_jakarta_sans_medium"
+                android:inputType="text"
+                android:drawableEnd="@drawable/ic_dropdown"
+                app:layout_constraintTop_toBottomOf="@id/textKewarganegaraan"
+                android:layout_marginTop="7dp"
+                app:layout_constraintStart_toStartOf="@id/textKewarganegaraan"
+                android:background="@drawable/bg_counter_box"/>
 
             <TextView
                 android:id="@+id/textAlamat"
@@ -232,7 +248,7 @@
                 android:textSize="16sp"
                 android:fontFamily="@font/plus_jakarta_sans_semibold"
                 android:textColor="@color/black2"
-                app:layout_constraintTop_toBottomOf="@id/wargaInputText"
+                app:layout_constraintTop_toBottomOf="@id/wargaEditText"
                 app:layout_constraintStart_toStartOf="parent"
                 android:layout_marginTop="10dp"/>
 

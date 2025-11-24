@@ -4,8 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Login.ForgetPassActivity">
+    tools:context=".Login.ForgetPassActivity"
+    android:paddingTop="20dp"
+    android:paddingBottom="20dp"
+    android:paddingStart="10dp"
+    android:paddingEnd="10dp">
 
+    <!--
     <LinearLayout
         android:id="@+id/buttonLanguage"
         android:layout_width="wrap_content"
@@ -45,6 +50,7 @@
             android:layout_marginEnd="10dp"/>
 
     </LinearLayout>
+    -->
 
     <TextView
         android:id="@+id/textForgetPass"
@@ -53,21 +59,21 @@
         android:text="@string/newPass"
         android:fontFamily="@font/plus_jakarta_sans_bold"
         android:textSize="36sp"
-        app:layout_constraintStart_toEndOf="@id/lineKiri"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="30dp"
         android:textColor="@color/bluedark"/>
 
     <TextView
         android:id="@+id/textDeskPass"
-        android:layout_width="380dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/deskPass"
         android:textColor="@color/softgrey"
         android:textSize="16sp"
-        android:fontFamily="@font/plus_jakarta_sans_medium"
         app:layout_constraintTop_toBottomOf="@id/textForgetPass"
-        app:layout_constraintStart_toEndOf="@id/lineKiri"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="7dp"/>
 
     <TextView
@@ -79,13 +85,13 @@
         android:textSize="16sp"
         android:fontFamily="@font/plus_jakarta_sans_semibold"
         app:layout_constraintTop_toBottomOf="@id/textDeskPass"
-        app:layout_constraintStart_toEndOf="@id/lineKiri"
+        app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="20dp"/>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/passwordBaruTextLayout"
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="60dp"
         app:boxCornerRadiusBottomEnd="12dp"
         app:boxCornerRadiusBottomStart="12dp"
@@ -93,11 +99,11 @@
         app:boxCornerRadiusTopStart="12dp"
         app:boxStrokeWidth="1dp"
         app:endIconMode="password_toggle"
-        app:layout_constraintEnd_toEndOf="@id/lineKanan"
-        app:layout_constraintStart_toStartOf="@+id/textBaruPass"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textBaruPass"
         tools:alpha="1"
-        android:layout_marginTop="8dp">
+        android:layout_marginTop="7dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/passwordBaruEditText"
@@ -121,13 +127,13 @@
         android:textSize="16sp"
         android:fontFamily="@font/plus_jakarta_sans_semibold"
         app:layout_constraintTop_toBottomOf="@id/passwordBaruTextLayout"
-        app:layout_constraintStart_toEndOf="@id/lineKiri"
+        app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="15dp"/>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/passwordUlangTextLayout"
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="60dp"
         app:boxCornerRadiusBottomEnd="12dp"
         app:boxCornerRadiusBottomStart="12dp"
@@ -135,11 +141,11 @@
         app:boxCornerRadiusTopStart="12dp"
         app:boxStrokeWidth="1dp"
         app:endIconMode="password_toggle"
-        app:layout_constraintEnd_toEndOf="@id/lineKanan"
-        app:layout_constraintStart_toStartOf="@+id/textUlangiPass"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textUlangiPass"
         tools:alpha="1"
-        android:layout_marginTop="8dp">
+        android:layout_marginTop="7dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/passwordUlangEditText"
@@ -156,36 +162,15 @@
 
     <Button
         android:id="@+id/buttonSimpan"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="48dp"
         android:text="@string/save"
         android:textSize="16sp"
         android:fontFamily="@font/plus_jakarta_sans_bold"
-        app:layout_constraintEnd_toStartOf="@id/lineKanan"
-        app:layout_constraintStart_toEndOf="@id/lineKiri"
-        app:layout_constraintTop_toBottomOf="@id/lineTengahHor"
-        android:layout_marginTop="120dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/passwordUlangTextLayout"
+        android:layout_marginTop="100dp"
         android:backgroundTint="@color/primary"/>
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/lineTengahHor"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.500684" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/lineKiri"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_end="404dp"/>
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/lineKanan"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_end="8dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -7,22 +7,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.dicoding.gunungkerinci.Login.LoginActivity
+import com.dicoding.gunungkerinci.R
 import com.dicoding.gunungkerinci.databinding.FragmentProfileBinding
 import com.google.firebase.auth.FirebaseAuth
 
 class ProfileFragment : Fragment() {
 
     private var _binding: FragmentProfileBinding? = null
-    private lateinit var auth: FirebaseAuth
-
     private val binding get() = _binding!!
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,28 +25,41 @@ class ProfileFragment : Fragment() {
         return binding.root
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        _binding = null
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        auth = FirebaseAuth.getInstance()
-        val user = auth.currentUser
+        // FOTO PROFILE DEFAULT
+        binding.fotoProfile.setImageResource(R.drawable.profile)
 
-        if (user != null) {
+        //USERNAME DEFAULT
+        binding.tvUserName.text = "Pengguna Baru"
 
+        //CEK APA ADA DATA BARU DARI BOIDATA
+        val namaBaru = activity?.intent?.getStringExtra("nama_user")
+        val sudahIsi = activity?.intent?.getBooleanExtra("from_biodata", false) ?: false
+
+        if (sudahIsi && !namaBaru.isNullOrEmpty()) {
+            binding.cardWarning.visibility = View.GONE
+            binding.tvStatusBelum.visibility = View.GONE
+
+            binding.tvStatusSudah.visibility = View.VISIBLE
+            binding.tvStatusSudah.text = "Akun sudah divalidasi"
+
+            binding.tvUserName.text = namaBaru
         }
+
+        //KLIK ISI BIODATA -> PINDAH PAGE
+        binding.btnIsiBiodata.setOnClickListener {
+            val intent = Intent(requireContext(), ProfileDataPribadiActivity::class.java)
+            intent.putExtra("email_user", "demo@gmail.com")  // Email sementara
+            startActivity(intent)
+        }
+
     }
 
-    private fun btnKeluar() {
-        auth = FirebaseAuth.getInstance()
-        auth.signOut()
-        val intent = Intent(context, LoginActivity::class.java)
-        startActivity(intent)
-        activity?.finish()
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
     }
 
 }

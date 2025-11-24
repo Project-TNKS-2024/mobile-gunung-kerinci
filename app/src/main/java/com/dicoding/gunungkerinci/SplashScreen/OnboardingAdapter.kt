@@ -13,6 +13,6 @@ class OnboardingAdapter (
 
     override fun createFragment(position: Int): Fragment {
         val  item = items[position]
-        return OnboardingFragment.newInstance(item.title, item.description, item.imageResId)
+        return OnboardingFragment.newInstance(item.title, item.description)
     }
 }

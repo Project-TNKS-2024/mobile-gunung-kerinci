@@ -417,8 +417,9 @@
 
         </LinearLayout>
 
-        <!--Menu: Lohout-->
+        <!--Menu: Logout-->
         <LinearLayout
+            android:id="@+id/btnLogout"
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:layout_width="match_parent"

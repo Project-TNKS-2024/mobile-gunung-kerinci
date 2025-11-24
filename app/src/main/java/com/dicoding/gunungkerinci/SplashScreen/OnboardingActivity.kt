@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
 import com.dicoding.gunungkerinci.Homepage.Sop.SopActivity
 import com.dicoding.gunungkerinci.Login.LoginActivity
+import com.dicoding.gunungkerinci.Login.RegistrationActivity
 import com.dicoding.gunungkerinci.MainActivity
 import com.dicoding.gunungkerinci.R
 import com.dicoding.gunungkerinci.Ticket.BarcodeTiketActivity
@@ -35,18 +36,15 @@ class OnboardingActivity: AppCompatActivity() {
         val items = listOf(
             OnboardingItem(
                 "Jelajahi Gunung Kerinci dengan Mudah",
-                "Pesan tiket pendakian secara online, tanpa ribet!",
-                R.drawable.splash1
+                "Pesan tiket pendakian secara online, tanpa ribet!"
             ),
             OnboardingItem(
                 "Akses Cepat & Parktis",
-                "Scan QR langsung di gerbang untuk masuk tanpa antre",
-                R.drawable.splash1
+                "Scan QR langsung di gerbang untuk masuk tanpa antre"
             ),
             OnboardingItem(
                 "Pendakian Lebih Aman & Nyaman",
                 "Dapatkan info cuaca dan kondisi keamanan gunung secara real-time",
-                R.drawable.splash1
             )
         )
 
@@ -79,7 +77,7 @@ class OnboardingActivity: AppCompatActivity() {
     }
 
     private fun goToMain() {
-        val intent = Intent(this, BarcodeTiketActivity::class.java)
+        val intent = Intent(this, RegistrationActivity::class.java)
         startActivity(intent)
         finish()
     }

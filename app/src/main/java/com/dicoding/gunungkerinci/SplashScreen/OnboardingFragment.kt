@@ -14,14 +14,12 @@ class OnboardingFragment : Fragment() {
     companion object{
         private const val ARG_TITLE = "title"
         private const val ARG_DESC = "desc"
-        private const val ARG_IMAGE = "image"
 
-        fun newInstance(title: String, desc: String, imageRes: Int): OnboardingFragment {
+        fun newInstance(title: String, desc: String): OnboardingFragment {
             val fragment = OnboardingFragment()
             val args = Bundle()
             args.putString(ARG_TITLE, title)
             args.putString(ARG_DESC, desc)
-            args.putInt(ARG_IMAGE, imageRes)
             fragment.arguments = args
             return fragment
         }
@@ -35,12 +33,10 @@ class OnboardingFragment : Fragment() {
 
         val titleText: TextView = view.findViewById(R.id.textBesar)
         val descText: TextView = view.findViewById(R.id.textDeskripsi)
-        val image: ImageView = view.findViewById(R.id.imageSplash)
 
         arguments?.let {
             titleText.text = it.getString(ARG_TITLE)
             descText.text = it.getString(ARG_DESC)
-            image.setImageResource(it.getInt(ARG_IMAGE))
         }
 
         return view
