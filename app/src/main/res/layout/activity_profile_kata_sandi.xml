@@ -8,7 +8,8 @@
     android:paddingEnd="10dp"
     android:paddingStart="10dp"
     android:paddingTop="20dp"
-    android:paddingBottom="20dp">
+    android:paddingBottom="20dp"
+    android:background="@color/white">
 
     <ImageButton
         android:id="@+id/buttonBack"
@@ -59,9 +60,11 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/passLamaTextLayout"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        app:errorEnabled="true"
+        app:errorIconDrawable="@drawable/ic_error"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="wrap_content"
         app:boxCornerRadiusBottomEnd="12dp"
         app:boxCornerRadiusBottomStart="12dp"
         app:boxCornerRadiusTopEnd="12dp"
@@ -88,8 +91,7 @@
         android:id="@+id/textSandiBaru"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Masukkan kata sandi baru Anda, pastikan Anda mengingat dan memberikan kata sandi
-        kuat untuk aknun Anda"
+        android:text="Masukkan kata sandi baru Anda, pastikan Anda mengingat dan memberikan kata sandi kuat untuk aknun Anda"
         android:textSize="16sp"
         android:fontFamily="@font/plus_jakarta_sans_medium"
         android:textColor="@color/black2"
@@ -111,9 +113,11 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/passBaruTextLayout"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        app:errorEnabled="true"
+        app:errorIconDrawable="@drawable/ic_error"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="wrap_content"
         app:boxCornerRadiusBottomEnd="12dp"
         app:boxCornerRadiusBottomStart="12dp"
         app:boxCornerRadiusTopEnd="12dp"
@@ -150,9 +154,11 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/passBaruKonfTextLayout"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        app:errorEnabled="true"
+        app:errorIconDrawable="@drawable/ic_error"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="wrap_content"
         app:boxCornerRadiusBottomEnd="12dp"
         app:boxCornerRadiusBottomStart="12dp"
         app:boxCornerRadiusTopEnd="12dp"

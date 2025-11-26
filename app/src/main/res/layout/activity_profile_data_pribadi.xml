@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Profile.ProfileDataPribadiActivity">
+    tools:context=".Profile.ProfileDataPribadiActivity"
+    android:background="@color/white">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -53,8 +54,19 @@
                 app:layout_constraintTop_toBottomOf="@id/textAkun"
                 android:layout_marginTop="25dp"
                 tools:src="@tools:sample/avatars"
-                app:shapeAppearanceOverlay="@style/CustomShapeRadius2"
+                app:shapeAppearanceOverlay="@style/CustomShapeRadius3"
                 android:clickable="true"/>
+
+            <ImageButton
+                android:id="@+id/buttonUbah"
+                android:layout_width="24sp"
+                android:layout_height="24sp"
+                android:background="@drawable/border_blue5"
+                android:src="@drawable/ic_ubah"
+                app:layout_constraintEnd_toEndOf="@id/fotoProfile"
+                app:layout_constraintBottom_toBottomOf="@id/fotoProfile"
+                android:layout_marginEnd="5dp"
+                android:layout_marginBottom="5dp"/>
 
             <View
                 android:id="@+id/pembatas"
@@ -139,8 +151,8 @@
                     android:textColor="@color/black2"
                     android:textSize="16sp"
                     android:fontFamily="@font/plus_jakarta_sans_medium"
-                    android:focusable="false"
-                    android:inputType="text" />
+                    android:inputType="text"
+                    android:hint="Abcd"/>
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -179,8 +191,8 @@
                     android:textColor="@color/black2"
                     android:textSize="16sp"
                     android:fontFamily="@font/plus_jakarta_sans_medium"
-                    android:focusable="false"
-                    android:inputType="text" />
+                    android:inputType="text"
+                    android:hint="Abcd"/>
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -229,7 +241,7 @@
             <AutoCompleteTextView
                 android:id="@+id/wargaEditText"
                 android:layout_width="match_parent"
-                android:layout_height="65dp"
+                android:layout_height="55dp"
                 android:textColor="@color/black2"
                 android:textSize="16sp"
                 android:fontFamily="@font/plus_jakarta_sans_medium"
@@ -237,8 +249,13 @@
                 android:drawableEnd="@drawable/ic_dropdown"
                 app:layout_constraintTop_toBottomOf="@id/textKewarganegaraan"
                 android:layout_marginTop="7dp"
+                android:paddingStart="15dp"
+                android:paddingEnd="15dp"
                 app:layout_constraintStart_toStartOf="@id/textKewarganegaraan"
-                android:background="@drawable/bg_counter_box"/>
+                android:background="@drawable/bg_counter_box"
+                android:hint="Mohon Anda isi"
+                android:focusable="false"
+                android:textColorHint="@color/abutua"/>
 
             <TextView
                 android:id="@+id/textAlamat"
@@ -275,8 +292,8 @@
                     android:textColor="@color/black2"
                     android:textSize="16sp"
                     android:fontFamily="@font/plus_jakarta_sans_medium"
-                    android:focusable="false"
-                    android:inputType="text" />
+                    android:inputType="text"
+                    android:hint="Isilah alamat Anda selengkap mungkin"/>
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -362,7 +379,8 @@
                     android:textSize="16sp"
                     android:fontFamily="@font/plus_jakarta_sans_medium"
                     android:focusable="false"
-                    android:inputType="date" />
+                    android:inputType="date"
+                    android:hint="dd-mm-yy"/>
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -401,8 +419,8 @@
                     android:textColor="@color/black2"
                     android:textSize="16sp"
                     android:fontFamily="@font/plus_jakarta_sans_medium"
-                    android:focusable="false"
-                    android:inputType="number" />
+                    android:inputType="number"
+                    android:hint="Diisi tidak boleh kurang dari 12"/>
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -441,13 +459,15 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:background="@android:color/transparent"
-                    android:paddingStart="8dp"
+                    android:paddingStart="10dp"
                     android:textSize="16sp"
                     android:fontFamily="@font/plus_jakarta_sans_medium"
                     android:textColor="@color/black2"
                     app:layout_constraintStart_toEndOf="@+id/flag"
                     app:layout_constraintEnd_toEndOf="parent"
-                    android:inputType="number"/>
+                    android:inputType="number"
+                    android:paddingEnd="15dp"
+                    android:hint="081234******"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -492,8 +512,8 @@
                     android:id="@+id/tv_nama_file"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="30dp"
-                    android:text="KTP.png"
+                    android:layout_marginStart="20dp"
+                    android:text="file_anda.png"
                     android:textColor="@color/softgrey"
                     android:textSize="16sp"
                     android:fontFamily="@font/plus_jakarta_sans_medium"/>

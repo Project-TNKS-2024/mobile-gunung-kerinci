@@ -30,6 +30,10 @@
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">20dp</item>
     </style>
+    <style name="CustomShapeRadius3" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">15dp</item>
+    </style>
 
     <style name="CustomButtonStyle">
         <item name="android:layout_width">wrap_content</item>

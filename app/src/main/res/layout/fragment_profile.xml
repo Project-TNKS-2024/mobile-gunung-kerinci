@@ -181,6 +181,7 @@
 
         <!--Menu: Data Pribadi-->
         <LinearLayout
+            android:id="@+id/dataPribadi"
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:layout_width="match_parent"
@@ -239,6 +240,7 @@
 
         <!--Menu: Kata Sandi-->
         <LinearLayout
+            android:id="@+id/kataSandi"
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:layout_width="match_parent"
@@ -293,6 +295,7 @@
 
         <!--Menu: Tentang Aplikasi-->
         <LinearLayout
+            android:id="@+id/tentangApk"
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:layout_width="match_parent"
@@ -337,6 +340,7 @@
 
         <!--Menu: Pengaturan Bahasa-->
         <LinearLayout
+            android:id="@+id/bahasa"
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:layout_width="match_parent"
@@ -381,6 +385,7 @@
 
         <!--Menu: Bantuan Layanan-->
         <LinearLayout
+            android:id="@+id/layanan"
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:layout_width="match_parent"
