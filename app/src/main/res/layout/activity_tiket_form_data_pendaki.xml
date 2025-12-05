@@ -258,6 +258,26 @@
                             android:fontFamily="@font/plus_jakarta_sans_medium"
                             android:textColor="@color/grey"/>
 
+                        <FrameLayout
+                            android:id="@+id/buttonSimpan"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:background="@drawable/border_blue2"
+                            android:layout_marginTop="20dp"
+                            android:clickable="true"
+                            android:visibility="gone">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Simpan"
+                                android:layout_gravity="center_horizontal"
+                                android:textColor="@color/white"
+                                android:textSize="16sp"
+                                android:fontFamily="@font/plus_jakarta_sans_bold"
+                                android:layout_marginTop="10dp"/>
+                        </FrameLayout>
+
                     </LinearLayout>
 
                 </ViewFlipper>

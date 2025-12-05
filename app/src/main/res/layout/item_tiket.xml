@@ -3,13 +3,14 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@color/abumuda">
+    android:background="@color/abumuda"
+    android:layout_marginBottom="10dp">
 
     <View
         android:id="@+id/lineAtas"
         android:layout_width="0dp"
         android:layout_height="2dp"
-        android:background="@color/abu"
+        android:background="@color/pstlabu"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
@@ -24,7 +25,7 @@
         android:textSize="16sp"
         android:textColor="@color/primary"
         android:fontFamily="@font/plus_jakarta_sans_semibold"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="20dp"
         android:layout_marginEnd="10dp"
         android:layout_marginStart="10dp"/>
 
@@ -34,7 +35,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:background="@drawable/border_tiket"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="20dp"
         android:layout_marginEnd="10dp">
 
         <TextView
@@ -143,7 +144,7 @@
         android:fontFamily="@font/plus_jakarta_sans_medium"
         android:textSize="14sp"
         android:textColor="@color/softgrey"
-        android:layout_marginTop="7dp"/>
+        android:layout_marginTop="10dp"/>
 
     <TextView
         android:id="@+id/textPembayaran"
@@ -156,7 +157,7 @@
         android:fontFamily="@font/plus_jakarta_sans_medium"
         android:textSize="14sp"
         android:textColor="@color/softgrey"
-        android:layout_marginTop="7dp"/>
+        android:layout_marginTop="10dp"/>
 
     <TextView
         android:id="@+id/jumlahPendaki"
@@ -213,10 +214,12 @@
         android:id="@+id/lineBawah"
         android:layout_width="0dp"
         android:layout_height="2dp"
-        android:background="@color/abu"
+        android:background="@color/pstlabu"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textOrang"
+        android:layout_marginTop="20dp"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

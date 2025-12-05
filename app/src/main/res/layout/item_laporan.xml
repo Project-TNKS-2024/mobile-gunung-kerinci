@@ -108,6 +108,7 @@
 
             <!-- Contoh placeholder ImageView di preview (tidak tampil saat runtime) -->
             <ImageView
+                android:id="@+id/img1"
                 android:layout_width="110dp"
                 android:layout_height="110dp"
                 android:scaleType="centerCrop"
@@ -115,6 +116,7 @@
                 tools:src="@tools:sample/backgrounds/scenic"/>
 
             <ImageView
+                android:id="@+id/img2"
                 android:layout_width="110dp"
                 android:layout_height="110dp"
                 android:scaleType="centerCrop"
@@ -122,6 +124,7 @@
                 tools:src="@tools:sample/backgrounds/scenic"/>
 
             <ImageView
+                android:id="@+id/img3"
                 android:layout_width="110dp"
                 android:layout_height="110dp"
                 android:scaleType="centerCrop"
@@ -129,6 +132,7 @@
                 tools:src="@tools:sample/backgrounds/scenic"/>
 
             <ImageView
+                android:id="@+id/img4"
                 android:layout_width="110dp"
                 android:layout_height="110dp"
                 android:scaleType="centerCrop"

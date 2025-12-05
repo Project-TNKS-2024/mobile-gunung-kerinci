@@ -37,31 +37,32 @@
             app:layout_constraintBottom_toBottomOf="@id/buttonBack"
             app:layout_constraintEnd_toEndOf="parent"/>
 
-        <!-- 📭 Tampilan jika belum ada laporan -->
         <LinearLayout
-            android:id="@+id/layout_empty"
+            android:id="@+id/layoutBelumAda"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:orientation="vertical"
+            android:layout_height="250dp"
             android:gravity="center"
-            android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@+id/textLaporan"
-            app:layout_constraintBottom_toBottomOf="parent">
+            android:orientation="vertical"
+            app:layout_constraintTop_toBottomOf="@id/textLaporan"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/border_ticket"
+            android:clickable="true">
 
             <ImageView
                 android:layout_width="150dp"
-                android:layout_height="150dp"
-                android:src="@drawable/ic_empty_state"
-                android:contentDescription="Empty State" />
+                android:layout_height="120dp"
+                android:src="@drawable/not_ticket"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Belum ada laporan pendaki"
+                android:text="Maaf belum ada laporan\npendakian untuk saat ini"
                 android:textColor="@color/grey"
-                android:textSize="16sp"
-                android:fontFamily="@font/plus_jakarta_sans_semibold"/>
+                android:textSize="14sp"
+                android:fontFamily="@font/plus_jakarta_sans_medium"
+                android:textAlignment="center"/>
 
         </LinearLayout>
 

@@ -4,8 +4,6 @@
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
-    android:paddingTop="5dp"
-    android:paddingBottom="5dp"
     android:gravity="center_vertical"
     android:layout_marginBottom="10dp">
 
@@ -50,6 +48,20 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"/>
 
+            <TextView
+                android:id="@+id/tvIdPendaki"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="F12345678"
+                android:textSize="16sp"
+                android:textColor="@color/abu"
+                android:fontFamily="@font/plus_jakarta_sans_medium"
+                android:layout_weight="1"
+                android:layout_marginStart="15dp"
+                app:layout_constraintStart_toEndOf="@id/tvNamaPendaki"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
             <Button
                 android:id="@+id/btnIsiData"
                 android:layout_width="96dp"
@@ -63,6 +75,21 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginEnd="15dp"/>
+
+            <Button
+                android:id="@+id/btnUbahData"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:text="Ubah Data"
+                android:textSize="12dp"
+                android:backgroundTint="@color/abumuda"
+                android:textColor="@color/primary"
+                android:fontFamily="@font/plus_jakarta_sans_semibold"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginEnd="15dp"
+                android:visibility="visible"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

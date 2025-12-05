@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.dicoding.gunungkerinci.Homepage.Panduan.PanduanActivity
 import com.dicoding.gunungkerinci.Homepage.Sop.SopActivity
+import com.dicoding.gunungkerinci.Ticket.PilihTiketActivity
 import com.dicoding.gunungkerinci.databinding.FragmentHomeBinding
 
 class HomeFragment : Fragment() {
@@ -38,6 +39,12 @@ class HomeFragment : Fragment() {
 
             textViewSelengkapnya.setOnClickListener {
 
+            }
+
+            // 👉 BUTTON PESAN TIKET
+            buttonPesanTiket.setOnClickListener {
+                val intent = Intent(requireContext(), PilihTiketActivity::class.java)
+                startActivity(intent)
             }
         }
         return binding.root

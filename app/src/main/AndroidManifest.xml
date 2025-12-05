@@ -6,14 +6,13 @@
         android:name="android.hardware.camera"
         android:required="false" />
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
 
     <application
@@ -33,6 +32,9 @@
             android:name=".Ticket.BuktiPembayaranActivity"
             android:exported="false" />
         <activity
+            android:name=".Ticket.PembayaranActivity"
+            android:exported="false" />
+        <activity
             android:name=".Profile.ProfileAboutAppActivity"
             android:exported="false" />
         <activity
@@ -42,7 +44,7 @@
             android:name=".Profile.ProfileDataPribadiActivity"
             android:exported="false" />
         <activity
-            android:name=".Ticket.DetailDataPendakiActivity"
+            android:name=".Ticket.DataPendaki.DetailDataPendakiActivity"
             android:exported="false" />
         <activity
             android:name=".Ticket.RincianPembayaranTiketActivity"
@@ -78,7 +80,7 @@
             android:name=".Ticket.CekKuotaTiketActivity"
             android:exported="false" />
         <activity
-            android:name=".Ticket.TiketSOPActivity"
+            android:name=".Ticket.SOP.TiketSOPActivity"
             android:exported="false" />
         <activity
             android:name=".Homepage.Panduan.PanduanActivity"
@@ -94,7 +96,13 @@
             android:exported="false" />
         <activity
             android:name=".MainActivity"
-            android:exported="false" />
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".Login.RegistrationActivity"
             android:exported="false" />
@@ -103,12 +111,7 @@
             android:exported="false" />
         <activity
             android:name=".SplashScreen.SplashScreeanActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            android:exported="false">
         </activity>
         <activity
             android:name=".SplashScreen.OnboardingActivity"
@@ -126,6 +129,7 @@
             android:authorities="${applicationId}.provider"
             android:exported="false"
             android:grantUriPermissions="true">
+
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />

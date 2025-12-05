@@ -4,4 +4,6 @@
     <external-cache-path name="ext_cache" path="." />
     <external-cache-path name="images" path="images/" />
     <external-path name="external" path="." />
+    <external-cache-path name="camera_images" path="." />
+    <external-cache-path name="camera_cache" path="." />
 </path>

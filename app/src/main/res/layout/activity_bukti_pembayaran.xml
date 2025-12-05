@@ -77,7 +77,7 @@
 
                 <TableRow>
                     <TextView
-                        android:id="@+id/tvTanggal"                        android:text="Tanggal"
+                        android:text="Tanggal"
                         android:textSize="16sp"
                         android:fontFamily="@font/plus_jakarta_sans_semibold"
                         android:textColor="@color/black2"
@@ -87,7 +87,6 @@
                         android:gravity="center"/>
 
                     <TextView
-                        android:id="@+id/tvStatus"
                         android:text="Status"
                         android:textSize="16sp"
                         android:fontFamily="@font/plus_jakarta_sans_semibold"
@@ -98,7 +97,6 @@
                         android:gravity="center"/>
 
                     <TextView
-                        android:id="@+id/tvKet"
                         android:text="Keterangan"
                         android:textSize="16sp"
                         android:fontFamily="@font/plus_jakarta_sans_semibold"
@@ -109,7 +107,6 @@
                         android:gravity="center"/>
 
                     <TextView
-                        android:id="@+id/btnLihatBukti"
                         android:text="Bukti"
                         android:textSize="16sp"
                         android:fontFamily="@font/plus_jakarta_sans_semibold"
@@ -124,6 +121,7 @@
 
                     <!-- TANGGAL-->
                     <TextView
+                        android:id="@+id/tvTanggal"
                         android:text="-"
                         android:textSize="16sp"
                         android:fontFamily="@font/plus_jakarta_sans_semibold"
@@ -135,6 +133,7 @@
 
                     <!-- STATUS-->
                     <TextView
+                        android:id="@+id/tvStatus"
                         android:text="Menunggu"
                         android:textSize="16sp"
                         android:fontFamily="@font/plus_jakarta_sans_semibold"
@@ -149,6 +148,7 @@
 
                     <!-- TANGGAL-->
                     <TextView
+                        android:id="@+id/tvKet"
                         android:text="-"
                         android:textSize="16sp"
                         android:fontFamily="@font/plus_jakarta_sans_semibold"
@@ -160,6 +160,7 @@
 
                     <!-- TANGGAL-->
                     <ImageView
+                        android:id="@+id/btnLihatBukti"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:src="@drawable/ic_eye"
@@ -174,6 +175,7 @@
             </TableLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/lytUnduh"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp">

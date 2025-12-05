@@ -36,7 +36,7 @@ class TiketFragment : Fragment() {
 
         // ➜ BUTTON PESAN TIKET
         binding.buttonPesanTiket.setOnClickListener {
-            val intent = Intent(activity, CekKuotaTiketActivity::class.java)
+            val intent = Intent(activity, PilihTiketActivity::class.java)
             startActivity(intent)
         }
     }

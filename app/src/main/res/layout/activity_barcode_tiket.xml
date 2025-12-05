@@ -112,11 +112,15 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- ================= MENU TIM CONTENT ================ -->
-            <include
+            <FrameLayout
                 android:id="@+id/layoutTim"
-                layout="@layout/layout_tiket_tim"
-                android:visibility="visible"/>
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <!-- ================= MENU TIM CONTENT ================ -->
+                <include
+                    layout="@layout/layout_tiket_tim"
+                    android:visibility="visible"/>
+            </FrameLayout>
 
             <!-- ================= MENU INDIVIDU CONTENT ================ -->
             <androidx.recyclerview.widget.RecyclerView

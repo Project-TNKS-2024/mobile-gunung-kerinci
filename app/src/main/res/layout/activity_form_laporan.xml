@@ -27,7 +27,6 @@
         android:text="Posting"
         android:textSize="16sp"
         android:textColor="@color/white"
-        android:fontFamily="@font/plus_jakarta_sans_medium"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
@@ -51,6 +50,11 @@
         android:drawableEnd="@drawable/ic_dropdown2"
         android:paddingStart="15dp"
         android:paddingEnd="10dp"
+        android:inputType="text"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:clickable="true"
+        android:cursorVisible="false"
         android:background="@drawable/bg_counter_box3"
         android:textSize="16sp"
         android:fontFamily="@font/plus_jakarta_sans_medium"
@@ -79,6 +83,11 @@
         android:drawableEnd="@drawable/ic_dropdown2"
         android:paddingStart="15dp"
         android:paddingEnd="10dp"
+        android:inputType="text"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:clickable="true"
+        android:cursorVisible="false"
         android:background="@drawable/bg_counter_box3"
         android:textSize="16sp"
         android:fontFamily="@font/plus_jakarta_sans_medium"
@@ -87,40 +96,60 @@
         app:layout_constraintBottom_toBottomOf="@id/panah"
         android:layout_marginStart="10dp"/>
 
-    <!-- EDIT TEXT DESKRIPSI -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/inputDeskripsi"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+    <!-- DESKRIPSI CUSTOM -->
+    <FrameLayout
+        android:id="@+id/deskripsiContainer"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="150dp"
         android:layout_marginTop="20dp"
-        android:hint="Tambahkan apa yang sedang terjadi disini?"
         android:background="@drawable/border_ticket"
         app:layout_constraintTop_toBottomOf="@id/fotoProfile">
 
-        <com.google.android.material.textfield.TextInputEditText
+        <!-- HINT CUSTOM -->
+        <TextView
+            android:id="@+id/hintDeskripsi"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="Tambahkan apa yang sedang terjadi disini?"
+            android:textColor="@color/grey"
+            android:textSize="16sp"
+            android:padding="12dp"
+            android:fontFamily="@font/plus_jakarta_sans_medium" />
+
+        <!-- EDIT TEXT -->
+        <EditText
             android:id="@+id/etDeskripsi"
             android:layout_width="match_parent"
-            android:layout_height="150dp"
-            android:gravity="center"
-            android:textSize="16sp"
+            android:layout_height="match_parent"
+            android:gravity="top|start"
             android:background="@android:color/transparent"
+            android:padding="12dp"
+            android:textSize="16sp"
             android:fontFamily="@font/plus_jakarta_sans_medium"
-            android:maxLines="10" />
+            android:maxLines="10"
+            android:inputType="textMultiLine"
+            android:scrollbars="vertical" />
 
-    </com.google.android.material.textfield.TextInputLayout>
+    </FrameLayout>
 
     <!-- PREVIEW GAMBAR -->
-    <com.google.android.flexbox.FlexboxLayout
-        android:id="@+id/layoutPreviewFoto"
+    <HorizontalScrollView
+        android:id="@+id/scrollPreviewFoto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
-        android:clipToPadding="false"
-        app:flexDirection="row"
-        app:flexWrap="wrap"
-        app:justifyContent="flex_start"
-        app:layout_constraintTop_toBottomOf="@id/inputDeskripsi" />
+        android:scrollbars="none"
+        app:layout_constraintTop_toBottomOf="@id/deskripsiContainer">
+
+        <LinearLayout
+            android:id="@+id/previewContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"/>
+
+    </HorizontalScrollView>
+
 
     <!--   BAGIAN BAWAH: KAMERA + FOTO -->
     <HorizontalScrollView

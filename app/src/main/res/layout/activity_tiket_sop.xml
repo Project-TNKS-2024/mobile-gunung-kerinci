@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Ticket.TiketSOPActivity"
+    tools:context=".Ticket.SOP.TiketSOPActivity"
     android:paddingBottom="20dp"
     android:paddingTop="20dp"
     android:paddingStart="10dp"

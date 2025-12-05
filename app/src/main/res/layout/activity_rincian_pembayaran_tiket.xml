@@ -1041,7 +1041,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/red"
-                        android:text="Batlkan"
+                        android:text="Batalkan"
                         android:textSize="16sp"
                         android:fontFamily="@font/plus_jakarta_sans_bold" />
 
