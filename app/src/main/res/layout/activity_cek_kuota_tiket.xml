@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Ticket.CekKuotaTiketActivity">
+    tools:context=".Ticket.CekKuotaTiketActivity"
+    android:background="@color/white">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="0dp"
@@ -613,226 +614,284 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"/>
 
-                <TextView
-                    android:id="@+id/textJdlHarga"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Harga Tiket Pendakian Gunung Kerinci"
-                    android:textSize="18sp"
-                    android:fontFamily="@font/plus_jakarta_sans_semibold"
-                    android:textColor="@color/black2"
-                    app:layout_constraintTop_toBottomOf="@id/viewDivider2"
-                    app:layout_constraintStart_toStartOf="parent"
-                    android:layout_marginTop="20dp"/>
-
-                <View
-                    android:id="@+id/garisAtasTable"
-                    android:layout_width="0dp"
-                    android:layout_height="0.5dp"
-                    android:background="@color/pstlabu"
-                    app:layout_constraintTop_toTopOf="@id/tableLayoutTiket"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"/>
-
-                <TableLayout
-                    android:id="@+id/tableLayoutTiket"
+                <LinearLayout
+                    android:id="@+id/layoutKuota"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:divider="@color/pstlabu"
-                    android:showDividers="middle|beginning|end"
-                    android:stretchColumns="1,2"
-                    android:shrinkColumns="1,2"
-                    app:layout_constraintTop_toBottomOf="@id/textJdlHarga"
-                    android:layout_marginTop="20dp"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    app:layout_constraintTop_toBottomOf="@id/viewDivider2"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent">
 
-                    <!-- Header -->
-                    <TableRow>
+                    <!-- ISI TABEL KUOTA DI SINI -->
+                    <include layout="@layout/layout_kuota_tiket"/>
 
-                        <TextView
-                            android:layout_column="0"
-                            android:layout_width="0dp"
-                            android:text="Jenis Tiket"
-                            android:textStyle="bold"
-                            android:textColor="@color/black2"
-                            android:textSize="14sp"
-                            android:fontFamily="@font/plus_jakarta_sans_semibold"
-                            android:textAlignment="center"
-                            android:padding="7dp" />
+                </LinearLayout>
 
-                        <TextView
-                            android:layout_column="1"
-                            android:layout_width="0dp"
-                            android:text="Lokasi"
-                            android:gravity="center"
-                            android:textColor="@color/black2"
-                            android:fontFamily="@font/plus_jakarta_sans_semibold"
-                            android:textSize="14sp"
-                            android:padding="8dp" />
-
-                        <TextView
-                            android:layout_column="2"
-                            android:layout_width="0dp"
-                            android:text="Mancanegara"
-                            android:gravity="center"
-                            android:textColor="@color/black2"
-                            android:fontFamily="@font/plus_jakarta_sans_semibold"
-                            android:textSize="14sp"
-                            android:padding="8dp" />
-
-                    </TableRow>
-
-                    <!-- Row 1 -->
-                    <TableRow>
-
-                        <TextView
-                            android:text="Masuk Hari Kerja"
-                            android:textSize="14sp"
-                            android:textColor="@color/black2"
-                            android:fontFamily="@font/plus_jakarta_sans_medium"
-                            android:padding="8dp" />
-
-                        <TextView
-                            android:text="Rp10.000"
-                            android:gravity="center"
-                            android:textSize="14sp"
-                            android:textColor="@color/black2"
-                            android:fontFamily="@font/plus_jakarta_sans"
-                            android:padding="8dp" />
-
-                        <TextView
-                            android:text="Rp 150.000"
-                            android:gravity="center"
-                            android:textSize="14sp"
-                            android:textColor="@color/black2"
-                            android:fontFamily="@font/plus_jakarta_sans"
-                            android:padding="8dp" />
-
-                    </TableRow>
-
-                    <!-- Row 2 -->
-                    <TableRow>
-
-                        <TextView
-                            android:text="Masuk Hari Libur"
-                            android:textSize="14sp"
-                            android:textColor="@color/black2"
-                            android:fontFamily="@font/plus_jakarta_sans_medium"
-                            android:padding="8dp" />
-
-                        <TextView
-                            android:text="Rp15.000"
-                            android:gravity="center"
-                            android:textSize="14sp"
-                            android:textColor="@color/black2"
-                            android:fontFamily="@font/plus_jakarta_sans"
-                            android:padding="8dp" />
-
-                        <TextView
-                            android:text="Rp150.000"
-                            android:gravity="center"
-                            android:textSize="14sp"
-                            android:textColor="@color/black2"
-                            android:fontFamily="@font/plus_jakarta_sans"                            android:padding="8dp" />
-
-                    </TableRow>
-
-                    <!-- Row 3 -->
-                    <TableRow>
-
-                        <TextView
-                            android:text="Berkemah"
-                            android:textSize="14sp"
-                            android:textAlignment="center"
-                            android:textColor="@color/black2"
-                            android:fontFamily="@font/plus_jakarta_sans_medium"
-                            android:padding="8dp" />
-
-                        <TextView
-                            android:layout_height="match_parent"
-                            android:fontFamily="@font/plus_jakarta_sans"
-                            android:gravity="center"
-                            android:padding="8dp"
-                            android:text="Rp 5.000"
-                            android:textColor="@color/black2"
-                            android:textSize="14sp" />
-
-                        <TextView
-                            android:text="Rp 5.000"
-                            android:gravity="center"
-                            android:textSize="14sp"
-                            android:textColor="@color/black2"
-                            android:fontFamily="@font/plus_jakarta_sans"
-                            android:padding="8dp" />
-
-                    </TableRow>
-
-                    <!-- Row 4 -->
-                    <TableRow>
-
-                        <TextView
-                            android:text="Pendakian"
-                            android:textAlignment="center"
-                            android:textSize="14sp"
-                            android:textColor="@color/black2"
-                            android:fontFamily="@font/plus_jakarta_sans_medium"
-                            android:padding="8dp" />
-
-                        <TextView
-                            android:text="Rp10.000"
-                            android:gravity="center"
-                            android:textSize="14sp"
-                            android:textColor="@color/black2"
-                            android:fontFamily="@font/plus_jakarta_sans"
-                            android:padding="8dp" />
-
-                        <TextView
-                            android:text="Rp 20.000"
-                            android:gravity="center"
-                            android:textSize="14sp"
-                            android:textColor="@color/black2"
-                            android:fontFamily="@font/plus_jakarta_sans"
-                            android:padding="8dp" />
-
-                    </TableRow>
-
-                </TableLayout>
-
-                <View
-                    android:id="@+id/garisBawahTable"
-                    android:layout_width="0dp"
-                    android:layout_height="0.5dp"
-                    android:background="@color/pstlabu"
-                    app:layout_constraintTop_toBottomOf="@id/tableLayoutTiket"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"/>
-
-                <TextView
-                    android:id="@+id/textCatatan"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/plus_jakarta_sans_semibold"
-                    android:textSize="18sp"
-                    android:textColor="@color/primary"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tableLayoutTiket"
-                    android:text="Catatan"
-                    android:layout_marginTop="20dp"/>
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recyclerView"
+                <LinearLayout
+                    android:id="@+id/layoutTiketSaya"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:nestedScrollingEnabled="false"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/textCatatan"
-                    android:layout_marginTop="3dp"
+                    android:orientation="vertical"
+                    android:visibility="visible"
+                    app:layout_constraintTop_toBottomOf="@id/viewDivider2"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    tools:listitem="@layout/item_catatan_tiket"/>
+                    app:layout_constraintEnd_toEndOf="parent">
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                    <TextView
+                        android:id="@+id/textJdlHarga"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Harga Tiket Pendakian Gunung Kerinci"
+                        android:textSize="18sp"
+                        android:fontFamily="@font/plus_jakarta_sans_semibold"
+                        android:textColor="@color/black2"
+                        app:layout_constraintTop_toBottomOf="@id/viewDivider2"
+                        app:layout_constraintStart_toStartOf="parent"
+                        android:layout_marginTop="20dp"/>
+
+                    <View
+                        android:id="@+id/garisAtasTable"
+                        android:layout_width="match_parent"
+                        android:layout_height="0.5dp"
+                        android:background="@color/pstlabu"
+                        android:layout_marginTop="20dp"/>
+
+                    <TableLayout
+                        android:id="@+id/tableLayoutTiket"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:divider="@color/pstlabu"
+                        android:showDividers="middle|beginning|end"
+                        android:stretchColumns="1,2"
+                        android:shrinkColumns="1,2"
+                        app:layout_constraintTop_toBottomOf="@id/textJdlHarga"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent">
+
+                        <!-- Header -->
+                        <TableRow>
+
+                            <TextView
+                                android:layout_column="0"
+                                android:layout_width="0dp"
+                                android:text="Jenis Tiket"
+                                android:textStyle="bold"
+                                android:textColor="@color/black2"
+                                android:textSize="14sp"
+                                android:fontFamily="@font/plus_jakarta_sans_semibold"
+                                android:textAlignment="center"
+                                android:padding="7dp" />
+
+                            <TextView
+                                android:layout_column="1"
+                                android:layout_width="0dp"
+                                android:text="Lokasi"
+                                android:gravity="center"
+                                android:textColor="@color/black2"
+                                android:fontFamily="@font/plus_jakarta_sans_semibold"
+                                android:textSize="14sp"
+                                android:padding="8dp" />
+
+                            <TextView
+                                android:layout_column="2"
+                                android:layout_width="0dp"
+                                android:text="Mancanegara"
+                                android:gravity="center"
+                                android:textColor="@color/black2"
+                                android:fontFamily="@font/plus_jakarta_sans_semibold"
+                                android:textSize="14sp"
+                                android:padding="8dp" />
+
+                        </TableRow>
+
+                        <!-- Row 1 -->
+                        <TableRow>
+
+                            <TextView
+                                android:text="Masuk Hari Kerja"
+                                android:textSize="14sp"
+                                android:textColor="@color/black2"
+                                android:fontFamily="@font/plus_jakarta_sans_medium"
+                                android:padding="8dp" />
+
+                            <TextView
+                                android:text="Rp10.000"
+                                android:gravity="center"
+                                android:textSize="14sp"
+                                android:textColor="@color/black2"
+                                android:fontFamily="@font/plus_jakarta_sans"
+                                android:padding="8dp" />
+
+                            <TextView
+                                android:text="Rp 150.000"
+                                android:gravity="center"
+                                android:textSize="14sp"
+                                android:textColor="@color/black2"
+                                android:fontFamily="@font/plus_jakarta_sans"
+                                android:padding="8dp" />
+
+                        </TableRow>
+
+                        <!-- Row 2 -->
+                        <TableRow>
+
+                            <TextView
+                                android:text="Masuk Hari Libur"
+                                android:textSize="14sp"
+                                android:textColor="@color/black2"
+                                android:fontFamily="@font/plus_jakarta_sans_medium"
+                                android:padding="8dp" />
+
+                            <TextView
+                                android:text="Rp15.000"
+                                android:gravity="center"
+                                android:textSize="14sp"
+                                android:textColor="@color/black2"
+                                android:fontFamily="@font/plus_jakarta_sans"
+                                android:padding="8dp" />
+
+                            <TextView
+                                android:text="Rp150.000"
+                                android:gravity="center"
+                                android:textSize="14sp"
+                                android:textColor="@color/black2"
+                                android:fontFamily="@font/plus_jakarta_sans"                            android:padding="8dp" />
+
+                        </TableRow>
+
+                        <!-- Row 3 -->
+                        <TableRow>
+
+                            <TextView
+                                android:text="Berkemah"
+                                android:textSize="14sp"
+                                android:textAlignment="center"
+                                android:textColor="@color/black2"
+                                android:fontFamily="@font/plus_jakarta_sans_medium"
+                                android:padding="8dp" />
+
+                            <TextView
+                                android:layout_height="match_parent"
+                                android:fontFamily="@font/plus_jakarta_sans"
+                                android:gravity="center"
+                                android:padding="8dp"
+                                android:text="Rp 5.000"
+                                android:textColor="@color/black2"
+                                android:textSize="14sp" />
+
+                            <TextView
+                                android:text="Rp 5.000"
+                                android:gravity="center"
+                                android:textSize="14sp"
+                                android:textColor="@color/black2"
+                                android:fontFamily="@font/plus_jakarta_sans"
+                                android:padding="8dp" />
+
+                        </TableRow>
+
+                        <!-- Row 4 -->
+                        <TableRow>
+
+                            <TextView
+                                android:text="Pendakian"
+                                android:textAlignment="center"
+                                android:textSize="14sp"
+                                android:textColor="@color/black2"
+                                android:fontFamily="@font/plus_jakarta_sans_medium"
+                                android:padding="8dp" />
+
+                            <TextView
+                                android:text="Rp10.000"
+                                android:gravity="center"
+                                android:textSize="14sp"
+                                android:textColor="@color/black2"
+                                android:fontFamily="@font/plus_jakarta_sans"
+                                android:padding="8dp" />
+
+                            <TextView
+                                android:text="Rp 20.000"
+                                android:gravity="center"
+                                android:textSize="14sp"
+                                android:textColor="@color/black2"
+                                android:fontFamily="@font/plus_jakarta_sans"
+                                android:padding="8dp" />
+
+                        </TableRow>
+
+                    </TableLayout>
+
+                    <View
+                        android:id="@+id/garisBawahTable"
+                        android:layout_width="match_parent"
+                        android:layout_height="0.5dp"
+                        android:background="@color/pstlabu"/>
+
+                    <TextView
+                        android:id="@+id/textCatatan"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/plus_jakarta_sans_semibold"
+                        android:textSize="18sp"
+                        android:textColor="@color/primary"
+                        android:text="Catatan"
+                        android:layout_marginTop="20dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/plus_jakarta_sans_medium"
+                        android:textSize="16sp"
+                        android:textColor="@color/black2"
+                        android:text="Cara perhitungan tiket adalah sebagai berikut:"
+                        android:layout_marginTop="10dp"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/plus_jakarta_sans_medium"
+                        android:textSize="16sp"
+                        android:textColor="@color/black2"
+                        android:text="1. Biaya tiket masuk: dikalikan dengan jumlah hari pendakian"
+                        android:layout_marginTop="7dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/plus_jakarta_sans_medium"
+                        android:textSize="16sp"
+                        android:textColor="@color/black2"
+                        android:text="2. Biaya kemah: dikalikan dengan jumlah malam pendakian"
+                        android:layout_marginTop="5dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/plus_jakarta_sans_medium"
+                        android:textSize="16sp"
+                        android:textColor="@color/black2"
+                        android:text="3. Biaya traking"
+                        android:layout_marginTop="5dp"/>
+
+                    <!--
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recyclerView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/textCatatan"
+                        android:layout_marginTop="3dp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        tools:listitem="@layout/item_catatan_tiket"/>
+                        -->
+
+
+                </LinearLayout>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>
 

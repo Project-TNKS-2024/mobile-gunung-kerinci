@@ -12,8 +12,8 @@ import android.widget.TextView
 import android.widget.Toast
 import com.dicoding.gunungkerinci.MainActivity
 import com.dicoding.gunungkerinci.R
+import com.dicoding.gunungkerinci.Ticket.Pembayaran.RincianPembayaranTiketActivity
 import com.dicoding.gunungkerinci.databinding.ActivityTiketDataPendakiBinding
-import com.dicoding.gunungkerinci.databinding.FragmentHomeBinding
 
 
 class TiketDataPendakiActivity : AppCompatActivity() {

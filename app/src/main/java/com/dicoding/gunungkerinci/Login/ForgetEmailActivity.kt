@@ -45,7 +45,7 @@ class ForgetEmailActivity : AppCompatActivity() {
 
         //Pindah otomatis ke halaman ForgetPassActivity (untuk demo)
         Handler(Looper.getMainLooper()).postDelayed({
-            val intent = Intent(this, ForgetPassActivity::class.java)
+            val intent = Intent(this, LoginActivity::class.java)
             intent.putExtra("email", email)
             startActivity(intent)
             finish()

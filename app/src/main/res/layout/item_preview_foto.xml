@@ -2,23 +2,28 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="220dp"
     android:layout_height="330dp"
-    android:layout_margin="8dp">
+    android:layout_margin="8dp"
+    android:background="@drawable/bg_image_border2">
 
     <ImageView
         android:id="@+id/imgPreview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
-        android:background="@drawable/bg_image_border2" />
+        android:clickable="false"
+        android:focusable="false"
+        android:background="@drawable/bg_image_border2"/>
 
     <ImageButton
         android:id="@+id/btnDelete"
-        android:layout_width="28dp"
+        android:layout_width="30dp"
         android:layout_height="28dp"
-        android:background="@android:color/transparent"
+        android:background="@drawable/bg_counter_box4"
         android:src="@drawable/ic_x"
         android:layout_margin="10dp"
         android:padding="4dp"
-        android:layout_gravity="top|end" />
+        android:layout_gravity="top|end"
+        android:clickable="true"
+        android:focusable="true"/>
 
 </FrameLayout>

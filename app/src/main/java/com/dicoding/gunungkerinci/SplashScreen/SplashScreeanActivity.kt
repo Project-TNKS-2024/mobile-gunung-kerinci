@@ -18,6 +18,6 @@ class SplashScreeanActivity : AppCompatActivity() {
         Handler(Looper.getMainLooper()).postDelayed({
             startActivity(Intent(this, OnboardingActivity::class.java))
             finish() // agar splash tidak bisa kembali dengan tombol back
-        }, 3000) // 3000 ms = 3 detik
+        }, 5000) // 5000 ms = 5 detik
     }
 }

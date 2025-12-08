@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Ticket.PembayaranActivity"
+    tools:context=".Ticket.Pembayaran.PembayaranActivity"
     android:background="@color/white">
 
     <androidx.core.widget.NestedScrollView
@@ -455,6 +455,7 @@
                         android:layout_marginTop="15dp"/>
 
                     <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvCara"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         tools:listitem="@layout/item_cara"
@@ -557,8 +558,7 @@
                             android:id="@+id/menuRow"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:orientation="horizontal"
-                            android:background="@drawable/bg_qris_tab_right">
+                            android:orientation="horizontal">
 
                             <TextView
                                 android:id="@+id/tvMenuLeft"
@@ -569,6 +569,7 @@
                                 android:text="Gerbang Kersik Tuo"
                                 android:textSize="14sp"
                                 android:fontFamily="@font/plus_jakarta_sans_semibold"
+                                android:background="@drawable/bg_tab_left_inactive"
                                 android:textColor="@color/black2"/>
 
                             <TextView
@@ -580,6 +581,7 @@
                                 android:text="Gerbang Bangun Rejo"
                                 android:textSize="14sp"
                                 android:fontFamily="@font/plus_jakarta_sans_semibold"
+                                android:background="@drawable/bg_tab_right_inactive"
                                 android:textColor="@color/darkgrey"/>
 
                         </LinearLayout>

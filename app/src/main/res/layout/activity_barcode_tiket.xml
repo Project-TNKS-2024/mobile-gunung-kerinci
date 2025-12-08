@@ -4,11 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Ticket.BarcodeTiketActivity"
+    tools:context=".Ticket.Barcode.BarcodeTiketActivity"
     android:paddingStart="10dp"
     android:paddingEnd="10dp"
     android:paddingTop="20dp"
-    android:paddingBottom="20dp">
+    android:paddingBottom="20dp"
+    android:background="@color/white">
 
     <ImageButton
         android:id="@+id/buttonBack"
@@ -119,7 +120,7 @@
                 <!-- ================= MENU TIM CONTENT ================ -->
                 <include
                     layout="@layout/layout_tiket_tim"
-                    android:visibility="visible"/>
+                    android:visibility="visible" />
             </FrameLayout>
 
             <!-- ================= MENU INDIVIDU CONTENT ================ -->

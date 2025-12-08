@@ -11,7 +11,6 @@ import android.os.Looper
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dicoding.gunungkerinci.R
-import com.dicoding.gunungkerinci.Ticket.RincianPembayaranTiketActivity
 import com.dicoding.gunungkerinci.Ticket.TiketDataPendakiActivity
 import com.dicoding.gunungkerinci.databinding.ActivityTiketSopBinding
 

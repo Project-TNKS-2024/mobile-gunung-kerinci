@@ -19,7 +19,7 @@
 
     <fragment
         android:id="@+id/navigation_jejak"
-        android:name="com.dicoding.gunungkerinci.JejakFragment"
+        android:name="com.dicoding.gunungkerinci.Maps.JejakFragment"
         android:label="Jejak"
         tools:layout="@layout/fragment_jejak"/>
 

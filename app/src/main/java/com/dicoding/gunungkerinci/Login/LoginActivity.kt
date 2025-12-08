@@ -58,7 +58,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
         binding.buttonForgetPass.setOnClickListener {
-            startActivity(Intent(this, ForgetEmailActivity::class.java))
+            startActivity(Intent(this, ForgetPassActivity::class.java))
             finish()
         }
 

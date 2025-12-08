@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Informasi Sisa Kuota Jalur Pendakian"
+        android:textSize="18sp"
+        android:fontFamily="@font/plus_jakarta_sans_semibold"
+        android:textColor="@color/black2"
+        android:layout_marginTop="20dp"/>
+
+    <View
+        android:id="@+id/garisAtasTable"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/pstlabu"
+        android:layout_marginTop="20dp"/>
+
+    <TableLayout
+        android:id="@+id/tableLayoutTiket"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:divider="@color/pstlabu"
+        android:showDividers="middle|beginning|end"
+        android:stretchColumns="1,2"
+        android:shrinkColumns="1,2">
+
+        <!-- Header -->
+        <TableRow>
+
+            <TextView
+                android:layout_column="0"
+                android:layout_width="0dp"
+                android:text="Hari/Tanggal"
+                android:textStyle="bold"
+                android:textColor="@color/black2"
+                android:textSize="14sp"
+                android:fontFamily="@font/plus_jakarta_sans_semibold"
+                android:textAlignment="center"
+                android:padding="7dp" />
+
+            <TextView
+                android:layout_column="1"
+                android:layout_width="0dp"
+                android:text="Kersik Tuo"
+                android:gravity="center"
+                android:textColor="@color/black2"
+                android:fontFamily="@font/plus_jakarta_sans_semibold"
+                android:textSize="14sp"
+                android:padding="8dp" />
+
+            <TextView
+                android:layout_column="2"
+                android:layout_width="0dp"
+                android:text="Solok Selatan"
+                android:gravity="center"
+                android:textColor="@color/black2"
+                android:fontFamily="@font/plus_jakarta_sans_semibold"
+                android:textSize="14sp"
+                android:padding="8dp" />
+
+        </TableRow>
+
+        <!-- Row 1 -->
+        <TableRow>
+
+            <TextView
+                android:id="@+id/HT1"
+                android:text="Jumat, 05-12-2025"
+                android:textSize="14sp"
+                android:textColor="@color/black2"
+                android:fontFamily="@font/plus_jakarta_sans_medium"
+                android:padding="8dp" />
+
+            <TextView
+                android:id="@+id/KuotaKT1"
+                android:text="Penuh"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:textColor="@color/red"
+                android:fontFamily="@font/plus_jakarta_sans"
+                android:padding="8dp" />
+
+            <TextView
+                android:id="@+id/KuotaSS1"
+                android:text="2"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:textColor="@color/black2"
+                android:fontFamily="@font/plus_jakarta_sans"
+                android:padding="8dp" />
+
+        </TableRow>
+
+        <!-- Row 2 -->
+        <TableRow>
+
+            <TextView
+                android:id="@+id/HT2"
+                android:text="Sabtu, 06-12-2025"
+                android:textSize="14sp"
+                android:textColor="@color/black2"
+                android:fontFamily="@font/plus_jakarta_sans_medium"
+                android:padding="8dp" />
+
+            <TextView
+                android:id="@+id/KuotaKT2"
+                android:text="Penuh"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:textColor="@color/red"
+                android:fontFamily="@font/plus_jakarta_sans"
+                android:padding="8dp" />
+
+            <TextView
+                android:id="@+id/KuotaSS2"
+                android:text="3"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:textColor="@color/black2"
+                android:fontFamily="@font/plus_jakarta_sans"                            android:padding="8dp" />
+
+        </TableRow>
+
+        <!-- Row 3 -->
+        <TableRow>
+
+            <TextView
+                android:id="@+id/HT3"
+                android:text="Minggu, 07-12-2025"
+                android:textSize="14sp"
+                android:textAlignment="center"
+                android:textColor="@color/black2"
+                android:fontFamily="@font/plus_jakarta_sans_medium"
+                android:padding="8dp" />
+
+            <TextView
+                android:id="@+id/KuotaKT3"
+                android:layout_height="match_parent"
+                android:fontFamily="@font/plus_jakarta_sans"
+                android:gravity="center"
+                android:padding="8dp"
+                android:text="4"
+                android:textColor="@color/black2"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/KuotaSS3"
+                android:text="1"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:textColor="@color/black2"
+                android:fontFamily="@font/plus_jakarta_sans"
+                android:padding="8dp" />
+
+        </TableRow>
+
+        <!-- Row 4 -->
+        <TableRow>
+
+            <TextView
+                android:id="@+id/HT4"
+                android:text="Senin, 08-12-2025"
+                android:textAlignment="center"
+                android:textSize="14sp"
+                android:textColor="@color/black2"
+                android:fontFamily="@font/plus_jakarta_sans_medium"
+                android:padding="8dp" />
+
+            <TextView
+                android:id="@+id/KuotaKT4"
+                android:text="1"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:textColor="@color/black2"
+                android:fontFamily="@font/plus_jakarta_sans"
+                android:padding="8dp" />
+
+            <TextView
+                android:id="@+id/KuotaSS4"
+                android:text="Penuh"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:textColor="@color/red"
+                android:fontFamily="@font/plus_jakarta_sans"
+                android:padding="8dp" />
+
+        </TableRow>
+
+        <!-- Row 5 -->
+        <TableRow>
+
+            <TextView
+                android:id="@+id/HT5"
+                android:text="Selasa, 09-12-2025"
+                android:textAlignment="center"
+                android:textSize="14sp"
+                android:textColor="@color/black2"
+                android:fontFamily="@font/plus_jakarta_sans_medium"
+                android:padding="8dp" />
+
+            <TextView
+                android:id="@+id/KuotaKT5"
+                android:text="5"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:textColor="@color/black2"
+                android:fontFamily="@font/plus_jakarta_sans"
+                android:padding="8dp" />
+
+            <TextView
+                android:id="@+id/KuotaSS5"
+                android:text="1"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:textColor="@color/black2"
+                android:fontFamily="@font/plus_jakarta_sans"
+                android:padding="8dp" />
+
+        </TableRow>
+
+        <!-- Row 6 -->
+        <TableRow>
+
+            <TextView
+                android:id="@+id/HT6"
+                android:text="Rabu, 10-12-2025"
+                android:textAlignment="center"
+                android:textSize="14sp"
+                android:textColor="@color/black2"
+                android:fontFamily="@font/plus_jakarta_sans_medium"
+                android:padding="8dp" />
+
+            <TextView
+                android:id="@+id/KuotaKT6"
+                android:text="Penuh"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:textColor="@color/red"
+                android:fontFamily="@font/plus_jakarta_sans"
+                android:padding="8dp" />
+
+            <TextView
+                android:id="@+id/KuotaSS6"
+                android:text="Penuh"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:textColor="@color/red"
+                android:fontFamily="@font/plus_jakarta_sans"
+                android:padding="8dp" />
+
+        </TableRow>
+
+        <!-- Row 4 -->
+        <TableRow>
+
+            <TextView
+                android:id="@+id/HT7"
+                android:text="Rabu, 11-12-2025"
+                android:textAlignment="center"
+                android:textSize="14sp"
+                android:textColor="@color/black2"
+                android:fontFamily="@font/plus_jakarta_sans_medium"
+                android:padding="8dp" />
+
+            <TextView
+                android:id="@+id/KuotaKT7"
+                android:text="0"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:textColor="@color/black2"
+                android:fontFamily="@font/plus_jakarta_sans"
+                android:padding="8dp" />
+
+            <TextView
+                android:id="@+id/KuotaSS7"
+                android:text="0"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:textColor="@color/black2"
+                android:fontFamily="@font/plus_jakarta_sans"
+                android:padding="8dp" />
+
+        </TableRow>
+
+    </TableLayout>
+
+    <View
+        android:id="@+id/garisBawahTable"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/pstlabu"/>
+
+</LinearLayout>

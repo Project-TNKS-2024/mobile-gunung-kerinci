@@ -6,7 +6,9 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MotionEvent
+import android.view.View
 import android.widget.ArrayAdapter
+import android.widget.TextView
 import android.widget.Toast
 import com.dicoding.gunungkerinci.Ticket.SOP.TiketSOPActivity
 import com.dicoding.gunungkerinci.databinding.ActivityCekKuotaTiketBinding
@@ -26,7 +28,7 @@ class CekKuotaTiketActivity : AppCompatActivity() {
 
     private val listGerbang = listOf(
         "Kersik Tuo - Kayu Aro",
-        "Camping Ground - Soslok Selatan"
+        "Camping Ground - Solok Selatan"
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,6 +50,52 @@ class CekKuotaTiketActivity : AppCompatActivity() {
         setUpDropdownGerbang()
 
         setUpBtnSelanjutnya()
+
+        setUpMenuTabs()
+    }
+
+    private fun setUpMenuTabs() {
+        val menuKuota = binding.tvMenuLeft
+        val menuTiket = binding.tvMenuRight
+
+        val indicator = binding.viewIndicator
+        val layoutKuota = binding.layoutKuota
+        val layoutTiket = binding.layoutTiketSaya
+
+        // Default: Tiket Saya aktif
+        moveIndicatorTo(menuTiket)
+
+        menuKuota.setOnClickListener {
+            menuKuota.setTextColor(getColor(com.dicoding.gunungkerinci.R.color.primary))
+            menuTiket.setTextColor(getColor(com.dicoding.gunungkerinci.R.color.softgrey))
+
+            layoutKuota.visibility = View.VISIBLE
+            layoutTiket.visibility = View.GONE
+
+            moveIndicatorTo(menuKuota)
+        }
+
+        menuTiket.setOnClickListener {
+            menuTiket.setTextColor(getColor(com.dicoding.gunungkerinci.R.color.primary))
+            menuKuota.setTextColor(getColor(com.dicoding.gunungkerinci.R.color.softgrey))
+
+            layoutKuota.visibility = View.GONE
+            layoutTiket.visibility = View.VISIBLE
+
+            moveIndicatorTo(menuTiket)
+        }
+    }
+
+    private fun moveIndicatorTo(view: TextView) {
+        view.post {
+            binding.viewIndicator.animate()
+                .x(view.x)
+                .setDuration(200)
+                .start()
+
+            binding.viewIndicator.layoutParams.width = view.width
+            binding.viewIndicator.requestLayout()
+        }
     }
 
     private fun setUpBtnSelanjutnya() {

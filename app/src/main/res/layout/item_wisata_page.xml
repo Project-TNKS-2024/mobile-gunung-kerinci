@@ -53,7 +53,6 @@
             android:ellipsize="end"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toTopOf="@id/SeeDetail"
-            app:layout_constraintEnd_toEndOf="parent"
             android:paddingEnd="15dp"
             android:paddingStart="15dp"
             android:layout_marginBottom="5dp"/>

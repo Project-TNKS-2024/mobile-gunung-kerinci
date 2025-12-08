@@ -1,4 +1,4 @@
-package com.dicoding.gunungkerinci.Ticket
+package com.dicoding.gunungkerinci.Ticket.Pembayaran
 
 import android.app.Dialog
 import android.content.Intent

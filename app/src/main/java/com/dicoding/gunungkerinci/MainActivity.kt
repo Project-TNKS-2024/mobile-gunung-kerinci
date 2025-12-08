@@ -34,6 +34,20 @@ class MainActivity : AppCompatActivity() {
 
         navView.setupWithNavController(navController)
 
+        // CEK JIKA KEMBALI DARI PROFILE DATA → BUKA PROFILE FRAGMENT
+        // FIX: terima data dari biodata
+        if (intent.getBooleanExtra("from_biodata", false)) {
+
+            val namaUser = intent.getStringExtra("nama_user") ?: ""
+
+            val bundle = Bundle()
+            bundle.putBoolean("from_biodata", true)
+            bundle.putString("nama_user", namaUser)
+
+            navView.selectedItemId = R.id.navigation_profile
+            navController.navigate(R.id.navigation_profile, bundle)
+        }
+
         val openFragment = intent.getStringExtra("open_fragment")
         if (openFragment == "profile") {
             navView.selectedItemId = R.id.navigation_profile

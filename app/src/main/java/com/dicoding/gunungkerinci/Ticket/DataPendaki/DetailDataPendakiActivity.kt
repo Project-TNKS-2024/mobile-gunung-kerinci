@@ -4,7 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.dicoding.gunungkerinci.Ticket.RincianPembayaranTiketActivity
+import com.dicoding.gunungkerinci.Ticket.Pembayaran.RincianPembayaranTiketActivity
 import com.dicoding.gunungkerinci.databinding.ActivityDetailDataPendakiBinding
 
 class DetailDataPendakiActivity : AppCompatActivity() {

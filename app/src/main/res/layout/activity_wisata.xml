@@ -5,10 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Homepage.Wisata.WisataActivity"
-    android:layout_marginStart="10dp"
-    android:layout_marginEnd="10dp"
-    android:layout_marginTop="20dp"
-    android:layout_marginBottom="20dp">
+    android:paddingStart="10dp"
+    android:paddingEnd="10dp"
+    android:paddingTop="20dp"
+    android:paddingBottom="20dp"
+    android:background="@color/white">
 
     <ImageButton
         android:id="@+id/buttonBack"

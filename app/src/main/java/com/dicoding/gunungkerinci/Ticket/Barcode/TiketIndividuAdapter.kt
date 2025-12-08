@@ -1,4 +1,4 @@
-package com.dicoding.gunungkerinci.Ticket
+package com.dicoding.gunungkerinci.Ticket.Barcode
 
 import android.view.LayoutInflater
 import android.view.View

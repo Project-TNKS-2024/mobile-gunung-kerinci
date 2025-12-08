@@ -53,15 +53,8 @@ class ForgetPassActivity : AppCompatActivity() {
             return
         }
 
-        // Jika lolos semua validasi
-        Toast.makeText(
-            this,
-            "Kata sandi Anda telah berhasil diubah.",
-            Toast.LENGTH_SHORT
-        ).show()
-
         // Pindah ke Login
-        val intent = Intent(this, LoginActivity::class.java)
+        val intent = Intent(this, ForgetEmailActivity::class.java)
         startActivity(intent)
         finish()
     }

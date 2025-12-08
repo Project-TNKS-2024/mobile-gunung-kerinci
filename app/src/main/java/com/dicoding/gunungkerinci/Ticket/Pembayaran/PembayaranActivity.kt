@@ -1,4 +1,4 @@
-package com.dicoding.gunungkerinci.Ticket
+package com.dicoding.gunungkerinci.Ticket.Pembayaran
 
 import android.app.Dialog
 import android.content.Intent
@@ -13,8 +13,11 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.dicoding.gunungkerinci.MainActivity
 import com.dicoding.gunungkerinci.R
+import com.dicoding.gunungkerinci.Ticket.BuktiPembayaranActivity
 import com.dicoding.gunungkerinci.databinding.ActivityPembayaranBinding
 
 class PembayaranActivity : AppCompatActivity() {
@@ -73,6 +76,20 @@ class PembayaranActivity : AppCompatActivity() {
             toggleQrisSection()
         }
 
+        initQrisTabs()
+
+        binding.copy.setOnClickListener {
+            val textToCopy = binding.textNoRek.text.toString()
+
+            val clipboard = getSystemService(CLIPBOARD_SERVICE) as android.content.ClipboardManager
+            val clip = android.content.ClipData.newPlainText("Nomor Rekening", textToCopy)
+            clipboard.setPrimaryClip(clip)
+
+            Toast.makeText(this, "Nomor rekening disalin", Toast.LENGTH_SHORT).show()
+        }
+
+        //setupCaraPembayaranList()
+
         // ====== BUTTON KIRIM ======
         binding.btnKirim.setOnClickListener {
 
@@ -95,6 +112,64 @@ class PembayaranActivity : AppCompatActivity() {
         }
 
     }
+
+    private fun setupCaraPembayaranList() {
+
+        binding.rvCara.layoutManager = LinearLayoutManager(this)
+
+        val listCara = listOf(
+            CaraItem(1, "Datangi ATM terdekat."),
+            CaraItem(2, "Masukkan kartu ATM BRI."),
+            CaraItem(3, "Pilih bahasa selama transaksi."),
+            CaraItem(4, "Masukkan PIN kartu ATM."),
+            CaraItem(5, "Pilih menu Transfer Lainnya dan klik Transfer."),
+            CaraItem(6, "Masukkan kode bank BRI 002 diikuti nomor rekening BRI yang dituju, misal 002(445XXXXXXXXXX)"),
+            CaraItem(7, "Masukkan nominal yang ingin ditransfer lalu klik Benar atau Ya."),
+            CaraItem(8, "Lanjut pilih jenis rekening Tabungan atau Giro."),
+            CaraItem(9, "Transaksi segera diproses."),
+            CaraItem(10, "Keluar struk atau info di layar jika transfer berhasil.")
+        )
+
+        val adapter = CaraAdapter(listCara)
+        binding.rvCara.adapter = adapter
+    }
+
+    private fun initQrisTabs() {
+        // Default: tab kanan aktif
+        setActiveQrisTab(isLeft = false)
+
+        binding.tvMenuLeft.setOnClickListener {
+            setActiveQrisTab(isLeft = true)
+        }
+
+        binding.tvMenuRight.setOnClickListener {
+            setActiveQrisTab(isLeft = false)
+        }
+    }
+
+    private fun setActiveQrisTab(isLeft: Boolean) {
+        if (isLeft) {
+            // LEFT ACTIVE
+            binding.tvMenuLeft.setBackgroundResource(R.drawable.bg_qris_left_selected)
+            binding.tvMenuRight.setBackgroundResource(R.drawable.bg_tab_right_inactive)
+
+            binding.tvMenuLeft.setTextColor(getColor(R.color.black2))
+            binding.tvMenuRight.setTextColor(getColor(R.color.darkgrey))
+
+            binding.imgQris.setImageResource(R.drawable.ic_empty) // gambar versi Kersik Tuo
+
+        } else {
+            // RIGHT ACTIVE
+            binding.tvMenuLeft.setBackgroundResource(R.drawable.bg_tab_left_inactive)
+            binding.tvMenuRight.setBackgroundResource(R.drawable.bg_qris_right_selected)
+
+            binding.tvMenuLeft.setTextColor(getColor(R.color.black2))
+            binding.tvMenuRight.setTextColor(getColor(R.color.black2))
+
+            binding.imgQris.setImageResource(R.drawable.qris_bangunrejo) // gambar versi Bangun Rejo
+        }
+    }
+
 
     // Dropdown Metode Pembayaran
     private fun setupMetodePembayaranDropdown() {
@@ -135,6 +210,8 @@ class PembayaranActivity : AppCompatActivity() {
             binding.contentTransfer.visibility = View.VISIBLE
             binding.iconUpTf.visibility = View.VISIBLE
             binding.iconDownTf.visibility = View.GONE
+
+            setupCaraPembayaranList()
         }
     }
 

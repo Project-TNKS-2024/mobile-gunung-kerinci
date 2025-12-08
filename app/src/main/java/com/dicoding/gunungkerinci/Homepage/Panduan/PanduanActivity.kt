@@ -42,6 +42,21 @@ class PanduanActivity : AppCompatActivity() {
                 "pendakian.")
     )
 
+    private val dataPendakian = listOf(
+        PanduanItem("Halaman Akun", "Masuk ke halaman 'Akun' kemudian pilih bagian 'Data Pribadi'"),
+        PanduanItem("Isi Form", "Isi Semua masukan yang diminta mulai dari:\n" +
+                "* Nama lengkap sesuai identitas\n * Kewarganegaraan\n * Nomor Identitas\n" +
+                "* Lampiran Idetitas (KTP/Passport/KTM/Kartu Pelajar)\n * Jenis Kelamin\n" +
+                "* Tanggal Lahir\n * Alamat Domisili (khusus WNI)"),
+        PanduanItem("Verifikasi", "Setelah semua biodata dan dokumen diisi serta diunggah, " +
+                "kirim formulir dengan mengklik tombol verifikasi Profile"),
+        PanduanItem("Menunggu Admin", "Selanjutnya Admin akan memeriksa data Anda untuk " +
+                "memastikan kelengkapan dan keabsahan dokumen sebelum akun Anda dapat digunakan"),
+        PanduanItem("Akun Verifikasi", "Setelah biodata terverifikasi, Anda akan menerima email " +
+                "pemberitahuan bahwa akun Anda telah aktif dan siap digunakan untuk proses pemesanan tiket " +
+                "'ID Pendaki' Anda akan muncul pada halaman akun, dibawah nama pengguna Anda.")
+    )
+
     //private val dataKosong = emptyList<PanduanItem>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,7 +93,8 @@ class PanduanActivity : AppCompatActivity() {
         //Klik menu kanan
         tvMenuRight.setOnClickListener {
             selectTab(tvMenuRight, true)
-            showEmptyLayout()
+            showRecyclerView()
+            adapter.updateList(dataPendakian)
         }
 
         // Tombol back

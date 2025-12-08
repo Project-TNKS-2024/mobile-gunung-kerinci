@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".Homepage.HomeFragment">
+    tools:context=".Homepage.HomeFragment"
+    android:background="@color/white">
 
     <ScrollView
         android:layout_width="0dp"
@@ -41,7 +42,7 @@
                     android:id="@+id/User"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Diah"
+                    android:text="User"
                     android:textSize="16sp"
                     app:layout_constraintTop_toTopOf="@id/halo"
                     app:layout_constraintBottom_toBottomOf="@id/halo"

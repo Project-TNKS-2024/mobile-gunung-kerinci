@@ -26,13 +26,13 @@
         android:theme="@style/Theme.GunungKerinci"
         tools:targetApi="31">
         <activity
-            android:name=".Ticket.BarcodeTiketActivity"
+            android:name=".Ticket.Barcode.BarcodeTiketActivity"
             android:exported="false" />
         <activity
             android:name=".Ticket.BuktiPembayaranActivity"
             android:exported="false" />
         <activity
-            android:name=".Ticket.PembayaranActivity"
+            android:name=".Ticket.Pembayaran.PembayaranActivity"
             android:exported="false" />
         <activity
             android:name=".Profile.ProfileAboutAppActivity"
@@ -42,12 +42,12 @@
             android:exported="false" />
         <activity
             android:name=".Profile.ProfileDataPribadiActivity"
-            android:exported="false" />
+            android:exported="false"/>
         <activity
             android:name=".Ticket.DataPendaki.DetailDataPendakiActivity"
             android:exported="false" />
         <activity
-            android:name=".Ticket.RincianPembayaranTiketActivity"
+            android:name=".Ticket.Pembayaran.RincianPembayaranTiketActivity"
             android:exported="false" />
         <activity
             android:name=".Homepage.Pemberitahuan.PemberitahuanActivity"
@@ -96,13 +96,7 @@
             android:exported="false" />
         <activity
             android:name=".MainActivity"
-            android:exported="true" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:exported="false" />
         <activity
             android:name=".Login.RegistrationActivity"
             android:exported="false" />
@@ -111,11 +105,16 @@
             android:exported="false" />
         <activity
             android:name=".SplashScreen.SplashScreeanActivity"
-            android:exported="false">
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".SplashScreen.OnboardingActivity"
-            android:exported="false" />
+            android:exported="false"/>
         <activity
             android:name=".Laporan.FormLaporanActivity"
             android:exported="false" />

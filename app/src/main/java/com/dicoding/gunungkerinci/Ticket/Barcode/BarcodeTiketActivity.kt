@@ -1,4 +1,4 @@
-package com.dicoding.gunungkerinci.Ticket
+package com.dicoding.gunungkerinci.Ticket.Barcode
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity

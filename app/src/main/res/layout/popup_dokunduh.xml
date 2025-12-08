@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="50dp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@drawable/border_bgdownsuk">
+    android:background="@drawable/border_bgdownsuk"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp"
+    android:paddingEnd="15dp"
+    android:paddingStart="15dp">
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:id="@+id/background"
@@ -12,8 +16,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:background="@drawable/border_sukses"
-        android:layout_marginStart="15dp"/>
+        android:background="@drawable/border_sukses"/>
 
     <ImageView
         android:layout_width="wrap_content"
@@ -32,9 +35,9 @@
         android:textColor="@color/black2"
         android:fontFamily="@font/plus_jakarta_sans"
         android:textSize="14sp"
-        app:layout_constraintTop_toTopOf="@id/background"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toEndOf="@id/background"
-        app:layout_constraintBottom_toBottomOf="@id/background"
+        app:layout_constraintBottom_toBottomOf="parent"
         android:layout_marginStart="15dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

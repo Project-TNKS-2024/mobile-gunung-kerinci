@@ -8,7 +8,8 @@
     android:paddingTop="20dp"
     android:paddingBottom="20dp"
     android:paddingStart="10dp"
-    android:paddingEnd="10dp">
+    android:paddingEnd="10dp"
+    android:background="@color/white">
 
     <TextView
         android:id="@+id/textAwalan"
@@ -22,48 +23,6 @@
         android:layout_marginTop="30dp"
         android:textColor="@color/bluedark"/>
 
-    <!--
-    <LinearLayout
-        android:id="@+id/buttonLanguage"
-        android:layout_width="wrap_content"
-        android:layout_height="37dp"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:clickable="true"
-        android:focusable="true"
-        app:layout_constraintEnd_toStartOf="@id/lineKanan"
-        app:layout_constraintTop_toTopOf="parent"
-        android:background="@drawable/border_langblack"
-        android:layout_marginTop="20dp">
-
-        <ImageView
-            android:id="@+id/iconLanguage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_translatebl"
-            android:layout_marginStart="10dp" />
-
-        <TextView
-            android:id="@+id/textLanguage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/black2"
-            android:text="@string/language"
-            android:textSize="16sp"
-            android:fontFamily="@font/plus_jakarta_sans_medium"
-            android:layout_marginStart="7dp"/>
-
-        <ImageView
-            android:id="@+id/iconDrop"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_dropdown"
-            android:layout_marginStart="7dp"
-            android:layout_marginEnd="10dp"/>
-
-    </LinearLayout>
-    -->
-
     <TextView
         android:id="@+id/textDesk"
         android:layout_width="wrap_content"
@@ -76,24 +35,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="7dp"/>
-
-    <!--
-    <ScrollView
-        android:id="@+id/scrollViewRegis"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/textDesk"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginTop="20dp">
-
-        <LinearLayout
-            android:id="@+id/layoutForm"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-            -->
 
             <TextView
                 android:id="@+id/textEmail"
@@ -143,7 +84,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
                 android:fontFamily="@font/plus_jakarta_sans_semibold"
-                android:text="Password"
+                android:text="Kata Sandi"
                 android:textColor="@color/bluedark"
                 android:textSize="16sp"
                 app:layout_constraintTop_toBottomOf="@id/emailTextLayout"

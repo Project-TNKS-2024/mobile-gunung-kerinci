@@ -8,15 +8,12 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.View
-import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
-import com.dicoding.gunungkerinci.MainActivity
 import com.dicoding.gunungkerinci.R
+import com.dicoding.gunungkerinci.Ticket.Barcode.BarcodeTiketActivity
 import com.dicoding.gunungkerinci.databinding.ActivityBuktiPembayaranBinding
 import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
 
 class BuktiPembayaranActivity : AppCompatActivity() {

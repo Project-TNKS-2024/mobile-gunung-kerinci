@@ -8,49 +8,8 @@
     android:paddingTop="20dp"
     android:paddingBottom="20dp"
     android:paddingStart="10dp"
-    android:paddingEnd="10dp">
-
-    <!--
-    <LinearLayout
-        android:id="@+id/buttonLanguage"
-        android:layout_width="wrap_content"
-        android:layout_height="37dp"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:clickable="true"
-        android:focusable="true"
-        app:layout_constraintEnd_toStartOf="@id/lineKanan"
-        app:layout_constraintTop_toTopOf="parent"
-        android:background="@drawable/border_langblack"
-        android:layout_marginTop="20dp">
-
-        <ImageView
-            android:id="@+id/iconLanguage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_translatebl"
-            android:layout_marginStart="10dp" />
-
-        <TextView
-            android:id="@+id/textLanguage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/black2"
-            android:text="@string/language"
-            android:textSize="16sp"
-            android:fontFamily="@font/plus_jakarta_sans_medium"
-            android:layout_marginStart="7dp"/>
-
-        <ImageView
-            android:id="@+id/iconDrop"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_dropdown"
-            android:layout_marginStart="7dp"
-            android:layout_marginEnd="10dp"/>
-
-    </LinearLayout>
-    -->
+    android:paddingEnd="10dp"
+    android:background="@color/white">
 
     <ImageView
         android:id="@+id/imageWait"

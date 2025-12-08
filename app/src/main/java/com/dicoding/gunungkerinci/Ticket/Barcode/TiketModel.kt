@@ -1,4 +1,4 @@
-package com.dicoding.gunungkerinci.Ticket
+package com.dicoding.gunungkerinci.Ticket.Barcode
 
 data class TiketModel(
     val nama: String,

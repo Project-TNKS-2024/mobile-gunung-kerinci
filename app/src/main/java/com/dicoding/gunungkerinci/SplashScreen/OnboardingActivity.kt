@@ -8,12 +8,8 @@ import android.widget.Button
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
-import com.dicoding.gunungkerinci.Homepage.Sop.SopActivity
-import com.dicoding.gunungkerinci.Login.LoginActivity
 import com.dicoding.gunungkerinci.Login.RegistrationActivity
-import com.dicoding.gunungkerinci.MainActivity
 import com.dicoding.gunungkerinci.R
-import com.dicoding.gunungkerinci.Ticket.BarcodeTiketActivity
 import com.tbuonomo.viewpagerdotsindicator.WormDotsIndicator
 
 class OnboardingActivity: AppCompatActivity() {

@@ -42,6 +42,7 @@ class ProfileFragment : Fragment() {
         //USERNAME DEFAULT
         binding.tvUserName.text = "Pengguna Baru"
 
+
         //KLIK ISI BIODATA -> PINDAH PAGE
         binding.btnIsiBiodata.setOnClickListener {
             val intent = Intent(requireContext(), ProfileDataPribadiActivity::class.java)
