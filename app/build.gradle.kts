@@ -9,7 +9,7 @@ plugins {
 android {
     signingConfigs {
         getByName("debug") {
-            storeFile = file("C:\\Users\\HP\\KeyStoreGunungKerinci\\KeyStore.jks")
+            storeFile = file("KeyStoreGunungKerinci\\KeyStore.jks")
             storePassword = "_@9unun9k3r1nc1@_"
             keyAlias = "keyappgunungkerinci"
             keyPassword = "_@9unun9k3r1nc1@_"

@@ -4,7 +4,6 @@ import android.app.DatePickerDialog
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.database.Cursor
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -14,13 +13,11 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.FileProvider
-import com.dicoding.gunungkerinci.MainActivity
 import com.dicoding.gunungkerinci.R
 import com.dicoding.gunungkerinci.databinding.ActivityProfileDataPribadiBinding
 import java.io.File
 import java.io.IOException
 import java.util.Calendar
-import java.util.Locale
 
 class ProfileDataPribadiActivity : AppCompatActivity() {
 
