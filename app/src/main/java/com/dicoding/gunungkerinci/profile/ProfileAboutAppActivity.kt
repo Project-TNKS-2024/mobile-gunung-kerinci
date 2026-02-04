@@ -1,4 +1,4 @@
-package com.dicoding.gunungkerinci.Profile
+package com.dicoding.gunungkerinci.profile
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle

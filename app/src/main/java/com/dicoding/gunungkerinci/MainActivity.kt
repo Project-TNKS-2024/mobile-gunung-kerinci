@@ -1,7 +1,9 @@
 package com.dicoding.gunungkerinci
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
@@ -17,9 +19,9 @@ class MainActivity : AppCompatActivity() {
 
         R.id.navigation_tiket to Pair(R.drawable.ticket, R.drawable.ticket_fill),
 
-        R.id.navigation_jejak to Pair(R.drawable.vr, R.drawable.vr_fill),
+        //R.id.navigation_jejak to Pair(R.drawable.vr, R.drawable.vr_fill),
 
-        R.id.navigation_laporan to Pair(R.drawable.laporan, R.drawable.laporan_fill),
+        //R.id.navigation_laporan to Pair(R.drawable.laporan, R.drawable.laporan_fill),
 
         R.id.navigation_profile to Pair(R.drawable.profile, R.drawable.profile_fill)
     )
@@ -34,24 +36,26 @@ class MainActivity : AppCompatActivity() {
 
         navView.setupWithNavController(navController)
 
+        handleOAuthDeepLink(intent)
+
         // CEK JIKA KEMBALI DARI PROFILE DATA → BUKA PROFILE FRAGMENT
         // FIX: terima data dari biodata
         if (intent.getBooleanExtra("from_biodata", false)) {
 
-            val namaUser = intent.getStringExtra("nama_user") ?: ""
-
-            val bundle = Bundle()
-            bundle.putBoolean("from_biodata", true)
-            bundle.putString("nama_user", namaUser)
+            val bundle = Bundle().apply {
+                putBoolean("from_biodata", true)
+                putString("nama_user", intent.getStringExtra("nama_user") ?: "")
+            }
 
             navView.selectedItemId = R.id.navigation_profile
             navController.navigate(R.id.navigation_profile, bundle)
         }
 
-        val openFragment = intent.getStringExtra("open_fragment")
-        if (openFragment == "profile") {
-            navView.selectedItemId = R.id.navigation_profile
-            navController.navigate(R.id.navigation_profile)
+        when (intent.getStringExtra("open_fragment")) {
+            "profile" -> {
+                navView.selectedItemId = R.id.navigation_profile
+                navController.navigate(R.id.navigation_profile)
+            }
         }
 
         navView.setOnNavigationItemSelectedListener { menuItem ->
@@ -66,6 +70,7 @@ class MainActivity : AppCompatActivity() {
                     updateIcon(menuItem.itemId)
                     true
                 }
+                /*
                 R.id.navigation_jejak -> {
                     navController.navigate(R.id.navigation_jejak)
                     updateIcon(menuItem.itemId)
@@ -76,6 +81,7 @@ class MainActivity : AppCompatActivity() {
                     updateIcon(menuItem.itemId)
                     true
                 }
+                 */
                 R.id.navigation_profile -> {
                     navController.navigate(R.id.navigation_profile)
                     updateIcon(menuItem.itemId)
@@ -85,6 +91,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleOAuthDeepLink(intent)
+    }
+
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun updateIcon(activeId: Int) {
         iconMap.forEach { (id, iconPair) ->
@@ -92,6 +104,36 @@ class MainActivity : AppCompatActivity() {
             menuItem.icon = getDrawable(
                 if (id == activeId) iconPair.second else iconPair.first
             )
+        }
+    }
+
+    private fun handleOAuthDeepLink(intent: Intent) {
+        val data = intent?.data ?: return
+
+        Log.d("OAUTH_DEBUG", "Deep link diterima: $data")
+
+        if (data.scheme == "gunungkerinci" && data.host == "oauth") {
+
+            val token = data.getQueryParameter("token")
+            val isNewUser = data.getQueryParameter("is_new_user")
+
+            if (!token.isNullOrEmpty()) {
+                val pref = getSharedPreferences("auth", MODE_PRIVATE)
+                pref.edit().putString("token", token).apply()
+
+                val navController = findNavController(R.id.nav_host_fragment)
+                val navView = binding.bottomNavigationView
+
+                if (isNewUser == "true") {
+                    navView.selectedItemId = R.id.navigation_profile
+                    navController.navigate(R.id.navigation_profile)
+                } else {
+                    navView.selectedItemId = R.id.navigation_beranda
+                    navController.navigate(R.id.navigation_beranda)
+                }
             }
         }
     }
+
+
+}

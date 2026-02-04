@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Profile.ProfileDataPribadiActivity"
+    tools:context=".profile.ProfileDataPribadiActivity"
     android:background="@color/white">
 
     <LinearLayout
@@ -151,8 +151,7 @@
                     android:textColor="@color/black2"
                     android:textSize="16sp"
                     android:fontFamily="@font/plus_jakarta_sans_medium"
-                    android:inputType="text"
-                    android:hint="Abcd"/>
+                    android:inputType="text"/>
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -191,8 +190,7 @@
                     android:textColor="@color/black2"
                     android:textSize="16sp"
                     android:fontFamily="@font/plus_jakarta_sans_medium"
-                    android:inputType="text"
-                    android:hint="Abcd"/>
+                    android:inputType="text"/>
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -208,36 +206,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 android:layout_marginTop="10dp"/>
 
-            <!--
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/wargaInputText"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="65dp"
-                app:boxStrokeWidth="1dp"
-                app:boxCornerRadiusBottomEnd="8dp"
-                app:boxCornerRadiusBottomStart="8dp"
-                app:boxCornerRadiusTopEnd="8dp"
-                app:boxCornerRadiusTopStart="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/textKewarganegaraan"
-                android:layout_marginTop="7dp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/wargaEditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:ems="10"
-                    android:textColor="@color/black2"
-                    android:textSize="16sp"
-                    android:fontFamily="@font/plus_jakarta_sans_medium"
-                    android:focusable="false"
-                    android:inputType="text" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-            -->
-
             <AutoCompleteTextView
                 android:id="@+id/wargaEditText"
                 android:layout_width="match_parent"
@@ -245,7 +213,7 @@
                 android:textColor="@color/black2"
                 android:textSize="16sp"
                 android:fontFamily="@font/plus_jakarta_sans_medium"
-                android:inputType="text"
+                android:inputType="none"
                 android:drawableEnd="@drawable/ic_dropdown"
                 app:layout_constraintTop_toBottomOf="@id/textKewarganegaraan"
                 android:layout_marginTop="7dp"
@@ -253,49 +221,54 @@
                 android:paddingEnd="15dp"
                 app:layout_constraintStart_toStartOf="@id/textKewarganegaraan"
                 android:background="@drawable/bg_counter_box"
-                android:hint="Mohon Anda isi"
                 android:focusable="false"
+                android:cursorVisible="false"
+                android:longClickable="false"
                 android:textColorHint="@color/abutua"/>
 
-            <TextView
-                android:id="@+id/textAlamat"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Alamat"
-                android:textSize="16sp"
-                android:fontFamily="@font/plus_jakarta_sans_semibold"
-                android:textColor="@color/black2"
-                app:layout_constraintTop_toBottomOf="@id/wargaEditText"
-                app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginTop="10dp"/>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/alamatInputText"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            <LinearLayout
+                android:id="@+id/layoutAlamat"
                 android:layout_width="match_parent"
-                android:layout_height="65dp"
-                app:boxStrokeWidth="1dp"
-                app:boxCornerRadiusBottomEnd="8dp"
-                app:boxCornerRadiusBottomStart="8dp"
-                app:boxCornerRadiusTopEnd="8dp"
-                app:boxCornerRadiusTopStart="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/textAlamat"
-                android:layout_marginTop="7dp">
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/wargaEditText"
+                app:layout_constraintStart_toStartOf="@id/wargaEditText"
+                app:layout_constraintEnd_toEndOf="parent">
 
-                <com.google.android.material.textfield.TextInputEditText
+                <TextView
+                    android:id="@+id/textAlamat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Alamat"
+                    android:textSize="16sp"
+                    android:fontFamily="@font/plus_jakarta_sans_semibold"
+                    android:textColor="@color/black2"
+                    app:layout_constraintTop_toBottomOf="@id/wargaEditText"
+                    app:layout_constraintStart_toStartOf="parent"
+                    android:layout_marginTop="10dp"/>
+
+                <AutoCompleteTextView
                     android:id="@+id/alamatEditText"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:ems="10"
+                    android:layout_height="55dp"
                     android:textColor="@color/black2"
                     android:textSize="16sp"
                     android:fontFamily="@font/plus_jakarta_sans_medium"
-                    android:inputType="text"
-                    android:hint="Isilah alamat Anda selengkap mungkin"/>
+                    android:drawableEnd="@drawable/ic_dropdown"
+                    app:layout_constraintTop_toBottomOf="@id/textAlamat"
+                    android:layout_marginTop="7dp"
+                    android:paddingStart="15dp"
+                    android:paddingEnd="15dp"
+                    app:layout_constraintStart_toStartOf="@id/textAlamat"
+                    android:background="@drawable/bg_counter_box"
+                    android:cursorVisible="false"
+                    android:inputType="none"
+                    android:focusable="false"
+                    android:longClickable="false"
+                    android:textColorHint="@color/abutua"/>
 
-            </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/textGender"
@@ -305,7 +278,7 @@
                 android:textSize="16sp"
                 android:fontFamily="@font/plus_jakarta_sans_semibold"
                 android:textColor="@color/black2"
-                app:layout_constraintTop_toBottomOf="@id/alamatInputText"
+                app:layout_constraintTop_toBottomOf="@id/layoutAlamat"
                 app:layout_constraintStart_toStartOf="parent"
                 android:layout_marginTop="10dp"/>
             
@@ -379,8 +352,7 @@
                     android:textSize="16sp"
                     android:fontFamily="@font/plus_jakarta_sans_medium"
                     android:focusable="false"
-                    android:inputType="date"
-                    android:hint="dd-mm-yy"/>
+                    android:inputType="date"/>
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -419,8 +391,7 @@
                     android:textColor="@color/black2"
                     android:textSize="16sp"
                     android:fontFamily="@font/plus_jakarta_sans_medium"
-                    android:inputType="number"
-                    android:hint="Diisi tidak boleh kurang dari 12"/>
+                    android:inputType="number"/>
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -436,38 +407,44 @@
                 app:layout_constraintStart_toStartOf="parent"
                 android:layout_marginTop="10dp"/>
 
+
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/layoutTelepon"
                 android:layout_width="0dp"
                 android:layout_height="60dp"
                 android:layout_marginTop="5dp"
-                android:background="@drawable/bg_counter_box"
                 app:layout_constraintTop_toBottomOf="@id/textTelepon"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent">
 
-                <ImageView
-                    android:id="@+id/flag"
-                    android:layout_width="50dp"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/ic_flag_indonesia"
-                    android:padding="10dp"
-                    app:layout_constraintStart_toStartOf="parent"/>
+                <!-- COUNTRY PICKER (BENDERA + KODE NEGARA) -->
+                <com.hbb20.CountryCodePicker
+                    android:id="@+id/ccp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    app:ccp_showFlag="true"
+                    app:ccp_showNameCode="false"
+                    app:ccp_showPhoneCode="true"
+                    app:ccp_defaultNameCode="ID"
+                    android:gravity="center"
+                    android:background="@drawable/bg_counter_box"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
 
                 <EditText
                     android:id="@+id/inputTelepon"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:background="@android:color/transparent"
                     android:paddingStart="10dp"
                     android:textSize="16sp"
                     android:fontFamily="@font/plus_jakarta_sans_medium"
                     android:textColor="@color/black2"
-                    app:layout_constraintStart_toEndOf="@+id/flag"
+                    android:background="@drawable/bg_counter_box"
+                    app:layout_constraintStart_toEndOf="@id/ccp"
                     app:layout_constraintEnd_toEndOf="parent"
-                    android:inputType="number"
-                    android:paddingEnd="15dp"
-                    android:hint="081234******"/>
+                    android:layout_marginStart="10dp"
+                    android:inputType="number"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

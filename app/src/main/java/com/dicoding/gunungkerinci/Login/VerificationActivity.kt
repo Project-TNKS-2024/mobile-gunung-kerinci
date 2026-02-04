@@ -5,39 +5,44 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import com.dicoding.gunungkerinci.databinding.ActivityVerificationBinding
+import com.dicoding.gunungkerinci.network.ApiConfig
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 class VerificationActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityVerificationBinding
-    private var email: String? = null
     private var countDownTimer: CountDownTimer? = null
 
-    //Timer 10 detik
-    private var timeLeftInMillis: Long = 10 * 1000 //3 * 60 * 1000 //3 menit
+    //Timer
+    private var TOTAL_TIME: Long = 10 * 1000 //3 menit
+    private var timeLeftInMillis = TOTAL_TIME
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityVerificationBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        //Ambil email dari intent (dikirim dari RegistrationActivity)
-        email = intent.getStringExtra("email")
+        Toast.makeText(
+            this,
+            "Silakan cek email Anda untuk verifikasi",
+            Toast.LENGTH_SHORT
+        ).show()
 
-        //Popup saat masuk halaman
-        Toast.makeText(this, "Silahkan cek email Anda untuk verifikasi", Toast.LENGTH_SHORT).show()
-
-        //Mulai timer
         startTimer()
 
         //Tombol kirim ulang link
         binding.buttonKirimUlang.setOnClickListener {
             if (timeLeftInMillis <= 0) {
-                sendVerificationEmail(email)
-                resetTimer()
+                resendVerificationEmail()
             } else {
-                Toast.makeText(this, "Tunggu sampai waktu habis untuk kirim ulang", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this,
+                    "Silakan tunggu sampai waktu habis untuk kirim ulang",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
@@ -45,11 +50,14 @@ class VerificationActivity : AppCompatActivity() {
 
     private fun startTimer() {
         countDownTimer?.cancel()
+
         countDownTimer = object : CountDownTimer(timeLeftInMillis, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 timeLeftInMillis = millisUntilFinished
+
                 val minutes = TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished)
                 val seconds = TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) % 60
+
                 binding.textTimer.text = String.format("%02d:%02d", minutes, seconds)
             }
 
@@ -57,34 +65,54 @@ class VerificationActivity : AppCompatActivity() {
                 timeLeftInMillis = 0
                 binding.textTimer.text = "00:00"
 
-                /*Kode sebenarnya
-                Toast.makeText(this@VerificationActivity, "Waktu habis, silakan kirim ulang email", Toast.LENGTH_SHORT).show()
-                 */
+                Toast.makeText(
+                    this@VerificationActivity,
+                    "Waktu habis, silakan kirim ulang email",
+                    Toast.LENGTH_SHORT
+                ).show()
 
-                //Auto pindah dahulu ke login saat timer habis (untuk demo)
-                Toast.makeText(this@VerificationActivity, "Email berhasil di verifikasi", Toast.LENGTH_SHORT).show()
-
-                val intent = Intent(this@VerificationActivity, LoginActivity::class.java)
-                startActivity(intent)
-                finish()
             }
         }.start()
     }
 
     private fun resetTimer() {
-        timeLeftInMillis = 10 * 1000 //3 * 60 * 1000 // reset 3 menit
+        timeLeftInMillis = TOTAL_TIME
         startTimer()
     }
 
-    private fun sendVerificationEmail(email: String?) {
-        if (email.isNullOrEmpty()) {
-            Toast.makeText(this, "Email tidak ditemukan", Toast.LENGTH_SHORT).show()
-            return
-        }
+    private fun resendVerificationEmail() {
+        lifecycleScope.launch {
+            try {
+                val response = ApiConfig.getApiService(this@VerificationActivity).resendEmailVerification()
 
-        // TODO: Ganti dengan API untuk kirim email verifikasi
-        Toast.makeText(this, "Link verifikasi dikirim ke $email", Toast.LENGTH_SHORT).show()
+                if (response.isSuccessful && response.body()?.success == true) {
+
+                    Toast.makeText(
+                        this@VerificationActivity,
+                        "Email verifikasi berhasil dikirim ulang",
+                        Toast.LENGTH_LONG
+                    ).show()
+
+                    resetTimer()
+
+                } else {
+                    Toast.makeText(
+                        this@VerificationActivity,
+                        "Gagal mengirim email verifikasi",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+
+            } catch (e: Exception) {
+                Toast.makeText(
+                    this@VerificationActivity,
+                    "Koneksi gagal: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
     }
+
 
     override fun onDestroy() {
         super.onDestroy()

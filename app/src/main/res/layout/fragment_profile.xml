@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".Profile.ProfileFragment"
+    tools:context=".profile.ProfileFragment"
     android:background="@color/white">
 
     <LinearLayout
@@ -93,7 +93,7 @@
                     android:layout_height="wrap_content"
                     android:text="Segera isi biodata Anda untuk mendapatkan ID Pendaki dan akses pembelian tiket"
                     android:textColor="@color/black2"
-                    android:textSize="16sp"
+                    android:textSize="14sp"
                     android:fontFamily="@font/plus_jakarta_sans"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -147,7 +147,7 @@
                     android:text="Akun belum di validasi"
                     android:textColor="@color/red"
                     android:fontFamily="@font/plus_jakarta_sans_semibold"
-                    android:textSize="16sp"/>
+                    android:textSize="18sp"/>
 
                 <!--STATUS SUDAH ISI (default invisible)-->
                 <TextView
@@ -166,9 +166,9 @@
         <!-- GARIS PEMISAH -->
         <View
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/grey"
-            android:layout_marginTop="20dp"/>
+            android:layout_height="2dp"
+            android:background="@color/pstlabu"
+            android:layout_marginTop="25dp"/>
 
         <!--PENGATURAN AKUN-->
         <TextView
@@ -176,9 +176,9 @@
             android:layout_height="wrap_content"
             android:text="Pengaturan Akun"
             android:fontFamily="@font/poppins_semibold"
-            android:textSize="20sp"
+            android:textSize="18sp"
             android:textColor="@color/black2"
-            android:layout_marginTop="20dp"/>
+            android:layout_marginTop="25dp"/>
 
         <!--Menu: Data Pribadi-->
         <LinearLayout
@@ -195,19 +195,19 @@
 
                 <ImageView
                     android:id="@+id/imageData"
-                    android:src="@drawable/ic_data"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
+                    android:src="@drawable/ubahdata"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    android:layout_marginStart="15dp"/>
+                    android:layout_marginStart="10dp"/>
 
                 <TextView
                     android:id="@+id/textData"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Data Pribadi"
-                    android:textSize="18sp"
+                    android:textSize="16sp"
                     android:fontFamily="@font/plus_jakarta_sans_medium"
                     android:textColor="@color/black2"
                     app:layout_constraintStart_toEndOf="@id/imageData"
@@ -254,19 +254,19 @@
 
                 <ImageView
                     android:id="@+id/imageSandi"
-                    android:src="@drawable/ic_sandi"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
+                    android:src="@drawable/ubahkatasandi"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    android:layout_marginStart="15dp"/>
+                    android:layout_marginStart="10dp"/>
 
                 <TextView
                     android:id="@+id/textSandi"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Kata Sandi"
-                    android:textSize="18sp"
+                    android:textSize="16sp"
                     android:fontFamily="@font/plus_jakarta_sans_medium"
                     android:textColor="@color/black2"
                     app:layout_constraintStart_toEndOf="@id/imageSandi"
@@ -290,7 +290,7 @@
             android:layout_height="wrap_content"
             android:text="Seputar Aplikasi"
             android:fontFamily="@font/poppins_semibold"
-            android:textSize="20sp"
+            android:textSize="18sp"
             android:textColor="@color/black2"
             android:layout_marginTop="25dp"/>
 
@@ -309,19 +309,19 @@
 
                 <ImageView
                     android:id="@+id/imageTentang"
-                    android:src="@drawable/ic_about"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
+                    android:src="@drawable/tentang"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    android:layout_marginStart="15dp"/>
+                    android:layout_marginStart="10dp"/>
 
                 <TextView
                     android:id="@+id/textTentang"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Tentang Aplikasi"
-                    android:textSize="18sp"
+                    android:textSize="16sp"
                     android:fontFamily="@font/plus_jakarta_sans_medium"
                     android:textColor="@color/black2"
                     app:layout_constraintStart_toEndOf="@id/imageTentang"
@@ -339,7 +339,9 @@
             android:background="@color/pstlabu"
             android:layout_marginTop="10dp"/>
 
+
         <!--Menu: Pengaturan Bahasa-->
+        <!--
         <LinearLayout
             android:id="@+id/bahasa"
             android:orientation="horizontal"
@@ -355,18 +357,18 @@
                 <ImageView
                     android:id="@+id/imageBahasa"
                     android:src="@drawable/ic_bahasa"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    android:layout_marginStart="15dp"/>
+                    android:layout_marginStart="10dp"/>
 
                 <TextView
                     android:id="@+id/textBahasa"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Pengaturan Bahasa"
-                    android:textSize="18sp"
+                    android:textSize="16sp"
                     android:fontFamily="@font/plus_jakarta_sans_medium"
                     android:textColor="@color/black2"
                     app:layout_constraintStart_toEndOf="@id/imageBahasa"
@@ -383,6 +385,7 @@
             android:layout_height="1dp"
             android:background="@color/pstlabu"
             android:layout_marginTop="10dp"/>
+            -->
 
         <!--Menu: Bantuan Layanan-->
         <LinearLayout
@@ -399,19 +402,19 @@
 
                 <ImageView
                     android:id="@+id/imageBantuan"
-                    android:src="@drawable/ic_bantuan"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
+                    android:src="@drawable/whatsapp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    android:layout_marginStart="15dp"/>
+                    android:layout_marginStart="10dp"/>
 
                 <TextView
                     android:id="@+id/textBantuan"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Bantuan Layanan Pengguna"
-                    android:textSize="18sp"
+                    android:textSize="16sp"
                     android:fontFamily="@font/plus_jakarta_sans_medium"
                     android:textColor="@color/black2"
                     app:layout_constraintStart_toEndOf="@id/imageBantuan"
@@ -430,7 +433,7 @@
             android:gravity="center_vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="100dp">
+            android:layout_marginTop="130dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -438,19 +441,19 @@
 
                 <ImageView
                     android:id="@+id/imageLogout"
-                    android:src="@drawable/ic_logout"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
+                    android:src="@drawable/logout"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    android:layout_marginStart="15dp"/>
+                    android:layout_marginStart="10dp"/>
 
                 <TextView
                     android:id="@+id/textLogout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Logout"
-                    android:textSize="18sp"
+                    android:text="Keluar"
+                    android:textSize="16sp"
                     android:fontFamily="@font/plus_jakarta_sans_medium"
                     android:textColor="@color/red"
                     app:layout_constraintStart_toEndOf="@id/imageLogout"

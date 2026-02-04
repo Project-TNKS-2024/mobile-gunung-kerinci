@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Profile.ProfileAboutAppActivity"
+    tools:context=".profile.ProfileAboutAppActivity"
     android:background="@color/white">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -55,9 +55,9 @@
             android:id="@+id/tv_tentang_kami_desc"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Deskripsi Tentang Kami akan dimuat dari server..."
+            android:text="@string/tentang"
             android:textSize="16sp"
-            android:lineSpacingExtra="4dp"
+            android:lineSpacingExtra="5dp"
             android:fontFamily="@font/plus_jakarta_sans"
             android:textColor="@color/black2"
             app:layout_constraintTop_toBottomOf="@id/tv_tentang_kami_title"
@@ -82,9 +82,9 @@
             android:id="@+id/tv_kebijakan_desc"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Isi kebijakan privasi akan dimuat dari server..."
+            android:text="@string/kebijakan"
             android:textSize="16sp"
-            android:lineSpacingExtra="4dp"
+            android:lineSpacingExtra="5dp"
             android:textColor="@color/black2"
             android:fontFamily="@font/plus_jakarta_sans"
             app:layout_constraintTop_toBottomOf="@id/tv_kebijakan_title"

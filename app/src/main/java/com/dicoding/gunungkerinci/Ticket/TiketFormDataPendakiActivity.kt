@@ -32,10 +32,12 @@ class TiketFormDataPendakiActivity : AppCompatActivity() {
         // 2. inputNoDarurat
 
         disableAllInputs()
-
+/*
         // Khusus nomor darurat → hanya angka
         binding.inputNoDarurat.inputType =
             InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
+
+ */
 
         // BUTTON CARI Pendaki
         binding.btnCariPendaki.setOnClickListener {
@@ -62,7 +64,7 @@ class TiketFormDataPendakiActivity : AppCompatActivity() {
         // TAMPILKAN BUTTON PESAN TIKET
         binding.btnNext.visibility = android.view.View.GONE
         binding.buttonSimpan.visibility = android.view.View.VISIBLE
-
+/*
         // BUTTON PESAN TIKET
         binding.buttonSimpan.setOnClickListener {
             if (binding.inputNoDarurat.text.isEmpty()) {
@@ -79,6 +81,8 @@ class TiketFormDataPendakiActivity : AppCompatActivity() {
 
             finish()
         }
+
+ */
     }
 
     private fun disableAllInputs() {
@@ -102,9 +106,12 @@ class TiketFormDataPendakiActivity : AppCompatActivity() {
         binding.inputIdPendaki.isFocusable = true
         binding.inputIdPendaki.isClickable = true
 
+        /*
         // Nomor darurat tetap aktif
         binding.inputNoDarurat.isEnabled = true
         binding.inputNoDarurat.isFocusable = true
         binding.inputNoDarurat.isClickable = true
+
+         */
     }
 }

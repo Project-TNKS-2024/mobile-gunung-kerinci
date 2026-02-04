@@ -1,49 +1,43 @@
 package com.dicoding.gunungkerinci.Login
 
 import android.content.Intent
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.util.Log
 import android.util.Patterns
 import android.widget.Toast
+import androidx.browser.customtabs.CustomTabsIntent
 import com.dicoding.gunungkerinci.databinding.ActivityRegistrationBinding
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.tasks.Task
-import com.google.firebase.auth.FirebaseAuth
-import javax.xml.validation.Validator
+import androidx.lifecycle.lifecycleScope
+import com.dicoding.gunungkerinci.MainActivity
+import com.dicoding.gunungkerinci.model.RegisterRequest
+import com.dicoding.gunungkerinci.network.ApiConfig
+import com.dicoding.gunungkerinci.pref.UserPreference
+import kotlinx.coroutines.launch
+import org.json.JSONObject
 
 class RegistrationActivity : AppCompatActivity() {
 
     private  lateinit var binding: ActivityRegistrationBinding
-    private  lateinit var googleSignInClient: GoogleSignInClient
-
-    private val RC_SIGN_IN = 1001
-    private var isFisrstGoogleLogin = true //Mencegah toast muncul 2x
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityRegistrationBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setupGoogleLogin()
         setupButton()
-
-        //Reset keadaan setiap halaman dibuka ulang
-        isFisrstGoogleLogin = true
+        handleOAuthResult(intent)
     }
 
-    // GOOGLE SIGN-IN SETUP
-    private fun setupGoogleLogin() {
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestEmail()
-            .build()
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleOAuthResult(intent)
+    }
 
-        googleSignInClient = GoogleSignIn.getClient(this, gso)
+    override fun onResume() {
+        super.onResume()
+        handleOAuthResult(intent)
     }
 
     //BUTTON ACTIONS
@@ -54,58 +48,14 @@ class RegistrationActivity : AppCompatActivity() {
             validateManualRegistration()
         }
 
-        //Masuk dengan Google
+        //Registrasi dengan Google (BACKEND OAuth)
         binding.buttonGoogle.setOnClickListener {
-        //Paksa sign-out supaya akun Google muncul ulang
-            googleSignInClient.signOut().addOnCompleteListener{
-                signInWithGoogle()
-            }
+            registerWithGoogle()
         }
 
         //Button Masuk Sekarang
         binding.buttonLogNow.setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
-        }
-
-    }
-
-    //G GOOGLE SIGN-IN FLOW
-    private fun signInWithGoogle() {
-        val intent = googleSignInClient.signInIntent
-        startActivityForResult(intent, RC_SIGN_IN)
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == RC_SIGN_IN) {
-            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
-            handleSignInResult(task)
-        }
-    }
-
-    private fun handleSignInResult(task: Task<GoogleSignInAccount>) {
-        try {
-            val account = task.getResult(ApiException::class.java) ?: return
-
-            val email = account.email
-            val name = account.displayName
-
-            // Hanya tampilkan toast saat login pertama kali
-            if (isFisrstGoogleLogin) {
-                Toast.makeText(this, "Registrasi berhasil: $email", Toast.LENGTH_SHORT).show()
-                isFisrstGoogleLogin = false
-            }
-
-            // Pindah ke halaman verifikasi
-            val intent = Intent(this, VerificationActivity::class.java)
-            intent.putExtra("email", email)
-            intent.putExtra("name", name)
-            startActivity(intent)
-
-        } catch (e: ApiException) {
-            Toast.makeText(this, "Registrasi gagal: ${e.message}", Toast.LENGTH_SHORT).show()
         }
 
     }
@@ -149,12 +99,123 @@ class RegistrationActivity : AppCompatActivity() {
             return
         }
 
-        //Pindah ke halaman verifikasi
-        val intent = Intent(this, VerificationActivity::class.java)
-        intent.putExtra("email", email)
-        startActivity(intent)
+        registerManualApi(email, pass)
 
     }
 
+    //REGISTER API
+    private fun registerManualApi(email: String, password: String) {
+
+        val request = RegisterRequest(
+            email = email,
+            password = password,
+            password_confirmation = password
+        )
+
+        lifecycleScope.launch {
+            try {
+                val response = ApiConfig.getApiService(this@RegistrationActivity).register(request)
+
+
+                if (response.isSuccessful && response.body()?.success == true) {
+
+                    val token = response.body()?.data?.token
+                    if (!token.isNullOrEmpty()) {
+                        UserPreference(this@RegistrationActivity).saveToken(token)
+                    }
+
+                    Toast.makeText(
+                        this@RegistrationActivity,
+                        response.body()?.message,
+                        Toast.LENGTH_LONG
+                    ).show()
+
+                    // 👉 PINDAH KE HALAMAN VERIFIKASI
+                    val intent = Intent(
+                        this@RegistrationActivity,
+                        VerificationActivity::class.java
+                    )
+                    intent.putExtra("email", email)
+                    startActivity(intent)
+                    finish()
+
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    val json = JSONObject(errorBody ?: "{}")
+                    val errors = json.optJSONObject("errors")
+
+                    if (errors != null && errors.has("email")) {
+                        binding.emailEditText.error = "Email sudah terdaftar"
+                        binding.emailEditText.requestFocus()
+                    } else {
+                        Toast.makeText(
+                            this@RegistrationActivity,
+                            "Registrasi gagal",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+
+            } catch (e: Exception) {
+                Toast.makeText(
+                    this@RegistrationActivity,
+                    "Koneksi gagal: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
+
+    // ================= GOOGLE OAUTH (BACKEND) =================
+    private fun registerWithGoogle() {
+        lifecycleScope.launch {
+            try {
+                val response =
+                    ApiConfig.getApiService(this@RegistrationActivity).googleRedirect()
+
+                Log.d("GOOGLE_OAUTH", "code=${response.code()}")
+                Log.d("GOOGLE_OAUTH", "body=${response.body()}")
+
+                if (response.isSuccessful && response.body()?.success == true) {
+                    val redirectUrl = response.body()?.data?.redirect_url
+                    openCustomTab(redirectUrl!!)
+                }
+            } catch (e: Exception) {
+                Log.e("GOOGLE_OAUTH", "error", e)
+                Toast.makeText(
+                    this@RegistrationActivity,
+                    "Koneksi gagal: ${e.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    // ================= BUKA BROWSER GOOGLE =================
+    private fun openCustomTab(url: String) {
+        val customTabsIntent = CustomTabsIntent.Builder().build()
+        customTabsIntent.launchUrl(this, Uri.parse(url))
+    }
+
+    // ================= HANDLE OAUTH RESULT =================
+    private fun handleOAuthResult(intent: Intent?) {
+        val data = intent?.data ?: return
+
+        if (data.scheme == "gunungkerinci" && data.host == "oauth") {
+            val token = data.getQueryParameter("token")
+            val isNewUser = data.getQueryParameter("is_new_user")
+
+            if (!token.isNullOrEmpty()) {
+                UserPreference(this).saveToken(token)
+
+                if (isNewUser == "true") {
+                    startActivity(Intent(this, VerificationActivity::class.java))
+                } else {
+                    startActivity(Intent(this, MainActivity::class.java))
+                }
+                finish()
+            }
+        }
+    }
 
 }

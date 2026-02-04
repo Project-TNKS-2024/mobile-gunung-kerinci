@@ -222,31 +222,40 @@
                             style="@style/FormLabelStyle"/>
 
                         <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/layoutTelDarurat"
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
-                            android:layout_marginTop="5dp"
-                            android:background="@drawable/bg_counter_box">
+                            android:layout_marginTop="5dp">
 
-                            <ImageView
-                                android:id="@+id/flag"
-                                android:layout_width="50dp"
-                                android:layout_height="match_parent"
-                                android:src="@drawable/ic_flag_indonesia"
-                                android:padding="10dp"
-                                app:layout_constraintStart_toStartOf="parent"/>
+                            <!-- COUNTRY PICKER (BENDERA + KODE NEGARA) -->
+                            <com.hbb20.CountryCodePicker
+                                android:id="@+id/ccpDarurat"
+                                android:layout_width="wrap_content"
+                                android:layout_height="50dp"
+                                app:ccp_showFlag="true"
+                                app:ccp_showNameCode="false"
+                                app:ccp_showPhoneCode="true"
+                                app:ccp_defaultNameCode="ID"
+                                android:gravity="center"
+                                android:background="@drawable/bg_counter_box"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintBottom_toBottomOf="parent"/>
 
                             <EditText
-                                android:id="@+id/inputNoDarurat"
+                                android:id="@+id/inputTelDarurat"
                                 android:layout_width="0dp"
-                                android:layout_height="match_parent"
-                                android:hint="+62 8xx xxxx xxxx"
-                                android:background="@android:color/transparent"
-                                android:paddingStart="8dp"
+                                android:layout_height="50dp"
+                                android:paddingStart="10dp"
                                 android:textSize="16sp"
                                 android:fontFamily="@font/plus_jakarta_sans_medium"
                                 android:textColor="@color/black2"
-                                app:layout_constraintStart_toEndOf="@+id/flag"
-                                app:layout_constraintEnd_toEndOf="parent"/>
+                                android:background="@drawable/bg_counter_box"
+                                app:layout_constraintStart_toEndOf="@id/ccpDarurat"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                android:layout_marginStart="10dp"
+                                android:inputType="number"
+                                tools:ignore="MissingConstraints" />
 
                         </androidx.constraintlayout.widget.ConstraintLayout>
 

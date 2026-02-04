@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Profile.ProfileKataSandiActivity"
+    tools:context=".profile.ProfileKataSandiActivity"
     android:paddingEnd="10dp"
     android:paddingStart="10dp"
     android:paddingTop="20dp"

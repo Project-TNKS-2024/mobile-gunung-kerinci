@@ -92,7 +92,7 @@ class FormLaporanActivity : AppCompatActivity() {
 
     //Foto profile default
     private fun setDefaultProfile() {
-        binding.fotoProfile.setImageResource(R.drawable.ic_profile)
+        binding.fotoProfile.setImageResource(R.drawable.akundefault)
     }
 
     //DROPDOWN LOKASI

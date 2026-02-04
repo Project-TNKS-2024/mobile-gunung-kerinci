@@ -11,6 +11,7 @@
         android:icon="@drawable/ticket"
         android:title="Tiket"/>
 
+    <!--
     <item
         android:id="@+id/navigation_jejak"
         android:icon="@drawable/vr"
@@ -20,6 +21,7 @@
         android:id="@+id/navigation_laporan"
         android:icon="@drawable/laporan"
         android:title="Laporan"/>
+        -->
 
     <item
         android:id="@+id/navigation_profile"

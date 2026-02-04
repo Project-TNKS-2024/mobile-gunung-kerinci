@@ -244,6 +244,38 @@
         scelerisque sem. Mauris volutpat, dolor id interdum ullamcorper, risus dolor egestas
         lectus, sit amet mattis purus dui nec risus.</string>
     <string name="unggah">Unggah disini</string>
+
+    <string name="tentang">Aplikasi E-Ticket Pendakian Gunung Kerinci merupakan sistem layanan
+        digital yang dikembangkan untuk mendukung pengelolaan pendakian di kawasan Taman Nasional
+        Kerinci Seblat (TNKS) secara lebih efektif, aman, dan terintegrasi. Aplikasi ini dirancang
+        sebagai media resmi pemesanan tiket pendakian yang memudahkan pendaki dalam melakukan
+        pendaftaran, pengisian data pendakian, pembayaran, hingga memperoleh tiket digital tanpa
+        harus melalui proses manual di lokasi.
+        \n
+        \nMelalui aplikasi ini, pendaki dapat mengakses berbagai informasi penting terkait pendakian
+        Gunung Kerinci, seperti jadwal pendakian, kuota pendaki, ketentuan dan persyaratan, serta
+        status tiket secara real-time. Selain itu, aplikasi juga mendukung proses validasi dan
+        pengawasan oleh pihak pengelola TNKS melalui fitur tiket digital dan pemindaian QR Code,
+        sehingga data pendaki dapat tercatat dengan lebih akurat dan transparan.
+        \n
+        \nDengan adanya aplikasi e-ticket ini, diharapkan pengelolaan pendakian Gunung Kerinci dapat berjalan
+        lebih tertib, efisien, dan berkelanjutan, serta meningkatkan keselamatan pendaki sekaligus
+        mendukung upaya konservasi kawasan taman nasional.</string>
+    <string name="kebijakan">Aplikasi E-Ticket Pendakian Gunung Kerinci berkomitmen untuk melindungi
+        dan menjaga kerahasiaan data pribadi pengguna. Setiap informasi yang diberikan oleh pengguna,
+        seperti data identitas, kontak, dan informasi pendakian, dikumpulkan dan digunakan semata-mata
+        untuk keperluan administrasi pendakian, pengelolaan tiket, serta pengawasan keselamatan
+        pendaki di kawasan TNKS.
+        \n
+        \nData pribadi pengguna tidak akan disebarluaskan, diperjualbelikan, atau diberikan kepada
+        pihak lain tanpa izin, kecuali apabila diwajibkan oleh ketentuan hukum yang berlaku atau
+        digunakan untuk kepentingan operasional resmi pengelolaan taman nasional. Sistem keamanan
+        diterapkan untuk mencegah akses tidak sah, kehilangan, maupun penyalahgunaan data.
+        \n
+        \nDengan menggunakan aplikasi ini, pengguna dianggap telah membaca, memahami, dan menyetujui
+        seluruh ketentuan dalam kebijakan privasi yang berlaku. Pengelola berhak melakukan pembaruan
+        kebijakan privasi apabila diperlukan, dan setiap perubahan akan diinformasikan melalui aplikasi.</string>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="defaul_web_client_id">519630177463-aqpttusb47s3f8e2schim200eb9u27on.apps.googleusercontent.com</string>

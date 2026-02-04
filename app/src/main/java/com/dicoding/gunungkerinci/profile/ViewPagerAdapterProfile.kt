@@ -1,4 +1,4 @@
-package com.dicoding.gunungkerinci.Profile
+package com.dicoding.gunungkerinci.profile
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager

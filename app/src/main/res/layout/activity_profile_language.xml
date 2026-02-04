@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Profile.ProfileLanguageActivity"
+    tools:context=".profile.ProfileLanguageActivity"
     android:paddingBottom="20dp"
     android:paddingTop="20dp"
     android:paddingStart="10dp"

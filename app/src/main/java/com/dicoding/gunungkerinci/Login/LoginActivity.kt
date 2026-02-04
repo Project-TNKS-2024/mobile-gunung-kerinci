@@ -1,144 +1,161 @@
 package com.dicoding.gunungkerinci.Login
 
 import android.content.Intent
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Patterns
 import android.widget.Toast
+import androidx.browser.customtabs.CustomTabsIntent
+import androidx.lifecycle.lifecycleScope
 import com.dicoding.gunungkerinci.MainActivity
-import com.dicoding.gunungkerinci.Profile.ProfileFragment
 import com.dicoding.gunungkerinci.databinding.ActivityLoginBinding
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
+import com.dicoding.gunungkerinci.model.LoginRequest
+import com.dicoding.gunungkerinci.network.ApiConfig
+import com.dicoding.gunungkerinci.pref.UserPreference
+import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
-    private lateinit var googleSignInClient: GoogleSignInClient
-    private val RC_SIGN_IN = 1001
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setupGoogleLogin()
-        setupButtons()
-    }
+            //setupAction()
+        binding.buttonMasuk.setOnClickListener {
+            val email = binding.emailEditText.text.toString().trim()
+            val password = binding.passwordEditText.text.toString().trim()
 
-    // GOOGLE SIGN-IN SETUP
-    private fun setupGoogleLogin() {
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            //.requestIdToken(getString(R.string.defaul_web_client_id))
-            .requestEmail()
-            .build()
+            if (!validateInput(email, password)) return@setOnClickListener
+            login(email, password)
+        }
 
-        googleSignInClient = GoogleSignIn.getClient(this, gso)
-    }
-
-    // BUTTON LISTENER
-    private fun setupButtons() {
-
-        // Login Manual
-        binding.buttonMasuk.setOnClickListener { validateManualLogin() }
-
-        // Login dengan Google
         binding.buttonGoogle.setOnClickListener {
-            googleSignInClient.signOut().addOnCompleteListener{
-                signInWithGoogle()
+            loginWithGoogle()
+        }
+    }
+
+    private fun loginWithGoogle() {
+        lifecycleScope.launch {
+            try {
+                val response = ApiConfig
+                    .getApiService(this@LoginActivity)
+                    .googleRedirect()
+
+                if (response.isSuccessful && response.body()?.success == true) {
+
+                    val redirectUrl =
+                        response.body()?.data?.redirect_url
+
+                    if (!redirectUrl.isNullOrEmpty()) {
+                        openGoogleOAuth(redirectUrl)
+                    } else {
+                        Toast.makeText(
+                            this@LoginActivity,
+                            "URL Google tidak tersedia",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+
+                } else {
+                    Toast.makeText(
+                        this@LoginActivity,
+                        "Gagal menghubungkan Google",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+            } catch (e: Exception) {
+                Toast.makeText(
+                    this@LoginActivity,
+                    "Koneksi gagal: ${e.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
-
-        // Pindah ke Register
-        binding.buttonRegisNow.setOnClickListener{
-            startActivity(Intent(this, RegistrationActivity::class.java))
-            finish()
-        }
-
-        binding.buttonForgetPass.setOnClickListener {
-            startActivity(Intent(this, ForgetPassActivity::class.java))
-            finish()
-        }
-
     }
 
-    // GOOGLE LOGIN FLOW
-    private fun signInWithGoogle() {
-        val intent = googleSignInClient.signInIntent
-        startActivityForResult(intent, RC_SIGN_IN)
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == RC_SIGN_IN) {
-            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
-            handleGoogleLogin(task)
-        }
-    }
-
-    private fun handleGoogleLogin(task: com.google.android.gms.tasks.Task<com.google.android.gms.auth.api.signin.GoogleSignInAccount>) {
-        try {
-            val account = task.getResult(ApiException::class.java)
-
-            val email = account?.email ?: "unknown@gmail.com"
-            val name = account?.displayName ?: "Pengguna"
-
-            Toast.makeText(this, "Login Google Berhasil", Toast.LENGTH_SHORT).show()
-
-            // Masuk ke halaman profile
-            val intent = Intent(this, MainActivity::class.java)
-            intent.putExtra("email", email)
-            intent.putExtra("name", name)
-            intent.putExtra("open_fragment", "profile")
-            startActivity(intent)
-            finish()
-
-        } catch (e: ApiException) {
-            Toast.makeText(this, "Login Google gagal: ${e.message}", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    // MANUAL LOGIN
-    private fun validateManualLogin() {
-
-        val email = binding.emailEditText.text.toString().trim()
-        val password = binding.passwordEditText.text.toString().trim()
-
+    private fun validateInput(email: String, password: String): Boolean {
         if (email.isEmpty()) {
-            binding.emailEditText.error = "Email harus diisi"
-            binding.emailEditText.requestFocus()
-            return
+            binding.emailEditText.error = "Email wajib diisi"
+            return false
         }
 
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            binding.emailEditText.error = "Format email salah"
-            binding.emailEditText.requestFocus()
-            return
+            binding.emailEditText.error = "Format email tidak valid"
+            return false
         }
 
         if (password.isEmpty()) {
-            binding.passwordEditText.error = "Password harus diisi"
-            binding.passwordEditText.requestFocus()
-            return
+            binding.passwordEditText.error = "Password wajib diisi"
+            return false
         }
 
         if (password.length < 8) {
-            binding.passwordEditText.error = "Password diisi minimal 8 karakter"
-            binding.passwordEditText.requestFocus()
-            return
+            binding.passwordEditText.error = "Password minimal 8 karakter"
+            return false
         }
 
-        Toast.makeText(this, "Login Berhasil", Toast.LENGTH_SHORT).show()
-
-        val intent = Intent(this, MainActivity::class.java)
-        intent.putExtra("email", email)
-        intent.putExtra("open_fragment", "profile")
-        startActivity(intent)
-        finish()
-
+        return true
     }
+
+    private fun login(email: String, password: String) {
+        lifecycleScope.launch {
+            try {
+                val response = ApiConfig.getApiService(this@LoginActivity)
+                    .login(LoginRequest(email, password))
+
+                if (response.isSuccessful && response.body()?.success == true) {
+
+                    val token = response.body()?.data?.token ?: ""
+
+                    // 🔥 INI YANG SELAMA INI HILANG
+                    saveLoginSession(token, email)
+
+                    Toast.makeText(
+                        this@LoginActivity,
+                        "Login berhasil",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+                    finish()
+
+                } else {
+                    Toast.makeText(
+                        this@LoginActivity,
+                        "Email atau password salah",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+            } catch (e: Exception) {
+                Toast.makeText(
+                    this@LoginActivity,
+                    "Koneksi gagal: ${e.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    // ✅ SIMPAN TOKEN + EMAIL
+    private fun saveLoginSession(token: String, email: String) {
+        val pref = getSharedPreferences("auth", MODE_PRIVATE)
+        pref.edit()
+            .putString("token", token)
+            .putString("email", email)
+            .apply()
+    }
+
+    private fun openGoogleOAuth(url: String) {
+        val customTabsIntent = CustomTabsIntent.Builder().build()
+        customTabsIntent.launchUrl(this, Uri.parse(url))
+    }
+
 }
+
+

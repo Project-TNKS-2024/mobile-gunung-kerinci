@@ -31,7 +31,7 @@
 
     <fragment
         android:id="@+id/navigation_profile"
-        android:name="com.dicoding.gunungkerinci.Profile.ProfileFragment"
+        android:name="com.dicoding.gunungkerinci.profile.ProfileFragment"
         android:label="Tiket"
         tools:layout="@layout/fragment_profile"/>
 

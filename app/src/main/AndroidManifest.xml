@@ -35,14 +35,13 @@
             android:name=".Ticket.Pembayaran.PembayaranActivity"
             android:exported="false" />
         <activity
-            android:name=".Profile.ProfileAboutAppActivity"
+            android:name=".profile.ProfileAboutAppActivity"
             android:exported="false" />
         <activity
-            android:name=".Profile.ProfileLanguageActivity"
+            android:name=".profile.ProfileLanguageActivity"
             android:exported="false" />
-        <activity
-            android:name=".Profile.ProfileDataPribadiActivity"
-            android:exported="false"/>
+        <activity android:name=".profile.ProfileDataPribadiActivity"
+            android:exported="false" />
         <activity
             android:name=".Ticket.DataPendaki.DetailDataPendakiActivity"
             android:exported="false" />
@@ -65,7 +64,7 @@
             android:name=".Login.ForgetEmailActivity"
             android:exported="false" />
         <activity
-            android:name=".Profile.ProfileKataSandiActivity"
+            android:name=".profile.ProfileKataSandiActivity"
             android:exported="false" />
         <activity
             android:name=".Ticket.TiketFormDataPendakiActivity"
@@ -93,24 +92,74 @@
             android:exported="false" />
         <activity
             android:name=".Login.ForgetPassActivity"
-            android:exported="false" />
+            android:exported="true" >
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:scheme="https"
+                    android:host="eticket-tnks.fst.unja.ac.id"
+                    android:pathPrefix="/resetPassword" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".MainActivity"
-            android:exported="false" />
+            android:exported="true"
+            android:launchMode="singleTask">
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+
+                <data
+                    android:scheme="gunungkerinci"
+                    android:host="oauth"/>
+            </intent-filter>
+
+        </activity>
         <activity
             android:name=".Login.RegistrationActivity"
-            android:exported="false" />
+            android:exported="true"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:scheme="gunungkerinci"
+                    android:host="oauth" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".Login.LoginActivity"
-            android:exported="false" />
+            android:exported="true" >
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:scheme="https"
+                    android:host="eticket-tnks.fst.unja.ac.id"
+                    android:pathPrefix="/verify-redirect" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".SplashScreen.SplashScreeanActivity"
             android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
         </activity>
         <activity
             android:name=".SplashScreen.OnboardingActivity"

@@ -46,7 +46,7 @@ class LaporanAdapter(
         holder.tvDeskripsi.text = item.deskripsi
 
         //foto profile default
-        holder.fotoProfile.setImageResource(R.drawable.ic_profile)
+        holder.fotoProfile.setImageResource(R.drawable.akundefault)
 
         // tampilkan jumlah foto sesuai jumlah yang ada
         for (i in holder.imageSlots.indices) {
