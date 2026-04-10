@@ -178,7 +178,15 @@ class RegistrationActivity : AppCompatActivity() {
 
                 if (response.isSuccessful && response.body()?.success == true) {
                     val redirectUrl = response.body()?.data?.redirect_url
-                    openCustomTab(redirectUrl!!)
+                    //openCustomTab(redirectUrl!!)
+
+                    Log.d("OAUTH_DEBUG", "Redirect URL: $redirectUrl")
+
+                    if (!redirectUrl.isNullOrEmpty()) {
+                        openCustomTab(redirectUrl)
+                    } else {
+                        Log.e("OAUTH_DEBUG", "Redirect URL NULL")
+                    }
                 }
             } catch (e: Exception) {
                 Log.e("GOOGLE_OAUTH", "error", e)
@@ -205,8 +213,19 @@ class RegistrationActivity : AppCompatActivity() {
             val token = data.getQueryParameter("token")
             val isNewUser = data.getQueryParameter("is_new_user")
 
+            val email = data.getQueryParameter("email")
+
             if (!token.isNullOrEmpty()) {
                 UserPreference(this).saveToken(token)
+
+                val pref = getSharedPreferences("auth", MODE_PRIVATE)
+                pref.edit().apply {
+                    putString("token", token)
+                    if (!email.isNullOrEmpty()) {
+                        putString("email", email)
+                    }
+                    apply()
+                }
 
                 if (isNewUser == "true") {
                     startActivity(Intent(this, VerificationActivity::class.java))

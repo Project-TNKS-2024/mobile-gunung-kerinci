@@ -73,6 +73,11 @@ class OnboardingActivity: AppCompatActivity() {
     }
 
     private fun goToMain() {
+
+        val sharedPref = getSharedPreferences("auth", MODE_PRIVATE)
+        sharedPref.edit().putBoolean("ONBOARDING_FINISHED", true).apply()
+
+
         val intent = Intent(this, RegistrationActivity::class.java)
         startActivity(intent)
         finish()

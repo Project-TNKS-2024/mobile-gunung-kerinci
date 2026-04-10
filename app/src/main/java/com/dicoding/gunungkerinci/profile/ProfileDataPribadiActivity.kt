@@ -62,7 +62,7 @@ class ProfileDataPribadiActivity : AppCompatActivity() {
 
 
     fun String.toTextBody(): RequestBody =
-        this.toRequestBody("text/plain".toMediaTypeOrNull())
+        this.toRequestBody("multipart/form-data".toMediaTypeOrNull())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,6 +72,9 @@ class ProfileDataPribadiActivity : AppCompatActivity() {
         loginEmail = getEmailLogin()
 
         binding.emailEditText.setText(getEmailLogin())
+
+        Log.d("EMAIL_DEBUG", "Email = ${getEmailLogin()}")
+
         binding.emailEditText.isEnabled = false
         binding.fotoProfile.setImageResource(R.drawable.akundefault)
 
@@ -80,8 +83,8 @@ class ProfileDataPribadiActivity : AppCompatActivity() {
         }
 
         setupUI()
-        getProfile()
         getNegaraFromApi()
+        //getProfile()
 
         binding.btnSimpan.setOnClickListener { submitProfile() }
     }
@@ -166,14 +169,17 @@ class ProfileDataPribadiActivity : AppCompatActivity() {
                 if (response.isSuccessful && response.body()?.data != null) {
                     fillForm(response.body()!!.data)
                 }
+                Log.d("PROFILE_DEBUG", "Response = ${response.body()}")
             } catch (e: Exception) {
-                // Handle error
+
             }
         }
     }
 
 
     private fun fillForm(data: ProfileData) {
+        binding.emailEditText.setText(data.email)
+
         binding.namdepEditText.setText(data.first_name)
         binding.nambelEditText.setText(data.last_name)
 
@@ -189,6 +195,10 @@ class ProfileDataPribadiActivity : AppCompatActivity() {
             binding.radioPria.isChecked = true
         } else {
             binding.radioWanita.isChecked = true
+        }
+
+        if (data.nationality == "ID") {
+            binding.layoutAlamat.visibility = View.VISIBLE
         }
     }
 
@@ -223,9 +233,11 @@ class ProfileDataPribadiActivity : AppCompatActivity() {
                             selectedKecamatan = null
                         }
                     }
+
+                    getProfile()
                 }
             } catch (e: Exception) {
-                // Handle error
+                Toast.makeText(this@ProfileDataPribadiActivity, "Gagal load negara", Toast.LENGTH_SHORT).show()
             }
         }
     }

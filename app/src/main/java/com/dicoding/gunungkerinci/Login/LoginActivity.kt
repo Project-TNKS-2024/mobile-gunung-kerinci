@@ -12,7 +12,6 @@ import com.dicoding.gunungkerinci.MainActivity
 import com.dicoding.gunungkerinci.databinding.ActivityLoginBinding
 import com.dicoding.gunungkerinci.model.LoginRequest
 import com.dicoding.gunungkerinci.network.ApiConfig
-import com.dicoding.gunungkerinci.pref.UserPreference
 import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity() {
@@ -35,6 +34,14 @@ class LoginActivity : AppCompatActivity() {
 
         binding.buttonGoogle.setOnClickListener {
             loginWithGoogle()
+        }
+
+        binding.buttonRegisNow.setOnClickListener {
+            startActivity(Intent(this, RegistrationActivity::class.java))
+        }
+
+        binding.buttonForgetPass.setOnClickListener {
+            startActivity(Intent(this, ForgetEmailActivity::class.java))
         }
     }
 
@@ -112,7 +119,6 @@ class LoginActivity : AppCompatActivity() {
 
                     val token = response.body()?.data?.token ?: ""
 
-                    // 🔥 INI YANG SELAMA INI HILANG
                     saveLoginSession(token, email)
 
                     Toast.makeText(
@@ -121,8 +127,9 @@ class LoginActivity : AppCompatActivity() {
                         Toast.LENGTH_SHORT
                     ).show()
 
-                    startActivity(Intent(this@LoginActivity, MainActivity::class.java))
-                    finish()
+                    val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
 
                 } else {
                     Toast.makeText(
@@ -148,6 +155,7 @@ class LoginActivity : AppCompatActivity() {
         pref.edit()
             .putString("token", token)
             .putString("email", email)
+            .putBoolean("IS_LOGGED_IN", true)
             .apply()
     }
 

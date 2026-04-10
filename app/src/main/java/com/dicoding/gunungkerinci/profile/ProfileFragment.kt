@@ -11,14 +11,8 @@ import androidx.lifecycle.lifecycleScope
 import com.dicoding.gunungkerinci.Login.LoginActivity
 import com.dicoding.gunungkerinci.R
 import com.dicoding.gunungkerinci.databinding.FragmentProfileBinding
-import com.dicoding.gunungkerinci.model.BaseResponse
 import com.dicoding.gunungkerinci.network.ApiConfig
 import kotlinx.coroutines.launch
-
-// FIX: Imports have been corrected to use the lowercase 'profile' package
-import com.dicoding.gunungkerinci.profile.ProfileAboutAppActivity
-import com.dicoding.gunungkerinci.profile.ProfileDataPribadiActivity
-import com.dicoding.gunungkerinci.profile.ProfileKataSandiActivity
 
 class ProfileFragment : Fragment() {
 
@@ -135,7 +129,9 @@ class ProfileFragment : Fragment() {
 
     private fun clearSession() {
         val pref = requireContext().getSharedPreferences("auth", 0)
-        pref.edit().clear().apply()
+        pref.edit()
+            .clear()
+            .apply()
     }
 
     private fun goToLogin() {

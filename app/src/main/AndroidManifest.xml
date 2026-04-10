@@ -89,11 +89,27 @@
             android:exported="false" />
         <activity
             android:name=".Login.VerificationActivity"
-            android:exported="false" />
+            android:exported="true"
+            android:launchMode="singleTask">
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:scheme="gunungkerinci"
+                    android:host="verify" />
+            </intent-filter>
+
+        </activity>
         <activity
             android:name=".Login.ForgetPassActivity"
-            android:exported="true" >
-            <intent-filter android:autoVerify="true">
+            android:exported="true"
+            android:launchMode="singleTask" >
+
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
@@ -101,8 +117,7 @@
 
                 <data
                     android:scheme="https"
-                    android:host="eticket-tnks.fst.unja.ac.id"
-                    android:pathPrefix="/resetPassword" />
+                    android:host="reset"/>
             </intent-filter>
         </activity>
         <activity
@@ -111,16 +126,11 @@
             android:launchMode="singleTask">
 
             <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
+            <action android:name="android.intent.action.VIEW" />
 
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-
-                <data
-                    android:scheme="gunungkerinci"
-                    android:host="oauth"/>
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
-
         </activity>
         <activity
             android:name=".Login.RegistrationActivity"
