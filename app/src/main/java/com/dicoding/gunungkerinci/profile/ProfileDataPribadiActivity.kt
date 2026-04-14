@@ -177,15 +177,42 @@ class ProfileDataPribadiActivity : AppCompatActivity() {
         binding.namdepEditText.setText(data.first_name)
         binding.nambelEditText.setText(data.last_name)
 
-        binding.wargaEditText.setText(data.nationality, false)
-        selectedCountry = countryList.find { it.code == data.nationality }
+        // Restore country selection
+        selectedCountry = data.dataNegara?.let { Country(it.name ?: "", it.flag ?: "", it.code ?: "", it.dial_code ?: "") }
+        binding.wargaEditText.setText(data.dataNegara?.let { "${it.flag} ${it.name}" }, false)
 
-        binding.alamatEditText.setText(data.address)
-        binding.lahirEditText.setText(data.birth_date)
-        binding.identitasEditText.setText(data.identity_number)
-        binding.inputTelepon.setText(data.phone)
+        // Show/hide address layout based on nationality
+        if (data.kenegaraan == "ID") {
+            binding.layoutAlamat.visibility = View.VISIBLE
 
-        if (data.gender.lowercase() == "pria") {
+            // Restore domisili selections
+            data.dataProvinsi?.let { selectedProvinsi = Provinsi(it.id ?: 0, it.name ?: "", "") }
+            data.dataKabupaten?.let { selectedKabupaten = Kabupaten(it.id ?: 0, it.name ?: "", "", 0) }
+            data.dataKecamatan?.let { selectedKecamatan = Kecamatan(it.id ?: 0, it.name ?: "", 0) }
+
+            val alamat = listOfNotNull(
+                data.dataKecamatan?.name,
+                data.dataKabupaten?.name,
+                data.dataProvinsi?.name
+            ).joinToString(", ")
+            binding.alamatEditText.setText(alamat)
+        } else {
+            binding.layoutAlamat.visibility = View.GONE
+        }
+
+        binding.lahirEditText.setText(data.tanggal_lahir?.take(10))
+        binding.identitasEditText.setText(data.nik)
+
+        // Parse phone: strip country code, set local number
+        val rawPhone = data.no_hp ?: ""
+        val spaceIdx = rawPhone.indexOf(' ')
+        if (spaceIdx != -1) {
+            binding.inputTelepon.setText(rawPhone.substring(spaceIdx + 1).trim())
+        } else {
+            binding.inputTelepon.setText(rawPhone)
+        }
+
+        if (data.jenis_kelamin?.lowercase() == "l") {
             binding.radioPria.isChecked = true
         } else {
             binding.radioWanita.isChecked = true

@@ -66,7 +66,7 @@ interface ApiService {
         @Body request: ResetPasswordRequest
     ): Response<BaseResponse<Unit>>
 
-    @GET("api/profile/biodata")
+    @GET("api/profile/getbiodata")
     @Headers(
         "Accept: application/json"
     )
