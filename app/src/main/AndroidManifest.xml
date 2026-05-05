@@ -158,7 +158,7 @@
 
                 <data
                     android:scheme="https"
-                    android:host="eticket-tnks.fst.unja.ac.id"
+                    android:host="tnks.mukhtada.my.id"
                     android:pathPrefix="/verify-redirect" />
             </intent-filter>
         </activity>

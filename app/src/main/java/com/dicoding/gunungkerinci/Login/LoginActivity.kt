@@ -12,6 +12,7 @@ import com.dicoding.gunungkerinci.MainActivity
 import com.dicoding.gunungkerinci.databinding.ActivityLoginBinding
 import com.dicoding.gunungkerinci.model.LoginRequest
 import com.dicoding.gunungkerinci.network.ApiConfig
+import com.dicoding.gunungkerinci.pref.UserPreference
 import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity() {
@@ -157,6 +158,9 @@ class LoginActivity : AppCompatActivity() {
             .putString("email", email)
             .putBoolean("IS_LOGGED_IN", true)
             .apply()
+
+        // Sync token to UserPreference (used by ApiConfig interceptor)
+        UserPreference(this).saveToken(token)
     }
 
     private fun openGoogleOAuth(url: String) {
