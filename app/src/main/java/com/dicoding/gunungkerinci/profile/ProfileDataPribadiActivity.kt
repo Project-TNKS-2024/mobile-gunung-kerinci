@@ -62,7 +62,7 @@ class ProfileDataPribadiActivity : AppCompatActivity() {
 
 
     fun String.toTextBody(): RequestBody =
-        this.toRequestBody("multipart/form-data".toMediaTypeOrNull())
+        this.toRequestBody("text/plain".toMediaTypeOrNull())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -178,7 +178,8 @@ class ProfileDataPribadiActivity : AppCompatActivity() {
 
 
     private fun fillForm(data: ProfileData) {
-        binding.emailEditText.setText(data.email)
+        val emailFinal = data.email ?: getEmailLogin()
+        binding.emailEditText.setText(emailFinal)
 
         binding.namdepEditText.setText(data.first_name)
         binding.nambelEditText.setText(data.last_name)
@@ -217,6 +218,16 @@ class ProfileDataPribadiActivity : AppCompatActivity() {
         } else {
             binding.inputTelepon.setText(rawPhone)
         }
+        data.dataNegara?.dial_code?.replace("+", "")?.let { code ->
+            try {
+                binding.ccp.setCountryForPhoneCode(code.toInt())
+            } catch (e: Exception) {
+                Log.e("PHONE_DEBUG", "Kode negara tidak valid: $code")
+            }
+        }
+        if (data.dataNegara?.dial_code.isNullOrEmpty()) {
+            binding.ccp.setCountryForPhoneCode(62) // default Indonesia
+        }
 
         if (data.jenis_kelamin?.lowercase() == "l") {
             binding.radioPria.isChecked = true
@@ -224,9 +235,9 @@ class ProfileDataPribadiActivity : AppCompatActivity() {
             binding.radioWanita.isChecked = true
         }
 
-        if (data.nationality == "ID") {
-            binding.layoutAlamat.visibility = View.VISIBLE
-        }
+        //if (data.nationality == "ID") {
+        //    binding.layoutAlamat.visibility = View.VISIBLE
+        //}
     }
 
     private fun getNegaraFromApi() {
@@ -416,7 +427,11 @@ class ProfileDataPribadiActivity : AppCompatActivity() {
                     ).show()
                     finish()
                 } else {
-                    handleProfileError(response.errorBody()?.string())
+                    val error = response.errorBody()?.string()
+
+                    Log.d("ERROR_BODY", error ?: "NULL") // 👈 TAMBAHKAN DI SINI
+
+                    handleProfileError(error)
                 }
             } catch (e: Exception) {
                 Toast.makeText(this@ProfileDataPribadiActivity,
