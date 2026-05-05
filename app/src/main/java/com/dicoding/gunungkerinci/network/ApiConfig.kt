@@ -9,7 +9,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object ApiConfig {
 
-    private const val BASE_URL = "https://eticket-tnks.fst.unja.ac.id/"
+    private const val BASE_URL = "https://tnks.mukhtada.my.id/"
 
     fun getApiService(context: Context): ApiService {
         val logging = HttpLoggingInterceptor()
@@ -17,15 +17,21 @@ object ApiConfig {
 
         val client = OkHttpClient.Builder()
             .addInterceptor { chain ->
+                val originalRequest = chain.request()
                 val token = UserPreference(context).getToken()
-                val request = chain.request().newBuilder()
 
-                if (!token.isNullOrEmpty()) {
-                    request.addHeader("Authorization", "Bearer $token")
+                // Skip if request already has Authorization header or token is empty
+                val request = if (!token.isNullOrEmpty() && originalRequest.header("Authorization") == null) {
+                    originalRequest.newBuilder()
+                        .addHeader("Authorization", "Bearer $token")
+                        .build()
+                } else {
+                    originalRequest
                 }
 
-                chain.proceed(request.build())
+                chain.proceed(request)
             }
+            .addInterceptor(logging)
             .build()
 
         val retrofit = Retrofit.Builder()

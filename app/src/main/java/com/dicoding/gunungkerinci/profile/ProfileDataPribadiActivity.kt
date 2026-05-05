@@ -429,7 +429,7 @@ class ProfileDataPribadiActivity : AppCompatActivity() {
                 } else {
                     val error = response.errorBody()?.string()
 
-                    Log.d("ERROR_BODY", error ?: "NULL") // 👈 TAMBAHKAN DI SINI
+                    Log.e("PROFILE_SAVE", "HTTP ${response.code()} - $error")
 
                     handleProfileError(error)
                 }
