@@ -9,7 +9,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object ApiConfig {
 
-    private const val BASE_URL = "https://tnks.mukhtada.my.id/"
+    private const val BASE_URL = "https://eticket-tnks.fst.unja.ac.id/"
+    //private const val BASE_URL = "https://tnks.mukhtada.my.id/"
 
     fun getApiService(context: Context): ApiService {
         val logging = HttpLoggingInterceptor()

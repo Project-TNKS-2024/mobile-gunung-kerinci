@@ -39,11 +39,7 @@ class ProfileFragment : Fragment() {
         // FOTO PROFIL DEFAULT
         binding.fotoProfile.setImageResource(R.drawable.akundefault)
 
-        // Default UI state (no DB). Show placeholder profile icon already in drawable.
-        showDefaultProfile()
-
-        //USERNAME DEFAULT
-        binding.tvUserName.text = "Pengguna Baru"
+        cekBiodataStatus()
 
 
         //KLIK ISI BIODATA -> PINDAH PAGE
@@ -89,17 +85,43 @@ class ProfileFragment : Fragment() {
                 .show()
         }
 
-        // Terima data dari MainActivity ketika kembali setelah simpan biodata
-        // Kita cek argumen Intent dari activity host (MainActivity bisa set extras)
-        val hostIntent = activity?.intent
-        hostIntent?.let {
-            val fromBiodata = it.getBooleanExtra("from_biodata", false)
-            if (fromBiodata) {
-                val namaUser = it.getStringExtra("nama_user") ?: ""
-                applyBiodataToUI(namaUser)
-                // clear the flag to avoid re-applying on future opens:
-                it.removeExtra("from_biodata")
+    }
+
+    private fun cekBiodataStatus() {
+        val pref = requireContext()
+            .getSharedPreferences("profile_data", 0)
+
+        val isFilled = pref.getBoolean("is_biodata_filled", false)
+
+        val userName = pref.getString("user_name", "USER") ?: "USER"
+
+        val verificationStatus =
+            pref.getString("verification_status", "none")
+
+        if (isFilled) {
+
+            // TAMPILKAN DATA USER
+            binding.tvUserName.text = userName
+
+            // HILANGKAN WARNING
+            binding.cardWarning.visibility = View.GONE
+
+            // HILANGKAN BUTTON ISI BIODATA
+            binding.btnIsiBiodata.visibility = View.GONE
+
+            // STATUS VERIFIKASI
+            if (verificationStatus == "pending") {
+
+                binding.tvStatusBelum.text =
+                    "Akun sedang diverifikasi oleh admin"
+
+                binding.tvStatusBelum.visibility = View.VISIBLE
             }
+
+        } else {
+
+            // DEFAULT
+            showDefaultProfile()
         }
     }
 
@@ -164,9 +186,15 @@ class ProfileFragment : Fragment() {
     //DEFAULT UI BELUM DIISI
     private fun showDefaultProfile() {
         binding.tvUserName.text = "Pengguna Baru"
+
+        binding.btnIsiBiodata.visibility = View.VISIBLE
+
+        binding.cardWarning.visibility = View.VISIBLE
+
         binding.tvStatusBelum.visibility = View.VISIBLE
         binding.tvStatusSudah.visibility = View.GONE
     }
+
 
     override fun onDestroy() {
         super.onDestroy()

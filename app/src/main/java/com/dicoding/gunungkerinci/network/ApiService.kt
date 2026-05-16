@@ -99,7 +99,6 @@ interface ApiService {
         @Part("kabupaten_kota") kabupaten: RequestBody?,
         @Part("kecamatan") kecamatan: RequestBody?,
 
-        //@Part profile_photo: MultipartBody.Part?,
         @Part lampiran_identitas: MultipartBody.Part?
     ): Response<BaseResponse<Unit>>
 
