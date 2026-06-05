@@ -134,7 +134,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/tvUserName"
-                    android:text="Diah Ambarwati"
+                    android:text="Pengguna Baru"
                     android:textColor="@color/primary"
                     android:fontFamily="@font/plus_jakarta_sans_bold"
                     android:textSize="20sp"/>

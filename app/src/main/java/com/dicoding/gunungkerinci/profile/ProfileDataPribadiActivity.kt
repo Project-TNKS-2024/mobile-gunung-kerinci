@@ -68,6 +68,7 @@ class ProfileDataPribadiActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityProfileDataPribadiBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         val savedFileName = getSharedPreferences("profile_temp", MODE_PRIVATE)
             .getString("uploaded_file_name", null)
@@ -80,6 +81,10 @@ class ProfileDataPribadiActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         loginEmail = getEmailLogin()
+
+        binding.buttonBack.setOnClickListener {
+            finish()
+        }
 
         binding.emailEditText.setText(getEmailLogin())
 

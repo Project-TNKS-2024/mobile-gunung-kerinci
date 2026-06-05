@@ -9,6 +9,7 @@ import com.dicoding.gunungkerinci.model.KabupatenResponse
 import com.dicoding.gunungkerinci.model.KecamatanResponse
 import com.dicoding.gunungkerinci.model.LoginRequest
 import com.dicoding.gunungkerinci.model.LoginResponse
+import com.dicoding.gunungkerinci.model.PendakiIdentityResponse
 import com.dicoding.gunungkerinci.model.ProfileResponse
 import com.dicoding.gunungkerinci.model.ProvinsiResponse
 import com.dicoding.gunungkerinci.model.RegisterRequest
@@ -164,4 +165,12 @@ interface ApiService {
 
     @GET("api/auth/google/redirect")
     suspend fun googleRedirect(): Response<BaseResponse<GoogleRedirectResponse>>
+
+    @GET("api/profile/pendaki-identity")
+    @Headers(
+        "Accept: application/json"
+    )
+    suspend fun getPendakiIdentity(
+        @Header("Authorization") token: String
+    ): Response<PendakiIdentityResponse>
 }
