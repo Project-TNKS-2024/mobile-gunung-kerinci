@@ -33,18 +33,12 @@ class ProfileKataSandiActivity : AppCompatActivity() {
 
     // ================= VALIDASI INPUT =================
     private fun validateInput() {
-        val passLama = binding.passLamaEditText.text.toString().trim()
         val passBaru = binding.passBaruEditText.text.toString().trim()
         val passKonf = binding.passBaruKonfEditText.text.toString().trim()
 
-        binding.passLamaTextLayout.error = null
         binding.passBaruTextLayout.error = null
         binding.passBaruKonfTextLayout.error = null
 
-        if (passLama.isEmpty()) {
-            binding.passLamaTextLayout.error = "Kata sandi lama wajib diisi"
-            return
-        }
 
         if (passBaru.isEmpty()) {
             binding.passBaruTextLayout.error = "Kata sandi baru wajib diisi"
@@ -56,11 +50,6 @@ class ProfileKataSandiActivity : AppCompatActivity() {
             return
         }
 
-        if (passBaru == passLama) {
-            binding.passBaruTextLayout.error =
-                "Kata sandi baru tidak boleh sama dengan kata sandi lama"
-            return
-        }
 
         if (passKonf != passBaru) {
             binding.passBaruKonfTextLayout.error =
@@ -68,11 +57,12 @@ class ProfileKataSandiActivity : AppCompatActivity() {
             return
         }
 
-        showPopupKonfirmasi(passLama, passBaru, passKonf)
+        //showPopupKonfirmasi(passLama, passBaru, passKonf)
+        showPopupKonfirmasi(passBaru, passKonf)
     }
 
     // ================= POPUP KONFIRMASI =================
-    private fun showPopupKonfirmasi(passLama: String, passBaru: String, passKonf: String) {
+    private fun showPopupKonfirmasi(passBaru: String, passKonf: String) {
         val dialogBinding = PopupDataBinding.inflate(LayoutInflater.from(this))
 
         val dialog = AlertDialog.Builder(this)
@@ -86,20 +76,21 @@ class ProfileKataSandiActivity : AppCompatActivity() {
 
         dialogBinding.btnSimpanData.setOnClickListener {
             dialog.dismiss()
-            requestGantiPassword(passLama, passBaru, passKonf)
+            //requestGantiPassword(passLama, passBaru, passKonf)
+            requestGantiPassword(passBaru, passKonf)
         }
 
         dialog.show()
     }
 
     // ================= API CALL =================
-    private fun requestGantiPassword(passLama: String, passBaru: String, passKonf: String) {
+    private fun requestGantiPassword(passBaru: String, passKonf: String) {
 
         val token = "Bearer ${getToken()}"
 
         val body = GantiPasswordRequest(
-            password = passBaru,
-            passwordConfirmation = passKonf
+            password_baru = passBaru,
+            password_baru_confirmation = passKonf
         )
 
         lifecycleScope.launch {
@@ -127,10 +118,10 @@ class ProfileKataSandiActivity : AppCompatActivity() {
             // Coba parse sebagai JSON Object
             val jsonObject = JSONObject(errorMessage)
             val message = jsonObject.getString("message")
-            binding.passLamaTextLayout.error = message
+            binding.passBaruTextLayout.error = message
         } catch (e: Exception) {
             // Jika gagal, berarti itu hanya String biasa
-            binding.passLamaTextLayout.error = errorMessage
+            binding.passBaruTextLayout.error = errorMessage
         }
     }
 
