@@ -115,7 +115,7 @@
         android:fontFamily="@font/plus_jakarta_sans_light"
         android:text="@string/Deskripsi"
         android:textColor="@color/black2"
-        android:textSize="16dp"
+        android:textSize="15dp"
         app:layout_constraintStart_toStartOf="@id/LebihBanyak"
         android:maxLines="5"
         app:layout_constraintBottom_toTopOf="@id/LebihBanyak"
