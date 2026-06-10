@@ -2,7 +2,6 @@ package com.dicoding.gunungkerinci.Homepage.Wisata
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.dicoding.gunungkerinci.R
 import com.dicoding.gunungkerinci.databinding.ActivityDeskWisataBinding
 import android.os.Build
 import android.text.Html

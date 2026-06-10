@@ -21,11 +21,11 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         android:src="@drawable/hint"
-        android:scaleType="centerCrop"
+        android:scaleType="center"
         android:adjustViewBounds="true"/>
 
     <ImageButton
@@ -96,7 +96,7 @@
 
     <TextView
         android:id="@+id/textLokasi"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Kayu Aro, Provinsi Jambi"
         android:textColor="@color/abutua"
@@ -104,6 +104,8 @@
         android:fontFamily="@font/plus_jakarta_sans_medium"
         app:layout_constraintTop_toTopOf="@id/Lokasi"
         app:layout_constraintStart_toEndOf="@id/Lokasi"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="20dp"
         android:layout_marginStart="7dp"/>
 
     <TextView
