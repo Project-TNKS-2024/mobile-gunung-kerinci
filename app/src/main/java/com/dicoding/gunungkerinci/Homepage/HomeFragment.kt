@@ -14,6 +14,12 @@ import com.dicoding.gunungkerinci.Homepage.Wisata.WisataActivity
 import com.dicoding.gunungkerinci.R
 import com.dicoding.gunungkerinci.Ticket.PilihTiketActivity
 import com.dicoding.gunungkerinci.databinding.FragmentHomeBinding
+import android.util.Log
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import com.dicoding.gunungkerinci.network.ApiConfig
+import android.os.Build
+import android.text.Html
 
 class HomeFragment : Fragment() {
 
@@ -31,11 +37,72 @@ class HomeFragment : Fragment() {
         binding = FragmentHomeBinding.inflate(inflater, container, false)
 
         setupMenu()
-        setupWisataList()
+
+        getDestinasi()
+
+        //setupWisataList()
 
         return binding.root
     }
 
+    private fun getDestinasi() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val response = ApiConfig.getApiService(requireContext())
+                    .getDestinasi()
+                if (response.isSuccessful) {
+
+                    val result = response.body()
+
+                    val listWisata = mutableListOf<WisataItem>()
+
+                    result?.data?.forEach { destinasi ->
+
+                        val imageUrl =
+                            if (destinasi.gambar_destinasi.isNotEmpty()) {
+                                "https://eticket-tnks.fst.unja.ac.id/${destinasi.gambar_destinasi[0].src}"
+                            } else {
+                                ""
+                            }
+
+                        val plainText =
+                            htmlToText(destinasi.detail)
+
+                        val shortDesc =
+                            if (plainText.length > 80)
+                                plainText.substring(0, 80) + "..."
+                            else
+                                plainText
+
+                        listWisata.add(
+                            WisataItem(
+                                id = destinasi.id,
+                                title = destinasi.nama,
+                                shortDesc = shortDesc,
+                                longDesc = plainText,
+                                imageUrl = imageUrl
+                            )
+                        )
+                    }
+
+                    val adapter = WisataAdapter(listWisata)
+
+                    binding.recyclerViewWisata.layoutManager =
+                        LinearLayoutManager(
+                            requireContext(),
+                            LinearLayoutManager.HORIZONTAL,
+                            false
+                        )
+
+                    binding.recyclerViewWisata.adapter = adapter
+                }
+            } catch (e: Exception) {
+                Log.d("DESTINASI_API", e.message.toString())
+            }
+        }
+    }
+
+    /*
     private fun setupWisataList() {
         val listWisata = listOf(
             WisataItem(
@@ -58,7 +125,7 @@ class HomeFragment : Fragment() {
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
         binding.recyclerViewWisata.adapter = adapter
-    }
+    } */
 
     private fun setupMenu() {
         binding.cardSOP.setOnClickListener {
@@ -80,6 +147,16 @@ class HomeFragment : Fragment() {
 
         binding.buttonNotif.setOnClickListener {
             startActivity(Intent(requireContext(), PemberitahuanActivity::class.java))
+        }
+
+    }
+
+    private fun htmlToText(html: String): String {
+
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Html.fromHtml(html, Html.FROM_HTML_MODE_COMPACT).toString()
+        } else {
+            Html.fromHtml(html).toString()
         }
 
     }

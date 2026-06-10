@@ -1,27 +1,49 @@
 package com.dicoding.gunungkerinci.Homepage.Wisata
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.dicoding.gunungkerinci.R
-import com.google.android.material.imageview.ShapeableImageView
+import com.bumptech.glide.Glide
+import com.dicoding.gunungkerinci.databinding.ItemDeskWisataBinding
 
-class DeskFotoAdapter (private val images: List<Int>) :
-    RecyclerView.Adapter<DeskFotoAdapter.VH>() {
+class DeskFotoAdapter(
+    private val images: List<String>,
+    private val onClick: (String) -> Unit
+) : RecyclerView.Adapter<DeskFotoAdapter.ViewHolder>() {
 
-    inner class VH(view: View) : RecyclerView.ViewHolder(view) {
-        val image: ShapeableImageView = view.findViewById(R.id.fotoWisata)
+    inner class ViewHolder(
+        val binding: ItemDeskWisataBinding
+    ) : RecyclerView.ViewHolder(binding.root)
+
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int
+    ): ViewHolder {
+
+        val binding =
+            ItemDeskWisataBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
+            )
+
+        return ViewHolder(binding)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-        val v = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_desk_wisata, parent, false)
-        return VH(v)
-    }
+    override fun onBindViewHolder(
+        holder: ViewHolder,
+        position: Int
+    ) {
 
-    override fun onBindViewHolder(holder: VH, position: Int) {
-        holder.image.setImageResource(images[position])
+        val imageUrl = images[position]
+
+        Glide.with(holder.itemView.context)
+            .load(imageUrl)
+            .into(holder.binding.fotoWisata)
+
+        holder.itemView.setOnClickListener {
+            onClick(imageUrl)
+        }
     }
 
     override fun getItemCount(): Int = images.size

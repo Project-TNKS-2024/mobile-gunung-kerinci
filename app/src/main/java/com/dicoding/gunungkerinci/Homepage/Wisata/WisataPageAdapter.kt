@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.dicoding.gunungkerinci.R
 import com.google.android.material.imageview.ShapeableImageView
+import com.bumptech.glide.Glide
 
 class WisataPageAdapter (private val items: List<WisaataaItem>) :
     RecyclerView.Adapter<WisataPageAdapter.VH>() {
@@ -30,7 +31,9 @@ class WisataPageAdapter (private val items: List<WisaataaItem>) :
     override fun onBindViewHolder(holder: VH, position: Int) {
         val item = items[position]
 
-        holder.foto.setImageResource(item.imageRes)
+        Glide.with(holder.itemView.context)
+            .load(item.imageUrl)
+            .into(holder.foto)
         holder.judul.text = item.title
         holder.deskripsi.text = item.shortDesc
 
@@ -38,9 +41,7 @@ class WisataPageAdapter (private val items: List<WisaataaItem>) :
             val ctx = holder.itemView.context
             val intent = Intent(ctx, DeskWisataActivity::class.java)
 
-            intent.putExtra("judul", item.title)
-            intent.putExtra("foto", item.imageRes)
-            intent.putExtra("deskripsi", item.longDesc)
+            intent.putExtra("id_destinasi", item.id)
 
             ctx.startActivity(intent)
         }
