@@ -20,7 +20,7 @@ class WisataAdapter (private val items: List<WisataItem>) :
         val judul: TextView = view.findViewById(R.id.JudulWisata)
         val deskripsi: TextView = view.findViewById(R.id.DeskSingkat)
         val lihatDetail: TextView = view.findViewById(R.id.SeeDetail)
-        val btnRute: Button = view.findViewById(R.id.buttonRute)
+        //val btnRute: Button = view.findViewById(R.id.buttonRute)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
@@ -48,10 +48,20 @@ class WisataAdapter (private val items: List<WisataItem>) :
             context.startActivity(intent)
         }
 
+        holder.foto.setOnClickListener {
+            val context = holder.itemView.context
+            val intent = Intent(context, DeskWisataActivity::class.java)
+
+            intent.putExtra("id_destinasi", item.id)
+
+            context.startActivity(intent)
+        }
+
+        /*
         // Klik button rute (sementara hanya toast / atau nanti bikin page rute)
         holder.btnRute.setOnClickListener {
             // TODO: Tambah activity rute jika ada
-        }
+        }*/
     }
 
     override fun getItemCount(): Int = items.size

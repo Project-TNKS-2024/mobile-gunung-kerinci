@@ -10,10 +10,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.dicoding.gunungkerinci.network.ApiConfig
 import kotlinx.coroutines.launch
+import android.view.ViewGroup
 
 class DeskWisataActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDeskWisataBinding
+    private var isExpanded = false
+    private var fullDescription = ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDeskWisataBinding.inflate(layoutInflater)
@@ -75,8 +79,41 @@ class DeskWisataActivity : AppCompatActivity() {
                     binding.JudulWisata.text =
                         destinasi.nama
 
-                    binding.Deskripsi.text =
-                        htmlToText(destinasi.detail)
+                    fullDescription = htmlToText(destinasi.detail)
+
+                    binding.Deskripsi.text = fullDescription
+
+                    var isExpanded = false
+
+                    binding.LebihBanyak.setOnClickListener {
+
+                        if (isExpanded) {
+
+                            binding.Deskripsi.maxLines = 5
+
+                            binding.scrollDeskripsi.layoutParams.height =
+                                ViewGroup.LayoutParams.WRAP_CONTENT
+
+                            binding.LebihBanyak.text = "Lebih Banyak"
+
+                            isExpanded = false
+
+                        } else {
+
+                            binding.Deskripsi.maxLines = Int.MAX_VALUE
+
+                            binding.scrollDeskripsi.layoutParams.height =
+                                (450 * resources.displayMetrics.density).toInt()
+
+                            binding.LebihBanyak.text = "Lebih Sedikit"
+
+                            isExpanded = true
+                        }
+
+                        binding.scrollDeskripsi.requestLayout()
+
+                        //isExpanded = !isExpanded
+                    }
 
                     if (destinasi.gates.isNotEmpty()) {
 
