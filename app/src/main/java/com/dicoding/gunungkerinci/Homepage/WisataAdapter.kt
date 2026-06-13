@@ -20,7 +20,7 @@ class WisataAdapter (private val items: List<WisataItem>) :
         val judul: TextView = view.findViewById(R.id.JudulWisata)
         val deskripsi: TextView = view.findViewById(R.id.DeskSingkat)
         val lihatDetail: TextView = view.findViewById(R.id.SeeDetail)
-        //val btnRute: Button = view.findViewById(R.id.buttonRute)
+        val btnRute: Button = view.findViewById(R.id.buttonRute)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
@@ -37,6 +37,12 @@ class WisataAdapter (private val items: List<WisataItem>) :
 
         holder.judul.text = item.title
         holder.deskripsi.text = item.shortDesc
+
+        if (item.id == 1) {
+            holder.btnRute.visibility = View.VISIBLE
+        } else {
+            holder.btnRute.visibility = View.GONE
+        }
 
         // Klik lihat detail
         holder.lihatDetail.setOnClickListener {
@@ -57,11 +63,28 @@ class WisataAdapter (private val items: List<WisataItem>) :
             context.startActivity(intent)
         }
 
-        /*
-        // Klik button rute (sementara hanya toast / atau nanti bikin page rute)
         holder.btnRute.setOnClickListener {
-            // TODO: Tambah activity rute jika ada
-        }*/
+
+            val context = holder.itemView.context
+
+            val gmmIntentUri =
+                android.net.Uri.parse(
+                    "geo:0,0?q=Pos PPA Gunung Kerinci"
+                )
+
+            val mapIntent =
+                Intent(
+                    Intent.ACTION_VIEW,
+                    gmmIntentUri
+                )
+
+            mapIntent.setPackage(
+                "com.google.android.apps.maps"
+            )
+
+            context.startActivity(mapIntent)
+        }
+
     }
 
     override fun getItemCount(): Int = items.size

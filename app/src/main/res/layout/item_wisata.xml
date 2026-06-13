@@ -65,10 +65,9 @@
             android:textSize="12sp"
             android:textColor="@color/tujuh"
             app:layout_constraintStart_toStartOf="@id/DeskSingkat"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginBottom="10dp"/>
+            app:layout_constraintBottom_toTopOf="@id/buttonRute"
+            android:layout_marginBottom="5dp"/>
 
-        <!--
         <Button
             android:id="@+id/buttonRute"
             android:layout_width="165dp"
@@ -81,7 +80,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             android:layout_marginBottom="13dp"/>
-            -->
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

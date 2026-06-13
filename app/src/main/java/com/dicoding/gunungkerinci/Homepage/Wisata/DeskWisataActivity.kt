@@ -1,5 +1,7 @@
 package com.dicoding.gunungkerinci.Homepage.Wisata
 
+import android.content.Intent
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.dicoding.gunungkerinci.databinding.ActivityDeskWisataBinding
@@ -16,6 +18,8 @@ class DeskWisataActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDeskWisataBinding
     private var fullDescription = ""
+
+    var lokasiMaps = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,6 +59,24 @@ class DeskWisataActivity : AppCompatActivity() {
             )
 
         loadDetailDestinasi(destinasiId)
+
+        binding.textLokasi.setOnClickListener {
+
+            if (lokasiMaps.isNotEmpty()) {
+
+                val gmmIntentUri =
+                    Uri.parse(
+                        "geo:0,0?q=${Uri.encode(lokasiMaps)}"
+                    )
+
+                val mapIntent =
+                    Intent(Intent.ACTION_VIEW, gmmIntentUri)
+
+                mapIntent.setPackage("com.google.android.apps.maps")
+
+                startActivity(mapIntent)
+            }
+        }
     }
 
     private fun loadDetailDestinasi(
@@ -95,7 +117,7 @@ class DeskWisataActivity : AppCompatActivity() {
 
                             binding.LebihBanyak.text = "Lebih Banyak"
 
-                            isExpanded = false
+                            //isExpanded = false
 
                         } else {
 
@@ -106,7 +128,7 @@ class DeskWisataActivity : AppCompatActivity() {
 
                             binding.LebihBanyak.text = "Lebih Sedikit"
 
-                            isExpanded = true
+                            //isExpanded = true
                         }
 
                         binding.scrollDeskripsi.requestLayout()
@@ -116,10 +138,15 @@ class DeskWisataActivity : AppCompatActivity() {
 
                     if (destinasi.gates.isNotEmpty()) {
 
+                        lokasiMaps = destinasi.gates[0].lokasi
+
+                        binding.textLokasi.text = lokasiMaps
+
+                        /*
                         findViewById<android.widget.TextView>(
                             com.dicoding.gunungkerinci.R.id.textLokasi
                         ).text =
-                            destinasi.gates[0].lokasi
+                            destinasi.gates[0].lokasi*/
                     }
 
                     val imageUrls =

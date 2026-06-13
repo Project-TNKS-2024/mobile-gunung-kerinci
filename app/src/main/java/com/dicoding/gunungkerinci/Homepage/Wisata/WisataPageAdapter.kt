@@ -19,7 +19,7 @@ class WisataPageAdapter (private val items: List<WisaataaItem>) :
         val judul: TextView = view.findViewById(R.id.JudulWisata)
         val deskripsi: TextView = view.findViewById(R.id.DeskSingkat)
         val seeDetail: TextView = view.findViewById(R.id.SeeDetail)
-        //val buttonRute: Button = view.findViewById(R.id.buttonRute)
+        val buttonRute: Button = view.findViewById(R.id.buttonRute)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
@@ -34,8 +34,15 @@ class WisataPageAdapter (private val items: List<WisaataaItem>) :
         Glide.with(holder.itemView.context)
             .load(item.imageUrl)
             .into(holder.foto)
+
         holder.judul.text = item.title
         holder.deskripsi.text = item.shortDesc
+
+        if (item.id == 1) {
+            holder.buttonRute.visibility = View.VISIBLE
+        } else {
+            holder.buttonRute.visibility = View.GONE
+        }
 
         holder.seeDetail.setOnClickListener {
             val ctx = holder.itemView.context
@@ -53,6 +60,28 @@ class WisataPageAdapter (private val items: List<WisaataaItem>) :
             intent.putExtra("id_destinasi", item.id)
 
             ctx.startActivity(intent)
+        }
+
+        holder.buttonRute.setOnClickListener {
+
+            val context = holder.itemView.context
+
+            val gmmIntentUri =
+                android.net.Uri.parse(
+                    "geo:0,0?q=Pos PPA Gunung Kerinci"
+                )
+
+            val mapIntent =
+                Intent(
+                    Intent.ACTION_VIEW,
+                    gmmIntentUri
+                )
+
+            mapIntent.setPackage(
+                "com.google.android.apps.maps"
+            )
+
+            context.startActivity(mapIntent)
         }
     }
 
