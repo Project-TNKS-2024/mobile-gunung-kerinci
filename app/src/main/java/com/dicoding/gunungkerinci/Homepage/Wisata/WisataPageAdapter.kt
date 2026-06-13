@@ -19,7 +19,7 @@ class WisataPageAdapter (private val items: List<WisaataaItem>) :
         val judul: TextView = view.findViewById(R.id.JudulWisata)
         val deskripsi: TextView = view.findViewById(R.id.DeskSingkat)
         val seeDetail: TextView = view.findViewById(R.id.SeeDetail)
-        val buttonRute: Button = view.findViewById(R.id.buttonRute)
+        //val buttonRute: Button = view.findViewById(R.id.buttonRute)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
