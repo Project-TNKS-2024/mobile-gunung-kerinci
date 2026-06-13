@@ -45,6 +45,15 @@ class WisataPageAdapter (private val items: List<WisaataaItem>) :
 
             ctx.startActivity(intent)
         }
+
+        holder.foto.setOnClickListener {
+            val ctx = holder.itemView.context
+            val intent = Intent(ctx, DeskWisataActivity::class.java)
+
+            intent.putExtra("id_destinasi", item.id)
+
+            ctx.startActivity(intent)
+        }
     }
 
     override fun getItemCount(): Int = items.size

@@ -15,7 +15,6 @@ import android.view.ViewGroup
 class DeskWisataActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDeskWisataBinding
-    private var isExpanded = false
     private var fullDescription = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
