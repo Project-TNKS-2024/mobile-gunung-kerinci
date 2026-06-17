@@ -14,6 +14,7 @@ data class ProfileData(
     val jenis_kelamin: String?,
     val tanggal_lahir: String?,
     val nik: String?,
+    val lampiran_identitas: String?,
     val provinsi: String?,
     val kabupaten: String?,
     val kec: String?,

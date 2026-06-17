@@ -59,6 +59,7 @@ class ProfileDataPribadiActivity : AppCompatActivity() {
 
     private val countryList = mutableListOf<Country>()
     private var selectedCountry: Country? = null
+    private var existingIdentityAttachment: String? = null
 
 
     fun String.toTextBody(): RequestBody =
@@ -209,6 +210,7 @@ class ProfileDataPribadiActivity : AppCompatActivity() {
 
         binding.lahirEditText.setText(data.tanggal_lahir?.take(10))
         binding.identitasEditText.setText(data.nik)
+        existingIdentityAttachment = data.lampiran_identitas
 
         // Parse phone: strip country code, set local number
         val rawPhone = data.no_hp ?: ""
@@ -353,7 +355,7 @@ class ProfileDataPribadiActivity : AppCompatActivity() {
 
         // ================= VALIDASI FILE IDENTITAS =================
         val identityPart = identityUri?.let { uriToMultipart(it, "lampiran_identitas") }
-        if (identityPart == null && isProfileBaru()) {
+        if (identityPart == null && existingIdentityAttachment.isNullOrBlank()) {
             Toast.makeText(this, "Lampiran identitas wajib diunggah", Toast.LENGTH_SHORT).show()
             return
         }

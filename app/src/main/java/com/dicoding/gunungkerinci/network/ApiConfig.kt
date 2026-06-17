@@ -9,7 +9,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object ApiConfig {
 
-    private const val BASE_URL = "https://tnks.mukhtada.my.id/"
+    private const val BASE_URL = "http://127.0.0.1:8000/"
 
     fun getApiService(context: Context): ApiService {
         val logging = HttpLoggingInterceptor()
