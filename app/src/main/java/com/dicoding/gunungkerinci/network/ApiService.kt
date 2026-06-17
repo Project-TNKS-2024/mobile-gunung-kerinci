@@ -2,6 +2,8 @@ package com.dicoding.gunungkerinci.network
 
 import com.dicoding.gunungkerinci.model.BaseResponse
 import com.dicoding.gunungkerinci.model.CountryResponse
+import com.dicoding.gunungkerinci.model.DestinasiResponse
+import com.dicoding.gunungkerinci.model.DetailDestinasiResponse
 import com.dicoding.gunungkerinci.model.ForgotPasswordRequest
 import com.dicoding.gunungkerinci.model.GantiPasswordRequest
 import com.dicoding.gunungkerinci.model.GoogleRedirectResponse
@@ -9,6 +11,7 @@ import com.dicoding.gunungkerinci.model.KabupatenResponse
 import com.dicoding.gunungkerinci.model.KecamatanResponse
 import com.dicoding.gunungkerinci.model.LoginRequest
 import com.dicoding.gunungkerinci.model.LoginResponse
+import com.dicoding.gunungkerinci.model.PendakiIdentityResponse
 import com.dicoding.gunungkerinci.model.ProfileResponse
 import com.dicoding.gunungkerinci.model.ProvinsiResponse
 import com.dicoding.gunungkerinci.model.RegisterRequest
@@ -99,7 +102,6 @@ interface ApiService {
         @Part("kabupaten_kota") kabupaten: RequestBody?,
         @Part("kecamatan") kecamatan: RequestBody?,
 
-        //@Part profile_photo: MultipartBody.Part?,
         @Part lampiran_identitas: MultipartBody.Part?
     ): Response<BaseResponse<Unit>>
 
@@ -165,4 +167,26 @@ interface ApiService {
 
     @GET("api/auth/google/redirect")
     suspend fun googleRedirect(): Response<BaseResponse<GoogleRedirectResponse>>
+
+    @GET("api/profile/pendaki-identity")
+    @Headers(
+        "Accept: application/json"
+    )
+    suspend fun getPendakiIdentity(
+        @Header("Authorization") token: String
+    ): Response<PendakiIdentityResponse>
+
+    @GET("api/destinasi")
+    @Headers(
+        "Accept: application/json"
+    )
+    suspend fun getDestinasi(): Response<DestinasiResponse>
+
+    @GET("api/destinasi/{id}")
+    @Headers(
+        "Accept: application/json"
+    )
+    suspend fun getDetailDestinasi(
+        @Path("id") id: Int
+    ): Response<DetailDestinasiResponse>
 }

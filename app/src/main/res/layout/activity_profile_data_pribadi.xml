@@ -487,13 +487,21 @@
                 <!-- Nama File -->
                 <TextView
                     android:id="@+id/tv_nama_file"
-                    android:layout_width="match_parent"
+                    android:layout_width="230dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
                     android:text="file_anda.png"
                     android:textColor="@color/softgrey"
                     android:textSize="16sp"
                     android:fontFamily="@font/plus_jakarta_sans_medium"/>
+
+                <ImageView
+                    android:id="@+id/suksesUp"
+                    android:layout_width="25dp"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_selesai"
+                    android:layout_marginStart="10dp"
+                    android:visibility="gone"/>
 
             </LinearLayout>
 

@@ -19,6 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
+            android:clickable="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -62,7 +63,7 @@
             android:text="Lihat Detail"
             android:fontFamily="@font/poppins_regular"
             android:textSize="12sp"
-            android:textColor="@color/primary"
+            android:textColor="@color/tujuh"
             app:layout_constraintStart_toStartOf="@id/DeskSingkat"
             app:layout_constraintBottom_toTopOf="@id/buttonRute"
             android:layout_marginBottom="5dp"/>

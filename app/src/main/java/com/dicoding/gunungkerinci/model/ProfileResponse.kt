@@ -21,7 +21,9 @@ data class ProfileData(
     val dataNegara: DataNegara?,
     val dataProvinsi: DataProvinsi?,
     val dataKabupaten: DataKabupaten?,
-    val dataKecamatan: DataKecamatan?
+    val dataKecamatan: DataKecamatan?,
+
+    val lampiran_identitas: String?
 )
 
 data class DataNegara(val name: String?, val flag: String?, val code: String?, val dial_code: String?)

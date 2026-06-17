@@ -39,11 +39,7 @@ class ProfileFragment : Fragment() {
         // FOTO PROFIL DEFAULT
         binding.fotoProfile.setImageResource(R.drawable.akundefault)
 
-        // Default UI state (no DB). Show placeholder profile icon already in drawable.
-        showDefaultProfile()
-
-        //USERNAME DEFAULT
-        binding.tvUserName.text = "Pengguna Baru"
+        getProfile()
 
 
         //KLIK ISI BIODATA -> PINDAH PAGE
@@ -69,14 +65,20 @@ class ProfileFragment : Fragment() {
             val intent = Intent(requireContext(), ProfileAboutAppActivity::class.java)
             startActivity(intent)
         }
-/*
-        //KLIK PENGATURAN BAHASA
-        binding.bahasa.setOnClickListener {
-            val intent = Intent(requireContext(), ProfileLanguageActivity::class.java)
+
+        binding.layanan.setOnClickListener {
+
+            val nomorAdmin = "6285162839410"
+
+            val pesan = "Halo admin, saya ingin menghubungi layanan bantuan pengguna aplikasi e-ticket Gunung Kerinci."
+
+            val url = "https://wa.me/$nomorAdmin?text=${java.net.URLEncoder.encode(pesan, "UTF-8")}"
+
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.data = android.net.Uri.parse(url)
+
             startActivity(intent)
         }
-
- */
         // Tombol Logout (langsung kembali ke LoginActivity)
         binding.textLogout.setOnClickListener {
             AlertDialog.Builder(requireContext())
@@ -89,16 +91,108 @@ class ProfileFragment : Fragment() {
                 .show()
         }
 
-        // Terima data dari MainActivity ketika kembali setelah simpan biodata
-        // Kita cek argumen Intent dari activity host (MainActivity bisa set extras)
-        val hostIntent = activity?.intent
-        hostIntent?.let {
-            val fromBiodata = it.getBooleanExtra("from_biodata", false)
-            if (fromBiodata) {
-                val namaUser = it.getStringExtra("nama_user") ?: ""
-                applyBiodataToUI(namaUser)
-                // clear the flag to avoid re-applying on future opens:
-                it.removeExtra("from_biodata")
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        getProfile()
+    }
+
+    private fun getProfile() {
+        val token = requireContext()
+            .getSharedPreferences("auth", 0)
+            .getString("token", null)
+
+        if (token.isNullOrEmpty()) return
+
+        lifecycleScope.launch {
+            try {
+                val response = ApiConfig
+                    .getApiService(requireContext())
+                    .getProfile("Bearer $token")
+
+                if (response.isSuccessful &&
+                    response.body()?.data != null) {
+
+                    val data = response.body()!!.data
+
+                    val fullName =
+                        "${data.first_name} ${data.last_name}"
+
+                    // UPDATE UI
+                    binding.tvUserName.text = fullName
+
+                    getPendakiIdentity(token)
+
+                    binding.cardWarning.visibility = View.GONE
+                    binding.btnIsiBiodata.visibility = View.GONE
+
+                    /*
+                    binding.tvStatusBelum.text =
+                        "Akun sedang diverifikasi admin"
+
+                    binding.tvStatusBelum.visibility = View.VISIBLE
+                    */
+
+                    // OPTIONAL → simpan ulang lokal
+                    requireContext()
+                        .getSharedPreferences("profile_data", 0)
+                        .edit()
+                        .putBoolean("is_biodata_filled", true)
+                        .putString("user_name", fullName)
+                        .putString("verification_status", "pending")
+                        .apply()
+
+                } else {
+                    showDefaultProfile()
+                }
+
+            } catch (e: Exception) {
+                showDefaultProfile()
+            }
+        }
+
+    }
+
+    private fun getPendakiIdentity(token: String) {
+        lifecycleScope.launch {
+            try {
+                val response = ApiConfig
+                    .getApiService(requireContext())
+                    .getPendakiIdentity("Bearer $token")
+
+                if (response.isSuccessful &&
+                    response.body()?.data != null) {
+                    val data = response.body()!!.data
+
+                    when (data?.status_verifikasi) {
+                        "verified" -> {
+                            binding.tvStatusBelum.visibility = View.GONE
+                            binding.tvStatusSudah.visibility = View.VISIBLE
+                            binding.tvStatusSudah.text = "ID Pendaki: ${data.id_bio}"
+                            requireContext()
+                                .getSharedPreferences("profile_data", 0)
+                                .edit()
+                                .putString(
+                                    "verification_status",
+                                    "verified"
+                                )
+                                .putString(
+                                    "id_pendaki",
+                                    data.id_bio
+                                )
+                                .apply()
+                        }
+                        else -> {
+                            binding.tvStatusSudah.visibility = View.GONE
+                            binding.tvStatusBelum.visibility = View.VISIBLE
+                            binding.tvStatusBelum.text = "Akun sedang diverifikasi admin"
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }
@@ -141,32 +235,20 @@ class ProfileFragment : Fragment() {
         activity?.finish()
     }
 
-    //UI SETELAH BIODATA DIISI
-    private fun applyBiodataToUI(namaLengkap: String) {
-        // Update username / hide warning, tampilkan status sudah
-        if (namaLengkap.isNotBlank()) {
-
-            //Nama berubah
-            binding.tvUserName.text = namaLengkap
-
-            //Sembunyikan warning
-            binding.cardWarning.visibility = View.GONE
-
-            //Update status
-            binding.tvStatusBelum.visibility = View.GONE
-            binding.tvStatusSudah.visibility = View.VISIBLE
-
-            //Sembunyikan button isi biodata
-            binding.btnIsiBiodata.visibility = View.GONE
-        }
-    }
-
     //DEFAULT UI BELUM DIISI
     private fun showDefaultProfile() {
         binding.tvUserName.text = "Pengguna Baru"
+
+        binding.btnIsiBiodata.visibility = View.VISIBLE
+
+        binding.cardWarning.visibility = View.VISIBLE
+
         binding.tvStatusBelum.visibility = View.VISIBLE
+        binding.tvStatusBelum.text = "Akun belum divalidasi"
+
         binding.tvStatusSudah.visibility = View.GONE
     }
+
 
     override fun onDestroy() {
         super.onDestroy()

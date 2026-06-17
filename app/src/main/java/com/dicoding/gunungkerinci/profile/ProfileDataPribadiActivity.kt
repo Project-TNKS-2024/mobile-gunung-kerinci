@@ -11,6 +11,7 @@ import android.provider.OpenableColumns
 import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
+import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -20,9 +21,7 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import com.dicoding.gunungkerinci.R
 import com.dicoding.gunungkerinci.databinding.ActivityProfileDataPribadiBinding
-import com.dicoding.gunungkerinci.model.BaseResponse
 import com.dicoding.gunungkerinci.model.Country
-import com.dicoding.gunungkerinci.model.CountryResponse
 import com.dicoding.gunungkerinci.model.Kabupaten
 import com.dicoding.gunungkerinci.model.Kecamatan
 import com.dicoding.gunungkerinci.model.ProfileData
@@ -45,6 +44,8 @@ class ProfileDataPribadiActivity : AppCompatActivity() {
     private var loginEmail = ""
     private var photoUri: Uri? = null
     private var identityUri: Uri? = null
+
+    private var uploadedFileName: String? = null
 
     private val REQ_GALLERY = 100
     private val REQ_CAMERA = 101
@@ -70,7 +71,21 @@ class ProfileDataPribadiActivity : AppCompatActivity() {
         binding = ActivityProfileDataPribadiBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        val savedFileName = getSharedPreferences("profile_temp", MODE_PRIVATE)
+            .getString("uploaded_file_name", null)
+
+        if (!savedFileName.isNullOrEmpty()) {
+            binding.tvNamaFile.text = savedFileName
+            binding.suksesUp.visibility = View.VISIBLE
+        }
+
+        setContentView(binding.root)
+
         loginEmail = getEmailLogin()
+
+        binding.buttonBack.setOnClickListener {
+            finish()
+        }
 
         binding.emailEditText.setText(getEmailLogin())
 
@@ -87,7 +102,9 @@ class ProfileDataPribadiActivity : AppCompatActivity() {
         getNegaraFromApi()
         //getProfile()
 
-        binding.btnSimpan.setOnClickListener { submitProfile() }
+        binding.btnSimpan.setOnClickListener { showPopupData() }
+
+        binding.suksesUp.visibility = View.GONE
     }
 
     private fun showProvinsiDialog() {
@@ -237,9 +254,13 @@ class ProfileDataPribadiActivity : AppCompatActivity() {
             binding.radioWanita.isChecked = true
         }
 
-        //if (data.nationality == "ID") {
-        //    binding.layoutAlamat.visibility = View.VISIBLE
-        //}
+        if (!data.lampiran_identitas.isNullOrEmpty()) {
+            binding.tvNamaFile.text = data.lampiran_identitas
+            binding.suksesUp.visibility = View.VISIBLE
+        } else {
+            binding.tvNamaFile.text = "file_anda.png"
+            binding.suksesUp.visibility = View.GONE
+        }
     }
 
     private fun getNegaraFromApi() {
@@ -353,8 +374,13 @@ class ProfileDataPribadiActivity : AppCompatActivity() {
             }
         }
 
+        Log.d("FILE_DEBUG", "identityUri = $identityUri")
+
         // ================= VALIDASI FILE IDENTITAS =================
         val identityPart = identityUri?.let { uriToMultipart(it, "lampiran_identitas") }
+
+        Log.d("FILE_DEBUG", "identityPart = ${identityPart?.headers}")
+
         if (identityPart == null && existingIdentityAttachment.isNullOrBlank()) {
             Toast.makeText(this, "Lampiran identitas wajib diunggah", Toast.LENGTH_SHORT).show()
             return
@@ -397,16 +423,6 @@ class ProfileDataPribadiActivity : AppCompatActivity() {
             try {
                 val response = api.updateProfile(
                     token,
-                    /*
-                    firstName.toRequestBody(),
-                    lastName.toRequestBody(),
-                    nationality.toRequestBody(),
-                    gender.toRequestBody(),
-                    birthDate.toRequestBody(),
-                    identityNumber.toRequestBody(),
-                    phoneLocal.toRequestBody(),     // ❗ LOCAL ONLY
-                    telpCountry.toRequestBody(), */ // ❗ COUNTRY CODE ONLY
-
                     firstName.toTextBody(),
                     lastName.toTextBody(),
                     nationality.toTextBody(),
@@ -422,6 +438,27 @@ class ProfileDataPribadiActivity : AppCompatActivity() {
                 )
 
                 if (response.isSuccessful) {
+
+                    uploadedFileName = binding.tvNamaFile.text.toString()
+
+                    val fullName = "$firstName $lastName"
+
+                    getSharedPreferences("profile_data", MODE_PRIVATE)
+                        .edit()
+                        .putBoolean("is_biodata_filled", true)
+                        .putString("user_name", fullName)
+                        .putString("verification_status", "pending")
+                        .apply()
+
+                    getSharedPreferences("profile_temp", MODE_PRIVATE)
+                        .edit()
+                        .putString("uploaded_file_name", uploadedFileName)
+                        .apply()
+
+                    binding.suksesUp.visibility = View.VISIBLE
+
+                    Log.d("PROFILE_RESULT", response.body().toString()) // ⬅️ TARUH DI SINI
+
                     Toast.makeText(
                         this@ProfileDataPribadiActivity,
                         "Profil berhasil disimpan",
@@ -532,6 +569,34 @@ class ProfileDataPribadiActivity : AppCompatActivity() {
         binding.buttonUbah.setOnClickListener { showImageDialog() }
     }
 
+    private fun showPopupData() {
+
+        val dialogView = layoutInflater.inflate(R.layout.popup_data, null)
+
+        val btnBatal = dialogView.findViewById<Button>(R.id.btnBatalData)
+        val btnSimpan = dialogView.findViewById<Button>(R.id.btnSimpanData)
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
+
+        // tombol batal
+        btnBatal.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        // tombol simpan
+        btnSimpan.setOnClickListener {
+            dialog.dismiss()
+
+            // baru simpan ke API
+            submitProfile()
+        }
+
+        dialog.show()
+    }
+
     private fun pickIdentityFile() {
         val intent = Intent(Intent.ACTION_GET_CONTENT)
         intent.type = "*/*"
@@ -591,7 +656,11 @@ class ProfileDataPribadiActivity : AppCompatActivity() {
             REQ_FILE -> {
                 val uri = data?.data ?: return
                 if (!isValidFile(uri)) return
+
                 identityUri = uri
+                binding.tvNamaFile.text = getFileName(uri)
+
+                binding.suksesUp.visibility = View.VISIBLE
                 binding.tvNamaFile.text = getFileName(uri)
             }
             REQ_GALLERY -> {

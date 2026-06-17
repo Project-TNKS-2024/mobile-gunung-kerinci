@@ -1,8 +1,9 @@
 package com.dicoding.gunungkerinci.Homepage.Wisata
 
-class WisaataaItem (
+class WisaataaItem(
+    val id: Int,
     val title: String,
     val shortDesc: String,
     val longDesc: String,
-    val imageRes: Int
+    val imageUrl: String
 )
