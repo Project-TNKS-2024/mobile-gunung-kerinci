@@ -98,6 +98,10 @@ class ProfileDataPribadiActivity : AppCompatActivity() {
             showProvinsiDialog()
         }
 
+        binding.wargaEditText.setOnClickListener {
+            showKewarganegaraanDialog()
+        }
+
         setupUI()
         getNegaraFromApi()
         //getProfile()
@@ -279,20 +283,10 @@ class ProfileDataPribadiActivity : AppCompatActivity() {
                     )
 
                     binding.wargaEditText.setAdapter(adapter)
+                    binding.wargaEditText.threshold = 0
 
                     binding.wargaEditText.setOnItemClickListener { _, _, pos, _ ->
-                        selectedCountry = countryList[pos]
-
-                        // 🔥 INI INTINYA
-                        if (selectedCountry?.code == "ID") {
-                            binding.layoutAlamat.visibility = View.VISIBLE
-                        } else {
-                            binding.layoutAlamat.visibility = View.GONE
-                            binding.alamatEditText.setText("")
-                            selectedProvinsi = null
-                            selectedKabupaten = null
-                            selectedKecamatan = null
-                        }
+                        setSelectedCountry(countryList[pos])
                     }
 
                     getProfile()
@@ -300,6 +294,37 @@ class ProfileDataPribadiActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 Toast.makeText(this@ProfileDataPribadiActivity, "Gagal load negara", Toast.LENGTH_SHORT).show()
             }
+        }
+    }
+
+    private fun showKewarganegaraanDialog() {
+        if (countryList.isEmpty()) {
+            Toast.makeText(this, "Daftar kewarganegaraan belum tersedia", Toast.LENGTH_SHORT).show()
+            getNegaraFromApi()
+            return
+        }
+
+        val names = countryList.map { "${it.flag} ${it.name}" }.toTypedArray()
+        AlertDialog.Builder(this)
+            .setTitle("Pilih Kewarganegaraan")
+            .setItems(names) { _, index ->
+                setSelectedCountry(countryList[index])
+            }
+            .show()
+    }
+
+    private fun setSelectedCountry(country: Country) {
+        selectedCountry = country
+        binding.wargaEditText.setText("${country.flag} ${country.name}", false)
+
+        if (country.code == "ID") {
+            binding.layoutAlamat.visibility = View.VISIBLE
+        } else {
+            binding.layoutAlamat.visibility = View.GONE
+            binding.alamatEditText.setText("")
+            selectedProvinsi = null
+            selectedKabupaten = null
+            selectedKecamatan = null
         }
     }
 
