@@ -60,6 +60,7 @@ class ProfileDataPribadiActivity : AppCompatActivity() {
 
     private val countryList = mutableListOf<Country>()
     private var selectedCountry: Country? = null
+    private var existingIdentityAttachment: String? = null
 
 
     fun String.toTextBody(): RequestBody =
@@ -95,6 +96,10 @@ class ProfileDataPribadiActivity : AppCompatActivity() {
 
         binding.alamatEditText.setOnClickListener {
             showProvinsiDialog()
+        }
+
+        binding.wargaEditText.setOnClickListener {
+            showKewarganegaraanDialog()
         }
 
         setupUI()
@@ -226,6 +231,7 @@ class ProfileDataPribadiActivity : AppCompatActivity() {
 
         binding.lahirEditText.setText(data.tanggal_lahir?.take(10))
         binding.identitasEditText.setText(data.nik)
+        existingIdentityAttachment = data.lampiran_identitas
 
         // Parse phone: strip country code, set local number
         val rawPhone = data.no_hp ?: ""
@@ -277,20 +283,10 @@ class ProfileDataPribadiActivity : AppCompatActivity() {
                     )
 
                     binding.wargaEditText.setAdapter(adapter)
+                    binding.wargaEditText.threshold = 0
 
                     binding.wargaEditText.setOnItemClickListener { _, _, pos, _ ->
-                        selectedCountry = countryList[pos]
-
-                        // 🔥 INI INTINYA
-                        if (selectedCountry?.code == "ID") {
-                            binding.layoutAlamat.visibility = View.VISIBLE
-                        } else {
-                            binding.layoutAlamat.visibility = View.GONE
-                            binding.alamatEditText.setText("")
-                            selectedProvinsi = null
-                            selectedKabupaten = null
-                            selectedKecamatan = null
-                        }
+                        setSelectedCountry(countryList[pos])
                     }
 
                     getProfile()
@@ -298,6 +294,37 @@ class ProfileDataPribadiActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 Toast.makeText(this@ProfileDataPribadiActivity, "Gagal load negara", Toast.LENGTH_SHORT).show()
             }
+        }
+    }
+
+    private fun showKewarganegaraanDialog() {
+        if (countryList.isEmpty()) {
+            Toast.makeText(this, "Daftar kewarganegaraan belum tersedia", Toast.LENGTH_SHORT).show()
+            getNegaraFromApi()
+            return
+        }
+
+        val names = countryList.map { "${it.flag} ${it.name}" }.toTypedArray()
+        AlertDialog.Builder(this)
+            .setTitle("Pilih Kewarganegaraan")
+            .setItems(names) { _, index ->
+                setSelectedCountry(countryList[index])
+            }
+            .show()
+    }
+
+    private fun setSelectedCountry(country: Country) {
+        selectedCountry = country
+        binding.wargaEditText.setText("${country.flag} ${country.name}", false)
+
+        if (country.code == "ID") {
+            binding.layoutAlamat.visibility = View.VISIBLE
+        } else {
+            binding.layoutAlamat.visibility = View.GONE
+            binding.alamatEditText.setText("")
+            selectedProvinsi = null
+            selectedKabupaten = null
+            selectedKecamatan = null
         }
     }
 
@@ -379,7 +406,7 @@ class ProfileDataPribadiActivity : AppCompatActivity() {
 
         Log.d("FILE_DEBUG", "identityPart = ${identityPart?.headers}")
 
-        if (identityPart == null && isProfileBaru()) {
+        if (identityPart == null && existingIdentityAttachment.isNullOrBlank()) {
             Toast.makeText(this, "Lampiran identitas wajib diunggah", Toast.LENGTH_SHORT).show()
             return
         }

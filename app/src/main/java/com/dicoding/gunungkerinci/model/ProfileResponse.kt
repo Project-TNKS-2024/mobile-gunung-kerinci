@@ -14,15 +14,14 @@ data class ProfileData(
     val jenis_kelamin: String?,
     val tanggal_lahir: String?,
     val nik: String?,
+    val lampiran_identitas: String?,
     val provinsi: String?,
     val kabupaten: String?,
     val kec: String?,
     val dataNegara: DataNegara?,
     val dataProvinsi: DataProvinsi?,
     val dataKabupaten: DataKabupaten?,
-    val dataKecamatan: DataKecamatan?,
-
-    val lampiran_identitas: String?
+    val dataKecamatan: DataKecamatan?
 )
 
 data class DataNegara(val name: String?, val flag: String?, val code: String?, val dial_code: String?)
