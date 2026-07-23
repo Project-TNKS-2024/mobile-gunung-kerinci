@@ -1,6 +1,5 @@
 package com.dicoding.gunungkerinci.Ticket
 
-import android.R
 import android.app.DatePickerDialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -15,6 +14,12 @@ import com.dicoding.gunungkerinci.databinding.ActivityCekKuotaTiketBinding
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import androidx.lifecycle.lifecycleScope
+import com.dicoding.gunungkerinci.model.CreateBookingRequest
+import com.dicoding.gunungkerinci.network.ApiConfig
+import kotlinx.coroutines.launch
+import android.util.Log
+import com.dicoding.gunungkerinci.model.TiketPendaki
 
 class CekKuotaTiketActivity : AppCompatActivity() {
 
@@ -23,13 +28,29 @@ class CekKuotaTiketActivity : AppCompatActivity() {
     private var tanggalMasuk: Long? = null
     private var tanggalKeluar: Long? = null
 
+    private var tanggalMasukApi = ""
+    private var tanggalKeluarApi = ""
+
     private var countWNA = 0
     private  var countWNI = 0
 
-    private val listGerbang = listOf(
-        "Kersik Tuo - Kayu Aro",
-        "Camping Ground - Solok Selatan"
-    )
+    //================ API =================//
+
+    private var gateMasukId: Int? = null
+    private var gateKeluarId: Int? = null
+
+    private var minPendaki = 2
+    private var maxPendaki = Int.MAX_VALUE
+
+    private var paketId: Int? = null
+
+    private var daftarGate = mutableListOf<String>()
+    private var daftarGateObject = mutableListOf<com.dicoding.gunungkerinci.model.Gate>()
+
+    private var hargaWNI: TiketPendaki? = null
+
+    private var hargaWNA: TiketPendaki? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,11 +68,274 @@ class CekKuotaTiketActivity : AppCompatActivity() {
         setUpCounterWNI()
         setUpCounterWNA()
 
-        setUpDropdownGerbang()
+        loadGate()
+
+        loadPaketTiket()
 
         setUpBtnSelanjutnya()
 
         setUpMenuTabs()
+    }
+
+    private fun loadGate() {
+        lifecycleScope.launch {
+            try {
+                val response = ApiConfig.getApiService(this@CekKuotaTiketActivity)
+                    .getDetailDestinasi(1)
+
+                if (response.isSuccessful) {
+                    val destinasi = response.body()?.data ?: return@launch
+
+                    daftarGate.clear()
+                    daftarGateObject.clear()
+
+                    destinasi.gates.forEach {
+                        daftarGate.add(it.nama)
+                        daftarGateObject.add(it)
+                    }
+                    setUpDropdownGerbang()
+                }
+            } catch (e: Exception) {
+                Log.e("BOOKING", e.message.toString())
+            }
+        }
+    }
+
+    private fun loadPaketTiket() {
+        lifecycleScope.launch {
+            try {
+
+                paketId = intent.getIntExtra("paket_id", 0)
+
+                val response =
+                    ApiConfig.getApiService(this@CekKuotaTiketActivity)
+                        .getPaketDestinasi(1)
+
+                if (!response.isSuccessful) return@launch
+
+                val paket =
+                    response.body()
+                        ?.data
+                        ?.paket
+                        ?.firstOrNull { it.id == paketId }
+                        ?: return@launch
+
+                minPendaki = paket.min_pendaki
+                maxPendaki = paket.max_pendaki
+
+                hargaWNI =
+                    paket.tiket_pendaki.firstOrNull {
+                        it.kategori_pendaki.equals("wni", true)
+                    }
+
+                hargaWNA =
+                    paket.tiket_pendaki.firstOrNull {
+                        it.kategori_pendaki.equals("wna", true)
+                    }
+
+                Log.d("BOOKING", "Paket = ${paket.nama}")
+                Log.d("BOOKING", "Harga WNI = $hargaWNI")
+                Log.d("BOOKING", "Harga WNA = $hargaWNA")
+
+            } catch (e: Exception) {
+                Log.e("BOOKING", e.toString())
+            }
+        }
+    }
+
+    private fun createBooking() {
+        lifecycleScope.launch {
+            try {
+                if (paketId == null) {
+                    Toast.makeText(
+                        this@CekKuotaTiketActivity,
+                        "Paket tiket belum dipilih",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@launch
+                }
+
+                if (gateMasukId == null) {
+                    Toast.makeText(
+                        this@CekKuotaTiketActivity,
+                        "Pilih gerbang masuk",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@launch
+                }
+
+                if (gateKeluarId == null) {
+                    Toast.makeText(
+                        this@CekKuotaTiketActivity,
+                        "Pilih gerbang keluar",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@launch
+                }
+
+                val idPaket = paketId ?: return@launch
+                val idGateMasuk = gateMasukId ?: return@launch
+                val idGateKeluar = gateKeluarId ?: return@launch
+
+                val request = CreateBookingRequest(
+                    date_start = tanggalMasukApi,
+                    date_end = tanggalKeluarApi,
+                    wni = countWNI,
+                    wna = countWNA,
+                    jenis_tiket = idPaket,
+                    gerbang_masuk = idGateMasuk,
+                    gerbang_keluar = idGateKeluar
+                )
+
+                Log.d("BOOKING", "Tanggal Masuk = $tanggalMasukApi")
+                Log.d("BOOKING", "Tanggal Keluar = $tanggalKeluarApi")
+                Log.d("BOOKING", "WNI = ${request.wni}")
+                Log.d("BOOKING", "WNA = ${request.wna}")
+                Log.d("BOOKING", "Paket = ${request.jenis_tiket}")
+                Log.d("BOOKING", "Gate Masuk = ${request.gerbang_masuk}")
+                Log.d("BOOKING", "Gate Keluar = ${request.gerbang_keluar}")
+
+                val response =
+                    ApiConfig.getApiService(this@CekKuotaTiketActivity)
+                        .createBooking(request)
+
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    if (body?.success == true) {
+                        val booking = body.data ?: return@launch
+                        Toast.makeText(
+                            this@CekKuotaTiketActivity,
+                            body.message,
+                            Toast.LENGTH_SHORT
+                        ).show()
+
+                        val intent = Intent(
+                            this@CekKuotaTiketActivity,
+                            TiketSOPActivity::class.java
+                        )
+
+                        //========================
+                        // BOOKING
+                        //========================
+                        intent.putExtra("booking_id", booking.id)
+
+                        intent.putExtra(
+                            "tanggal_masuk",
+                            booking.tanggal_masuk
+                        )
+
+                        intent.putExtra(
+                            "tanggal_keluar",
+                            booking.tanggal_keluar
+                        )
+
+                        intent.putExtra(
+                            "total_hari",
+                            booking.total_hari
+                        )
+
+                        intent.putExtra(
+                            "total_pembayaran",
+                            booking.total_pembayaran
+                        )
+
+                        intent.putExtra(
+                            "total_wni",
+                            booking.total_pendaki_wni
+                        )
+
+                        intent.putExtra(
+                            "total_wna",
+                            booking.total_pendaki_wna
+                        )
+
+                        intent.putExtra(
+                            "total_pendaki",
+                            booking.total_pendaki_wni + booking.total_pendaki_wna
+                        )
+
+                        //========================
+                        // GATE
+                        //========================
+                        intent.putExtra(
+                            "gate_masuk_id",
+                            booking.gate_masuk.id
+                        )
+
+                        intent.putExtra(
+                            "gate_masuk",
+                            booking.gate_masuk.nama
+                        )
+
+                        intent.putExtra(
+                            "gate_keluar_id",
+                            booking.gate_keluar.id
+                        )
+
+                        intent.putExtra(
+                            "gate_keluar",
+                            booking.gate_keluar.nama
+                        )
+
+                        //========================
+                        // PAKET
+                        //========================
+                        intent.putExtra(
+                            "paket_id",
+                            booking.gktiket.id
+                        )
+
+                        intent.putExtra(
+                            "paket_nama",
+                            booking.gktiket.nama
+                        )
+
+                        intent.putExtra(
+                            "min_pendaki",
+                            booking.gktiket.min_pendaki
+                        )
+
+                        //========================
+                        // DESTINASI
+                        //========================
+                        intent.putExtra(
+                            "destinasi_id",
+                            booking.destinasi.id
+                        )
+
+                        intent.putExtra(
+                            "destinasi_nama",
+                            booking.destinasi.nama
+                        )
+
+                        startActivity(intent)
+
+                    } else {
+                        Toast.makeText(
+                            this@CekKuotaTiketActivity,
+                            body?.message ?: "Booking gagal",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+
+                } else {
+                    Toast.makeText(
+                        this@CekKuotaTiketActivity,
+                        "Response ${response.code()}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            } catch (e: Exception) {
+
+                Log.e("BOOKING", e.toString())
+
+                Toast.makeText(
+                    this@CekKuotaTiketActivity,
+                    e.message,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
     }
 
     private fun setUpMenuTabs() {
@@ -115,20 +399,44 @@ class CekKuotaTiketActivity : AppCompatActivity() {
                 Toast.makeText(this, "Harap lengkapi semua data terlebih dahulu", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
+            if (gateMasukId == null) {
+                Toast.makeText(
+                    this,
+                    "Silakan pilih gerbang masuk",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
 
-            Toast.makeText(this, "Data lengkap — lanjut ⛰️", Toast.LENGTH_SHORT).show()
+            if (gateKeluarId == null) {
+                Toast.makeText(
+                    this,
+                    "Silakan pilih gerbang keluar",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
 
-            // Pindah ke halaman Tiket Sop
-            val intent = Intent(this, TiketSOPActivity::class.java)
-            startActivity(intent)
+            val totalPendaki = countWNI + countWNA
+
+            if (totalPendaki < minPendaki) {
+                Toast.makeText(
+                    this,
+                    "Minimal pendaki $minPendaki orang",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
+
+           createBooking()
         }
     }
 
     private fun setUpDropdownGerbang() {
         val adapter = ArrayAdapter(
             this,
-            R.layout.simple_dropdown_item_1line,
-            listGerbang
+            android.R.layout.simple_dropdown_item_1line,
+            daftarGate
         )
 
         val masukView = binding.dropdownGerbangMasuk
@@ -137,8 +445,12 @@ class CekKuotaTiketActivity : AppCompatActivity() {
         masukView.setAdapter(adapter)
         keluarView.setAdapter(adapter)
 
-        //Dropdown gerbang masuk
+        //-------------------------------------
+        // GERBANG MASUK
+        //-------------------------------------
+
         masukView.setOnTouchListener { _, event ->
+
             if (event.action == MotionEvent.ACTION_UP) {
                 if (countWNI == 0 && countWNA == 0) {
                     Toast.makeText(
@@ -146,48 +458,47 @@ class CekKuotaTiketActivity : AppCompatActivity() {
                         "Masukkan jumlah pendaki terlebih dahulu",
                         Toast.LENGTH_SHORT
                     ).show()
-
-                    masukView.dismissDropDown()
-                    return@setOnTouchListener true //event dikonsumsi, dropdown tidak buka
+                    return@setOnTouchListener true
                 }
-                //semua valid -> buka dropdown
                 masukView.showDropDown()
-                return@setOnTouchListener true
-            }
-            false
+                true
+            } else false
         }
 
-        //Dropdown gerbang keluar
+        masukView.setOnItemClickListener { _, _, position, _ ->
+            val gate = daftarGateObject[position]
+            gateMasukId = gate.id
+
+            Log.d("BOOKING", "Gate Masuk = ${gate.nama}")
+            Log.d("BOOKING", "Gate Masuk ID = $gateMasukId")
+        }
+
+        //-------------------------------------
+        // GERBANG KELUAR
+        //-------------------------------------
+
         keluarView.setOnTouchListener { _, event ->
             if (event.action == MotionEvent.ACTION_UP) {
-
-                //1. Harus pilih gerbang masuk dulu
                 if (masukView.text.isNullOrEmpty()) {
                     Toast.makeText(
                         this,
                         "Pilih gerbang masuk terlebih dahulu",
                         Toast.LENGTH_SHORT
                     ).show()
-                    keluarView.dismissDropDown()
                     return@setOnTouchListener true
                 }
-
-                //2. Harus ada jumlah pendaki
-                if (countWNI == 0 && countWNA == 0) {
-                    Toast.makeText(
-                        this,
-                        "Masukkan jumlah pendaki terlebih dahulu",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    return@setOnTouchListener true
-                }
-
                 keluarView.showDropDown()
-                return@setOnTouchListener true
-            }
-            false
+                true
+            } else false
         }
 
+        keluarView.setOnItemClickListener { _, _, position, _ ->
+            val gate = daftarGateObject[position]
+            gateKeluarId = gate.id
+
+            Log.d("BOOKING", "Gate Keluar = ${gate.nama}")
+            Log.d("BOOKING", "Gate Keluar ID = $gateKeluarId")
+        }
     }
 
     //format angka harga
@@ -267,11 +578,11 @@ class CekKuotaTiketActivity : AppCompatActivity() {
                 (dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY)
 
             if (isWeekend) {
-                hargaMasukWNI += 15000
-                hargaMasukWNA += 150000
+                hargaMasukWNI += hargaWNI?.harga_masuk_wd ?: 0
+                hargaMasukWNA += hargaWNA?.harga_masuk_wd ?: 0
             } else {
-                hargaMasukWNI += 10000
-                hargaMasukWNA += 150000
+                hargaMasukWNI += hargaWNI?.harga_masuk_wk ?: 0
+                hargaMasukWNA += hargaWNA?.harga_masuk_wk ?: 0
             }
 
             loopCal.add(Calendar.DAY_OF_MONTH, 1)
@@ -280,17 +591,31 @@ class CekKuotaTiketActivity : AppCompatActivity() {
         val selisih = calKeluar.timeInMillis - calMasuk.timeInMillis
         val totalMalam = (selisih / (24 * 60 * 60 * 1000)).toInt()
 
-        val hargaKemah = totalMalam * 5000
-        val hargaPendakianWNI = 10000
-        val hargaPendakianWNA = 20000
+        val hargaKemahWNI =
+            totalMalam * (hargaWNI?.harga_kemah ?: 0)
+
+        val hargaKemahWNA =
+            totalMalam * (hargaWNA?.harga_kemah ?: 0)
+
+        val trackingWNI =
+            hargaWNI?.harga_traking ?: 0
+
+        val trackingWNA =
+            hargaWNA?.harga_traking ?: 0
+
+        val asuransiWNI =
+            hargaWNI?.harga_ansuransi ?: 0
+
+        val asuransiWNA =
+            hargaWNA?.harga_ansuransi ?: 0
 
         val totalWNI =
             if (countWNI == 0) 0
-            else (hargaMasukWNI + hargaKemah + hargaPendakianWNI) * countWNI
+            else (hargaMasukWNI + hargaKemahWNI + trackingWNI + asuransiWNI) * countWNI
 
         val totalWNA =
             if (countWNA == 0) 0
-            else (hargaMasukWNA + hargaKemah + hargaPendakianWNA) * countWNA
+            else (hargaMasukWNA + hargaKemahWNA + trackingWNA + asuransiWNA) * countWNA
 
         val totalHarga = totalWNI + totalWNA
 
@@ -309,16 +634,28 @@ class CekKuotaTiketActivity : AppCompatActivity() {
             val datePicker = DatePickerDialog(
                 this,
                 { _, year, month, dayOfMonth ->
+
                     val cal = Calendar.getInstance()
                     cal.set(year, month, dayOfMonth)
+
                     tanggalMasuk = cal.timeInMillis
 
-                    // Set teks
-                    binding.tglMasukEditText.setText("$dayOfMonth-${month + 1}-$year")
+                    val formatTampil =
+                        SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
 
-                    // Reset tanggal keluar jika sudah pernah diisi
+                    val formatApi =
+                        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+                    binding.tglMasukEditText.setText(
+                        formatTampil.format(cal.time)
+                    )
+
+                    tanggalMasukApi =
+                        formatApi.format(cal.time)
+
                     binding.tglKeluarEditText.setText("")
                     tanggalKeluar = null
+                    tanggalKeluarApi = ""
 
                     // Reset tampilan hari & malam
                     binding.ttlHari.text = "0"
@@ -366,7 +703,18 @@ class CekKuotaTiketActivity : AppCompatActivity() {
                     cal.set(year, month, dayOfMonth)
                     tanggalKeluar = cal.timeInMillis
 
-                    binding.tglKeluarEditText.setText("$dayOfMonth-${month + 1}-$year")
+                    val formatTampil =
+                        SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+
+                    val formatApi =
+                        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+                    binding.tglKeluarEditText.setText(
+                        formatTampil.format(cal.time)
+                    )
+
+                    tanggalKeluarApi =
+                        formatApi.format(cal.time)
 
                     // Hitung total hari & malam
                     hitungHariMalam()

@@ -475,6 +475,7 @@
                         android:inputType="none"
                         android:hint="Pilih Gerbang"
                         android:focusable="false"
+                        android:cursorVisible="false"
                         android:textColor="@color/black2"
                         android:fontFamily="@font/plus_jakarta_sans_medium"
                         android:textSize="16sp"/>
@@ -516,6 +517,7 @@
                         android:inputType="none"
                         android:hint="Pilih Gerbang"
                         android:focusable="false"
+                        android:cursorVisible="false"
                         android:textColor="@color/black2"
                         android:fontFamily="@font/plus_jakarta_sans_medium"
                         android:textSize="16sp"/>

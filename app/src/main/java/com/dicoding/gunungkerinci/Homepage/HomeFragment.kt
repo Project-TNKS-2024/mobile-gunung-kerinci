@@ -20,15 +20,12 @@ import kotlinx.coroutines.launch
 import com.dicoding.gunungkerinci.network.ApiConfig
 import android.os.Build
 import android.text.Html
+import com.dicoding.gunungkerinci.Homepage.Cuaca.CuacaActivity
 
 class HomeFragment : Fragment() {
 
     private lateinit var binding: FragmentHomeBinding
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,8 +36,6 @@ class HomeFragment : Fragment() {
         setupMenu()
 
         getDestinasi()
-
-        //setupWisataList()
 
         return binding.root
     }
@@ -147,6 +142,10 @@ class HomeFragment : Fragment() {
 
         binding.buttonNotif.setOnClickListener {
             startActivity(Intent(requireContext(), PemberitahuanActivity::class.java))
+        }
+
+        binding.cardCuaca.setOnClickListener {
+            startActivity(Intent(requireContext(), CuacaActivity::class.java))
         }
 
     }

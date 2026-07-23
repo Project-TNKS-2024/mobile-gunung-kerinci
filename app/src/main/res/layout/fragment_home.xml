@@ -95,6 +95,7 @@
                     android:layout_marginTop="10dp"/>
 
                 <androidx.cardview.widget.CardView
+                    android:id="@+id/cardCuaca"
                     android:layout_width="match_parent"
                     android:layout_height="72dp"
                     app:layout_constraintStart_toStartOf="@id/gambar"

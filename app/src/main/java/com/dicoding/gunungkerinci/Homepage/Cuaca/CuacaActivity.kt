@@ -2,25 +2,63 @@ package com.dicoding.gunungkerinci.Homepage.Cuaca
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.dicoding.gunungkerinci.R
+import com.dicoding.gunungkerinci.databinding.ActivityCuacaBinding
+import androidx.lifecycle.lifecycleScope
+import com.dicoding.gunungkerinci.network.ApiConfig
+import kotlinx.coroutines.launch
+import android.util.Log
+
 
 class CuacaActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityCuacaBinding
+
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_cuaca)
+        binding = ActivityCuacaBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        val rv = findViewById<RecyclerView>(R.id.rvCuaca)
-        rv.layoutManager = LinearLayoutManager(this)
+        // BUTTON BACK
+        binding.buttonBack.setOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
+        }
 
-        val items = listOf(
-            CuacaItem.Header("21°C", "Gerimis Ringan", R.drawable.gerimis_ringan),
-            CuacaItem.CardCuaca("Perkiraan Cuaca Jalur Kersik Tuo", "Selasa, 1 April 2025 - Hujan"),
-            CuacaItem.CardCuaca("Perkiraan Cuaca Jalur Solok Selatan", "Senin, 15 Januari 2025 - Hujan Ringan"),
-            CuacaItem.CardPendaki("8/87")
-        )
+        loadInfoGunung()
+    }
 
-        rv.adapter = CuacaAdapter(items)
+    private fun loadInfoGunung() {
+        lifecycleScope.launch {
+            try {
+                Log.d("CUACA", "Mulai request")
+
+                val response =
+                    ApiConfig.getApiService(this@CuacaActivity)
+                        .getDetailDestinasi(1)
+
+                Log.d("CUACA", "Response code = ${response.code()}")
+
+                if (response.isSuccessful) {
+                    val destinasi =
+                        response.body()?.data
+
+                    Log.d("CUACA", "Nama destinasi = ${destinasi?.nama}")
+                    Log.d("CUACA", "Jumlah gate = ${destinasi?.gates?.size}")
+
+                    destinasi?.gates?.forEach {
+                        Log.d(
+                            "CUACA",
+                            "Gate ${it.nama} max=${it.max_pendaki_hari}"
+                        )
+                    }
+
+                }
+
+            } catch (e: Exception) {
+                //e.printStackTrace()
+                Log.e("CUACA", "ERROR", e)
+            }
+        }
     }
 }

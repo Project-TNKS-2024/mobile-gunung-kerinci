@@ -5,21 +5,18 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.dicoding.gunungkerinci.databinding.ItemSopTiketFooterBinding
 import com.dicoding.gunungkerinci.databinding.ItemSopTiketHeaderBinding
-import com.dicoding.gunungkerinci.databinding.ItemSopTiketSubtitleBinding
-import com.dicoding.gunungkerinci.databinding.ItemSopTiketTextBinding
-import com.dicoding.gunungkerinci.databinding.ItemSopTitleBinding
+import androidx.core.text.HtmlCompat
+import com.dicoding.gunungkerinci.databinding.ItemSopTiketHtmlBinding
 
-class SOPAdapter (
-    private val items: List<SOPItem>,
+class TiketSOPAdapter (
+    private val items: List<TiketSOPItem>,
     private val listener: SOPListener
     ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
         override fun getItemViewType(position: Int): Int = when (items[position]) {
-            is SOPItem.Header -> 0
-            is SOPItem.Title -> 1
-            is SOPItem.Subtitle -> 2
-            is SOPItem.Content -> 3
-            is SOPItem.Footer -> 4
+            is TiketSOPItem.Header -> 0
+            is TiketSOPItem.Html -> 1
+            is TiketSOPItem.Footer -> 2
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -31,23 +28,12 @@ class SOPAdapter (
                     )
                 )
 
-                1 -> TitleHolder(
-                    ItemSopTitleBinding.inflate(
+                1 -> HtmlHolder(
+                    ItemSopTiketHtmlBinding.inflate(
                         LayoutInflater.from(parent.context), parent, false
                     )
                 )
 
-                2 -> SubtitleHolder(
-                    ItemSopTiketSubtitleBinding.inflate(
-                        LayoutInflater.from(parent.context), parent, false
-                    )
-                )
-
-                3 -> ContentHolder(
-                    ItemSopTiketTextBinding.inflate(
-                        LayoutInflater.from(parent.context), parent, false
-                    )
-                )
 
                 else -> FooterHolder(
                     ItemSopTiketFooterBinding.inflate(
@@ -62,7 +48,7 @@ class SOPAdapter (
         override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
             when (val item = items[position]) {
 
-                is SOPItem.Header -> {
+                is TiketSOPItem.Header -> {
                     val h = holder as HeaderHolder
 
                     h.binding.imgDownload.setOnClickListener {
@@ -80,13 +66,16 @@ class SOPAdapter (
                     }
                 }
 
-                is SOPItem.Title -> (holder as TitleHolder).binding.tvTitle.text = item.text
+                is TiketSOPItem.Html -> {
+                    val h = holder as HtmlHolder
 
-                is SOPItem.Subtitle -> (holder as SubtitleHolder).binding.tvSubtitle.text = item.text
+                    h.binding.tvHtml.text =
+                        HtmlCompat.fromHtml(
+                            item.html,
+                            HtmlCompat.FROM_HTML_MODE_LEGACY)
+                }
 
-                is SOPItem.Content -> (holder as ContentHolder).binding.tvText.text = item.text
-
-                is SOPItem.Footer -> {
+                is TiketSOPItem.Footer -> {
                     val f = holder as FooterHolder
 
                     // Ceklis
@@ -106,14 +95,9 @@ class SOPAdapter (
         class HeaderHolder(val binding: ItemSopTiketHeaderBinding) :
             RecyclerView.ViewHolder(binding.root)
 
-        class TitleHolder(val binding: ItemSopTitleBinding) :
-            RecyclerView.ViewHolder(binding.root)
-
-        class SubtitleHolder(val binding: ItemSopTiketSubtitleBinding) :
-            RecyclerView.ViewHolder(binding.root)
-
-        class ContentHolder(val binding: ItemSopTiketTextBinding) :
-            RecyclerView.ViewHolder(binding.root)
+        class HtmlHolder(
+            val binding: ItemSopTiketHtmlBinding
+        ) : RecyclerView.ViewHolder(binding.root)
 
         class FooterHolder(val binding: ItemSopTiketFooterBinding) :
             RecyclerView.ViewHolder(binding.root)

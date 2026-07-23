@@ -9,50 +9,97 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dicoding.gunungkerinci.R
 import com.dicoding.gunungkerinci.Ticket.TiketDataPendakiActivity
 import com.dicoding.gunungkerinci.databinding.ActivityTiketSopBinding
+import com.dicoding.gunungkerinci.model.SetujuiSNKRequest
+import com.dicoding.gunungkerinci.network.ApiConfig
+import kotlinx.coroutines.launch
 
-class TiketSOPActivity : AppCompatActivity(), SOPAdapter.SOPListener {
+class TiketSOPActivity : AppCompatActivity(), TiketSOPAdapter.SOPListener {
 
     private lateinit var binding: ActivityTiketSopBinding
     private var isChecked = false
+
+    private lateinit var tiketSopAdapter: TiketSOPAdapter
+
+    private val sopList = mutableListOf<TiketSOPItem>()
+
+    private var bookingId = ""
+
+    private var totalPendaki = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityTiketSopBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val sopList = mutableListOf<SOPItem>()
-
-        sopList.add(SOPItem.Header)
-
-        sopList.add(SOPItem.Title("A. Jalur Pendakian"))
-        sopList.add(SOPItem.Content("1. Jalur pendakian melalui ..."))
-        sopList.add(SOPItem.Content("2. Jalur pendakian melalui ..."))
-
-        sopList.add(SOPItem.Title("B. Ketentuan"))
-        sopList.add(SOPItem.Subtitle("Peraturan Umum"))
-        sopList.add(SOPItem.Content("1. Para pendaki wajib menjaga ..."))
-        sopList.add(SOPItem.Content("2. Setiap calon pendaki ..."))
-        sopList.add(SOPItem.Content("3. ... dan seterusnya"))
-
-        sopList.add(SOPItem.Title("C. Kegiatan Pendakian Dilarang"))
-        sopList.add(SOPItem.Content("1. Membawa satwa ..."))
-        sopList.add(SOPItem.Content("2. Mengambil tanaman ..."))
-        sopList.add(SOPItem.Content("3. Membakar hutan ..."))
-        sopList.add(SOPItem.Content("..."))
-
-        sopList.add(SOPItem.Title("D. Sanksi"))
-        sopList.add(SOPItem.Content("1. Bagi pendaki yang ..."))
-        sopList.add(SOPItem.Content("2. Sanksi administratif ..."))
-
-        sopList.add(SOPItem.Footer)
-
         binding.rvSop.layoutManager = LinearLayoutManager(this)
-        binding.rvSop.adapter = SOPAdapter(sopList, this)
 
+        tiketSopAdapter = TiketSOPAdapter(
+            sopList,
+            this
+        )
+
+        binding.rvSop.adapter = tiketSopAdapter
+
+        bookingId = intent.getStringExtra("booking_id") ?: ""
+
+        totalPendaki = intent.getIntExtra("total_pendaki", 1)
+
+        loadSOP()
+    }
+
+    private fun loadSOP() {
+        lifecycleScope.launch {
+            try {
+                val response = ApiConfig.getApiService(this@TiketSOPActivity)
+                    .getBookingDetail(bookingId)
+
+                if (!response.isSuccessful) {
+                    Toast.makeText(
+                        this@TiketSOPActivity,
+                        "Gagal mengambil SOP",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@launch
+                }
+
+                val body = response.body()
+
+                if (body?.success != true) {
+                    Toast.makeText(
+                        this@TiketSOPActivity,
+                        body?.message ?: "Data tidak ditemukan",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@launch
+                }
+
+                val sopHtml =
+                    body.data.destinasi.sop
+
+                sopList.clear()
+                sopList.add(TiketSOPItem.Header)
+
+                sopList.add(
+                    TiketSOPItem.Html(
+                        sopHtml
+                    )
+                )
+
+                sopList.add(TiketSOPItem.Footer)
+                tiketSopAdapter.notifyDataSetChanged()
+            } catch (e: Exception) {
+                Toast.makeText(
+                    this@TiketSOPActivity,
+                    e.message,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
     }
 
     //Download dokumen sop
@@ -82,13 +129,82 @@ class TiketSOPActivity : AppCompatActivity(), SOPAdapter.SOPListener {
     }
     override fun onNextClicked() {
         if (!isChecked) {
-            Toast.makeText(this, "Harap centang persetujuan terlebih dahulu", Toast.LENGTH_SHORT)
+            Toast.makeText(this, "Harap centang persetujuan terlebih dahulu",
+                Toast.LENGTH_SHORT)
                 .show()
             return
         }
+        setujuiSNK()
+    }
 
-        // Jika sudah centang → lanjut ke activity berikutnya
-        val intent = Intent(this, TiketDataPendakiActivity::class.java)
-        startActivity(intent)
+    private fun setujuiSNK() {
+        lifecycleScope.launch {
+            try {
+
+                val request = SetujuiSNKRequest(
+                    id = bookingId,
+                    snk = true
+                )
+
+                val response = ApiConfig.getApiService(this@TiketSOPActivity)
+                    .setujuiSNK(request)
+
+                if (!response.isSuccessful) {
+                    Toast.makeText(
+                        this@TiketSOPActivity,
+                        "Gagal menyimpan persetujuan",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@launch
+                }
+
+                val body = response.body()
+
+                if (body?.success == true) {
+
+                    Toast.makeText(
+                        this@TiketSOPActivity,
+                        body.message,
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    val intent = Intent(
+                        this@TiketSOPActivity,
+                        TiketDataPendakiActivity::class.java
+                    )
+
+                    intent.putExtra(
+                        "booking_id",
+                        bookingId
+                    )
+
+                    intent.putExtra(
+                        "total_pendaki",
+                        totalPendaki
+                    )
+
+                    startActivity(intent)
+                    finish()
+
+                } else {
+
+                    Toast.makeText(
+                        this@TiketSOPActivity,
+                        body?.message ?: "Persetujuan gagal",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                }
+
+            } catch (e: Exception) {
+
+                Toast.makeText(
+                    this@TiketSOPActivity,
+                    e.message,
+                    Toast.LENGTH_SHORT
+                ).show()
+
+            }
+        }
     }
 }
