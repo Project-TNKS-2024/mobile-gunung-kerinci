@@ -1,15 +1,16 @@
-package com.dicoding.gunungkerinci.Ticket
+package com.dicoding.gunungkerinci.Ticket.Pembayaran
 
 import android.app.Dialog
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.View
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.dicoding.gunungkerinci.R
 import com.dicoding.gunungkerinci.Ticket.Barcode.BarcodeTiketActivity
 import com.dicoding.gunungkerinci.databinding.ActivityBuktiPembayaranBinding
@@ -74,7 +75,7 @@ class BuktiPembayaranActivity : AppCompatActivity() {
         tvStatus.setTextColor(Color.parseColor("#FFFFFF"))
 
         // Tampilkan layout approved
-        binding.layoutApproved.visibility = android.view.View.VISIBLE
+        binding.layoutApproved.visibility = View.VISIBLE
 
         Toast.makeText(this, "Pembayaran berhasil diverifikasi", Toast.LENGTH_SHORT).show()
     }

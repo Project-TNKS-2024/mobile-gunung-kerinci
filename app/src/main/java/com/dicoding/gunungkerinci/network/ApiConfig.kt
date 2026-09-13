@@ -6,13 +6,12 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 object ApiConfig {
 
-//    private const val BASE_URL = "https://eticket-tnks.fst.unja.ac.id/"
-   private const val BASE_URL = "http://192.168.18.253:8000/"
-
-    //private const val BASE_URL = "https://tnks.mukhtada.my.id/"
+    //private const val BASE_URL = "https://eticket-tnks.fst.unja.ac.id/"
+    private const val BASE_URL = "http://192.168.110.99:8000/"
 
 
     fun getApiService(context: Context): ApiService {
@@ -20,6 +19,9 @@ object ApiConfig {
         logging.level = HttpLoggingInterceptor.Level.BODY
 
         val client = OkHttpClient.Builder()
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS)
             .addInterceptor { chain ->
                 val originalRequest = chain.request()
                 val token = UserPreference(context).getToken()

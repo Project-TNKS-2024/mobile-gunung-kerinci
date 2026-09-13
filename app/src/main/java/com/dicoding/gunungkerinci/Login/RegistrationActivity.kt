@@ -114,8 +114,11 @@ class RegistrationActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             try {
+                Log.d("REGISTER", "1. Sebelum request")
+
                 val response = ApiConfig.getApiService(this@RegistrationActivity).register(request)
 
+                Log.d("REGISTER", "2. Response diterima")
 
                 if (response.isSuccessful && response.body()?.success == true) {
 
@@ -157,6 +160,8 @@ class RegistrationActivity : AppCompatActivity() {
                 }
 
             } catch (e: Exception) {
+                Log.e("REGISTER", "ERROR", e)
+
                 Toast.makeText(
                     this@RegistrationActivity,
                     "Koneksi gagal: ${e.message}",

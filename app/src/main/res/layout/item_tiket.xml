@@ -30,6 +30,7 @@
         android:layout_marginStart="10dp"/>
 
     <LinearLayout
+        android:id="@+id/statusTiket"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
@@ -39,9 +40,10 @@
         android:layout_marginEnd="10dp">
 
         <TextView
+            android:id="@+id/textStatusTiket"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Menunggu Pembayaran"
+            android:text="Selesaikan Pendaftaran"
             android:textSize="14sp"
             android:fontFamily="@font/plus_jakarta_sans"
             android:textColor="@color/black2"
@@ -188,7 +190,7 @@
         android:id="@+id/Total"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="15.000"
+        android:text="150.000"
         app:layout_constraintTop_toBottomOf="@id/textPembayaran"
         app:layout_constraintEnd_toEndOf="@id/textPembayaran"
         app:layout_constraintBottom_toBottomOf="@id/textOrang"
@@ -210,6 +212,58 @@
         android:textSize="14sp"
         android:textColor="@color/black2"/>
 
+    <LinearLayout
+        android:id="@+id/cardInfoTiket"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@drawable/border_bgpastikan"
+        android:padding="15dp"
+        android:layout_margin="10dp"
+        android:layout_marginTop="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/lineBawah">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/background"
+                android:layout_width="35dp"
+                android:layout_height="36dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:background="@drawable/border_pastikan"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_perhatikan"
+                app:layout_constraintTop_toTopOf="@id/background"
+                app:layout_constraintBottom_toBottomOf="@id/background"
+                app:layout_constraintStart_toStartOf="@id/background"
+                app:layout_constraintEnd_toEndOf="@id/background"/>
+
+            <TextView
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:text="Segera isi biodata Anda untuk mendapatkan ID Pendaki dan akses pembelian tiket"
+                android:textColor="@color/black2"
+                android:textSize="14sp"
+                android:fontFamily="@font/plus_jakarta_sans"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/background"
+                android:layout_marginStart="13dp"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </LinearLayout>
+
     <View
         android:id="@+id/lineBawah"
         android:layout_width="0dp"
@@ -220,6 +274,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/textOrang"
         android:layout_marginTop="20dp"/>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

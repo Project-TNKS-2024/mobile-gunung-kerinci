@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.dicoding.gunungkerinci.MainActivity
 import com.dicoding.gunungkerinci.R
-import com.dicoding.gunungkerinci.Ticket.BuktiPembayaranActivity
+import com.dicoding.gunungkerinci.Ticket.Pembayaran.BuktiPembayaranActivity
 import com.dicoding.gunungkerinci.databinding.ActivityPembayaranBinding
 
 class PembayaranActivity : AppCompatActivity() {

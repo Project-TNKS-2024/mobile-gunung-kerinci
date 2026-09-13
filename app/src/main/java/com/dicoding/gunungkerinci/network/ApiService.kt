@@ -2,6 +2,7 @@ package com.dicoding.gunungkerinci.network
 
 import com.dicoding.gunungkerinci.model.BaseResponse
 import com.dicoding.gunungkerinci.model.BookingDetailResponse
+import com.dicoding.gunungkerinci.model.CancelBookingResponse
 import com.dicoding.gunungkerinci.model.CountryResponse
 import com.dicoding.gunungkerinci.model.CreateBookingRequest
 import com.dicoding.gunungkerinci.model.CreateBookingResponse
@@ -30,12 +31,11 @@ import com.dicoding.gunungkerinci.model.SimpanFormulirRequest
 import com.dicoding.gunungkerinci.model.SimpanFormulirResponse
 import com.dicoding.gunungkerinci.model.TambahPendakiRequest
 import com.dicoding.gunungkerinci.model.TambahPendakiResponse
-import com.dicoding.gunungkerinci.model.UpdatePendakiRequest
-import com.dicoding.gunungkerinci.model.UpdatePendakiResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Headers
@@ -242,7 +242,7 @@ interface ApiService {
         @Path("booking_id") bookingId: String
     ): Response<BookingDetailResponse>
 
-    @POST("api/booking/formulir/tambah")
+    @POST("api/booking/formulir/pendaki/add")
     @Headers(
         "Accept: application/json"
     )
@@ -250,6 +250,7 @@ interface ApiService {
         @Body request: TambahPendakiRequest
     ): Response<TambahPendakiResponse>
 
+    /*
     @POST("api/booking/formulir/update")
     @Headers(
         "Accept: application/json"
@@ -257,6 +258,7 @@ interface ApiService {
     suspend fun updatePendaki(
         @Body request: UpdatePendakiRequest
     ): Response<UpdatePendakiResponse>
+     */
 
     @POST("api/booking/formulir")
     @Headers(
@@ -273,4 +275,12 @@ interface ApiService {
     suspend fun finalisasiFormulir(
         @Body request: FinalisasiFormulirRequest
     ): Response<FinalisasiFormulirResponse>
+
+    @DELETE("api/booking/{booking_id}")
+    @Headers(
+        "Accept: application/json"
+    )
+    suspend fun cancelBooking(
+        @Path("booking_id") bookingId: String
+    ): Response<CancelBookingResponse>
 }

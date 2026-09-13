@@ -1,24 +1,25 @@
-package com.dicoding.gunungkerinci.Ticket.Pembayaran
+package com.dicoding.gunungkerinci.Ticket
 
 import android.app.Dialog
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.dicoding.gunungkerinci.MainActivity
 import com.dicoding.gunungkerinci.R
 import com.dicoding.gunungkerinci.Ticket.DataPendaki.DetailDataPendakiActivity
-import com.dicoding.gunungkerinci.databinding.ActivityRincianPembayaranTiketBinding
+import com.dicoding.gunungkerinci.Ticket.Pembayaran.PembayaranActivity
+import com.dicoding.gunungkerinci.databinding.ActivityRincianPemesananTiketBinding
 
-class RincianPembayaranTiketActivity : AppCompatActivity() {
+class RincianPemesananTiketActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityRincianPembayaranTiketBinding
+    private lateinit var binding: ActivityRincianPemesananTiketBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityRincianPembayaranTiketBinding.inflate(layoutInflater)
+        binding = ActivityRincianPemesananTiketBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         // Tombol back di header
@@ -97,7 +98,6 @@ class RincianPembayaranTiketActivity : AppCompatActivity() {
             startActivity(intent)
             finish()
         }
-
         dialog.show()
     }
 }

@@ -30,7 +30,7 @@
             android:name=".Ticket.Barcode.BarcodeTiketActivity"
             android:exported="false" />
         <activity
-            android:name=".Ticket.BuktiPembayaranActivity"
+            android:name=".Ticket.Pembayaran.BuktiPembayaranActivity"
             android:exported="false" />
         <activity
             android:name=".Ticket.Pembayaran.PembayaranActivity"
@@ -47,7 +47,7 @@
             android:name=".Ticket.DataPendaki.DetailDataPendakiActivity"
             android:exported="false" />
         <activity
-            android:name=".Ticket.Pembayaran.RincianPembayaranTiketActivity"
+            android:name=".Ticket.RincianPemesananTiketActivity"
             android:exported="false" />
         <activity
             android:name=".Homepage.Pemberitahuan.PemberitahuanActivity"
@@ -101,7 +101,7 @@
 
                 <data
                     android:scheme="gunungkerinci"
-                    android:host="verify" />
+                    android:host="verify-email" />
             </intent-filter>
 
         </activity>

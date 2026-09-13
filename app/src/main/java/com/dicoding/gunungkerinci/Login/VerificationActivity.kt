@@ -25,6 +25,8 @@ class VerificationActivity : AppCompatActivity() {
         binding = ActivityVerificationBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        handleDeepLink(intent)
+
         Toast.makeText(
             this,
             "Silakan cek email Anda untuk verifikasi",
@@ -113,6 +115,43 @@ class VerificationActivity : AppCompatActivity() {
         }
     }
 
+    private fun handleDeepLink(intent: Intent?) {
+
+        val data = intent?.data ?: return
+
+        android.util.Log.d("DEEPLINK", "URI = $data")
+        android.util.Log.d("DEEPLINK", "Scheme = ${data.scheme}")
+        android.util.Log.d("DEEPLINK", "Host = ${data.host}")
+        android.util.Log.d("DEEPLINK", "Id = ${data.getQueryParameter("id")}")
+        android.util.Log.d("DEEPLINK", "Hash = ${data.getQueryParameter("hash")}")
+        android.util.Log.d("DEEPLINK", "Status = ${data.getQueryParameter("status")}")
+
+        if (
+            data.scheme == "gunungkerinci" &&
+            data.host == "verify-email"
+        ) {
+            val status = data.getQueryParameter("status")
+
+            if (status == "success") {
+                Toast.makeText(
+                    this,
+                    "Email berhasil diverifikasi",
+                    Toast.LENGTH_LONG
+                ).show()
+                startActivity(
+                    Intent(this, LoginActivity::class.java)
+                )
+                finish()
+            }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        android.util.Log.d("DEEPLINK", "onNewIntent Dipanggil")
+        handleDeepLink(intent)
+    }
 
     override fun onDestroy() {
         super.onDestroy()

@@ -4,7 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.dicoding.gunungkerinci.Ticket.Pembayaran.RincianPembayaranTiketActivity
+import com.dicoding.gunungkerinci.Ticket.RincianPemesananTiketActivity
 import com.dicoding.gunungkerinci.databinding.ActivityDetailDataPendakiBinding
 
 class DetailDataPendakiActivity : AppCompatActivity() {
@@ -17,7 +17,7 @@ class DetailDataPendakiActivity : AppCompatActivity() {
 
         // Tombol back
         binding.buttonBack.setOnClickListener {
-            val intent = Intent(this, RincianPembayaranTiketActivity::class.java)
+            val intent = Intent(this, RincianPemesananTiketActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
             startActivity(intent)
             finish()
