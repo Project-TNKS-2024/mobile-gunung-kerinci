@@ -27,6 +27,10 @@
         android:theme="@style/Theme.GunungKerinci"
         tools:targetApi="31">
         <activity
+            android:name=".Maps.PortraitCaptureActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".Ticket.Barcode.BarcodeTiketActivity"
             android:exported="false" />
         <activity

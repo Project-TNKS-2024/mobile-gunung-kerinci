@@ -5,88 +5,75 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.navigation.findNavController
-import androidx.navigation.ui.setupWithNavController
 import com.dicoding.gunungkerinci.databinding.ActivityMainBinding
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.dicoding.gunungkerinci.ui.common.CustomBottomBar
+import com.dicoding.gunungkerinci.ui.common.NavTab
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-
-    private val iconMap = mapOf(
-        R.id.navigation_beranda to Pair(R.drawable.beranda, R.drawable.beranda_fill),
-
-        R.id.navigation_tiket to Pair(R.drawable.ticket, R.drawable.ticket_fill),
-
-        //R.id.navigation_jejak to Pair(R.drawable.vr, R.drawable.vr_fill),
-
-        //R.id.navigation_laporan to Pair(R.drawable.laporan, R.drawable.laporan_fill),
-
-        R.id.navigation_profile to Pair(R.drawable.profile, R.drawable.profile_fill)
-    )
+    private var selectedTab by mutableStateOf(NavTab.BERANDA)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val navView : BottomNavigationView = binding.bottomNavigationView
         val navController = findNavController(R.id.nav_host_fragment)
 
-        navView.setupWithNavController(navController)
+        // Bottom bar custom (Compose) — desain disamakan dengan repo vibe-coding.
+        binding.composeBottomNav.apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                CustomBottomBar(
+                    selectedTab = selectedTab,
+                    onTabSelected = { tab ->
+                        selectedTab = tab
+                        when (tab) {
+                            NavTab.BERANDA -> navController.navigate(R.id.navigation_beranda)
+                            NavTab.TIKET -> navController.navigate(R.id.navigation_tiket)
+                            NavTab.CHECK_POINT -> navController.navigate(R.id.navigation_jejak)
+                            NavTab.AKUN -> navController.navigate(R.id.navigation_profile)
+                            // Tab SOS belum bernavigasi (fitur SOS belum dikerjakan).
+                            NavTab.SOS -> Unit
+                        }
+                    }
+                )
+            }
+        }
+
+        // Jaga tab terpilih tetap sinkron saat fragment berubah (mis. dari deep link).
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            selectedTab = when (destination.id) {
+                R.id.navigation_beranda -> NavTab.BERANDA
+                R.id.navigation_tiket -> NavTab.TIKET
+                R.id.navigation_jejak -> NavTab.CHECK_POINT
+                R.id.navigation_profile -> NavTab.AKUN
+                else -> selectedTab
+            }
+        }
 
         handleOAuthDeepLink(intent)
 
         // CEK JIKA KEMBALI DARI PROFILE DATA → BUKA PROFILE FRAGMENT
-        // FIX: terima data dari biodata
         if (intent.getBooleanExtra("from_biodata", false)) {
-
             val bundle = Bundle().apply {
                 putBoolean("from_biodata", true)
                 putString("nama_user", intent.getStringExtra("nama_user") ?: "")
             }
-
-            navView.selectedItemId = R.id.navigation_profile
+            selectedTab = NavTab.AKUN
             navController.navigate(R.id.navigation_profile, bundle)
         }
 
         when (intent.getStringExtra("open_fragment")) {
             "profile" -> {
-                navView.selectedItemId = R.id.navigation_profile
+                selectedTab = NavTab.AKUN
                 navController.navigate(R.id.navigation_profile)
-            }
-        }
-
-        navView.setOnNavigationItemSelectedListener { menuItem ->
-            when(menuItem.itemId){
-                R.id.navigation_beranda -> {
-                    navController.navigate(R.id.navigation_beranda)
-                    updateIcon(menuItem.itemId)
-                    true
-                }
-                R.id.navigation_tiket -> {
-                    navController.navigate(R.id.navigation_tiket)
-                    updateIcon(menuItem.itemId)
-                    true
-                }
-                /*
-                R.id.navigation_jejak -> {
-                    navController.navigate(R.id.navigation_jejak)
-                    updateIcon(menuItem.itemId)
-                    true
-                }
-                R.id.navigation_laporan -> {
-                    navController.navigate(R.id.navigation_laporan)
-                    updateIcon(menuItem.itemId)
-                    true
-                }
-                 */
-                R.id.navigation_profile -> {
-                    navController.navigate(R.id.navigation_profile)
-                    updateIcon(menuItem.itemId)
-                    true
-                } else -> false
             }
         }
     }
@@ -98,17 +85,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
-    private fun updateIcon(activeId: Int) {
-        iconMap.forEach { (id, iconPair) ->
-            val menuItem = binding.bottomNavigationView.menu.findItem(id)
-            menuItem.icon = getDrawable(
-                if (id == activeId) iconPair.second else iconPair.first
-            )
-        }
-    }
-
     private fun handleOAuthDeepLink(intent: Intent) {
-        val data = intent?.data ?: return
+        val data = intent.data ?: return
 
         Log.d("OAUTH_DEBUG", "Deep link diterima: $data")
 
@@ -122,18 +100,15 @@ class MainActivity : AppCompatActivity() {
                 pref.edit().putString("token", token).apply()
 
                 val navController = findNavController(R.id.nav_host_fragment)
-                val navView = binding.bottomNavigationView
 
                 if (isNewUser == "true") {
-                    navView.selectedItemId = R.id.navigation_profile
+                    selectedTab = NavTab.AKUN
                     navController.navigate(R.id.navigation_profile)
                 } else {
-                    navView.selectedItemId = R.id.navigation_beranda
+                    selectedTab = NavTab.BERANDA
                     navController.navigate(R.id.navigation_beranda)
                 }
             }
         }
     }
-
-
 }

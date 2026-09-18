@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import com.dicoding.gunungkerinci.Homepage.Panduan.PanduanActivity
 import com.dicoding.gunungkerinci.Homepage.Pemberitahuan.PemberitahuanActivity
 import com.dicoding.gunungkerinci.Homepage.Sop.SopActivity
@@ -128,12 +129,19 @@ class HomeFragment : Fragment() {
     } */
 
     private fun setupMenu() {
-        binding.cardSOP.setOnClickListener {
-            startActivity(Intent(requireContext(), SopActivity::class.java))
-        }
-
-        binding.cardPanduan.setOnClickListener {
-            startActivity(Intent(requireContext(), PanduanActivity::class.java))
+        // Menu Berkas (6 item) sekarang Compose — sama seperti repo vibe-coding
+        binding.composeViewBerkasMenu.apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                BerkasMenuGrid(
+                    onPesanClick      = { startActivity(Intent(requireContext(), SopActivity::class.java)) },
+                    onVrJalurClick    = { startActivity(Intent(requireContext(), SopActivity::class.java)) },
+                    onSopClick        = { startActivity(Intent(requireContext(), SopActivity::class.java)) },
+                    onLaporanClick    = { startActivity(Intent(requireContext(), SopActivity::class.java)) },
+                    onSertifikatClick = { startActivity(Intent(requireContext(), SopActivity::class.java)) },
+                    onPanduanClick    = { startActivity(Intent(requireContext(), PanduanActivity::class.java)) }
+                )
+            }
         }
 
         binding.textViewSelengkapnya.setOnClickListener {
