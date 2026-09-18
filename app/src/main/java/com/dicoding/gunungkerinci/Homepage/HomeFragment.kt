@@ -21,10 +21,28 @@ import kotlinx.coroutines.launch
 import com.dicoding.gunungkerinci.network.ApiConfig
 import android.os.Build
 import android.text.Html
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import com.dicoding.gunungkerinci.data.repository.EmergencyRepository
+import com.dicoding.gunungkerinci.pref.UserPreference
+import com.dicoding.gunungkerinci.ui.peringatan_dini.EarlyWarningOverlay
+import com.dicoding.gunungkerinci.ui.peringatan_dini.PeringatanDiniViewModel
+import com.dicoding.gunungkerinci.ui.peringatan_dini.PeringatanDiniViewModelFactory
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 
 class HomeFragment : Fragment() {
 
     private lateinit var binding: FragmentHomeBinding
+
+    private val peringatanDiniViewModel: PeringatanDiniViewModel by viewModels {
+        PeringatanDiniViewModelFactory(
+            EmergencyRepository(ApiConfig.getApiService(requireContext()))
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,11 +57,49 @@ class HomeFragment : Fragment() {
 
         setupMenu()
 
+        setupPeringatanDiniOverlay()
+
         getDestinasi()
 
         //setupWisataList()
 
         return binding.root
+    }
+
+    // Peringatan dini: overlay Compose + polling selagi layar terlihat.
+    private fun setupPeringatanDiniOverlay() {
+        binding.composePeringatan.apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                val uiState by peringatanDiniViewModel.uiState.collectAsState()
+                EarlyWarningOverlay(
+                    uiState = uiState,
+                    onBubbleClick = peringatanDiniViewModel::openPopup,
+                    onClosePopup = peringatanDiniViewModel::dismissPopup
+                )
+            }
+        }
+    }
+
+    private fun startWarningPolling() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                while (isActive) {
+                    val token = UserPreference(requireContext()).getToken().orEmpty()
+                    peringatanDiniViewModel.load(token)
+                    delay(POLL_INTERVAL_MS)
+                }
+            }
+        }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        startWarningPolling()
+    }
+
+    private companion object {
+        const val POLL_INTERVAL_MS = 60_000L
     }
 
     private fun getDestinasi() {

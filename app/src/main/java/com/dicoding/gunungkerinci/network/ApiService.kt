@@ -6,6 +6,7 @@ import com.dicoding.gunungkerinci.model.CheckpointQrResponse
 import com.dicoding.gunungkerinci.model.CountryResponse
 import com.dicoding.gunungkerinci.model.DestinasiResponse
 import com.dicoding.gunungkerinci.model.DetailDestinasiResponse
+import com.dicoding.gunungkerinci.model.EmergencyActiveResponse
 import com.dicoding.gunungkerinci.model.ForgotPasswordRequest
 import com.dicoding.gunungkerinci.model.GantiPasswordRequest
 import com.dicoding.gunungkerinci.model.GoogleRedirectResponse
@@ -265,6 +266,12 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Path("gate_id") gateId: Int
     ): Response<TrackingPostResponse>
+
+    @GET("api/emergency/active")
+    @Headers("Accept: application/json")
+    suspend fun getActiveEmergencies(
+        @Header("Authorization") token: String
+    ): Response<EmergencyActiveResponse>
 
     @GET("api/mytiket")
     @Headers(
