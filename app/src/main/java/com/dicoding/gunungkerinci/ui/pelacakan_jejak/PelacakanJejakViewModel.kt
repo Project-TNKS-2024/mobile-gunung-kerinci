@@ -295,6 +295,18 @@ internal class PelacakanJejakViewModel(
                 .onSuccess { data ->
                     completedPostIds += data.post.id
                     kirimTitikPosisi(latitude, longitude, altitude, accuracy, batteryLevel)
+                    // Simpan ID log dari server supaya kehadiran ini bisa dibatalkan nanti
+                    // lewat DELETE /checkpoint/{id}. Tanpa ini, ID-nya hilang begitu layar
+                    // ditutup, karena API progress tidak mengembalikan ID log.
+                    if (currentBookingId.isNotBlank() && currentPendakiId.isNotBlank()) {
+                        trackingRepository.saveServerLogId(
+                            bookingId = currentBookingId,
+                            pendakiId = currentPendakiId,
+                            postId = data.post.id,
+                            serverId = data.checkpointLogId,
+                            method = METHOD_QR
+                        )
+                    }
                     _uiState.update {
                         it.copy(
                             isCheckingIn = false,
@@ -379,15 +391,58 @@ internal class PelacakanJejakViewModel(
             return
         }
 
-        // Pembatalan kehadiran belum tersedia di backend (tidak ada endpoint DELETE,
-        // dan unique constraint mencegah log kedua). Beri tahu apa adanya, jangan
-        // berpura-pura berhasil dengan mengubah tampilan saja.
+        // Kehadiran dibatalkan: server menerima DELETE /checkpoint/{id}, tapi
+        // membutuhkan ID log. ID itu disimpan lokal saat check-in berhasil.
         if (!checked) {
-            _uiState.update {
-                it.copy(
-                    memberMarkMessage = null,
-                    memberMarkErrorMessage = "Pembatalan kehadiran belum didukung sistem"
-                )
+            viewModelScope.launch {
+                _uiState.update {
+                    it.copy(isMarkingMember = true, memberMarkMessage = null, memberMarkErrorMessage = null)
+                }
+
+                val logId = if (currentBookingId.isNotBlank()) {
+                    trackingRepository.getServerLogId(currentBookingId, pendakiId, postId)
+                } else null
+
+                if (logId == null) {
+                    _uiState.update {
+                        it.copy(
+                            isMarkingMember = false,
+                            memberMarkMessage = null,
+                            memberMarkErrorMessage =
+                                "Tidak dapat membatalkan: catatan kehadiran tidak ditemukan di perangkat ini"
+                        )
+                    }
+                    return@launch
+                }
+
+                checkpointQrRepository.cancelCheckIn(currentToken, logId)
+                    .onSuccess { data ->
+                        // Bersihkan catatan lokal supaya penandaan ulang tidak dianggap duplikat.
+                        if (currentBookingId.isNotBlank()) {
+                            trackingRepository.deleteCheckInLocal(currentBookingId, pendakiId, postId)
+                            completedPostIds -= postId
+                        }
+                        _uiState.update {
+                            it.copy(
+                                isMarkingMember = false,
+                                memberMarkMessage = "Kehadiran dibatalkan di ${data.post.nama}",
+                                memberMarkErrorMessage = null
+                            )
+                        }
+                        if (currentBookingId.isNotBlank()) {
+                            loadProgress()
+                        }
+                    }
+                    .onFailure { error ->
+                        _uiState.update {
+                            it.copy(
+                                isMarkingMember = false,
+                                memberMarkMessage = null,
+                                memberMarkErrorMessage =
+                                    error.message ?: "Gagal membatalkan kehadiran"
+                            )
+                        }
+                    }
             }
             return
         }
@@ -420,6 +475,17 @@ internal class PelacakanJejakViewModel(
                 pendakiId = pendakiId
             )
                 .onSuccess { data ->
+                    // Simpan ID log untuk pendaki SASARAN, supaya pembatalan toggle
+                    // nanti menemukan ID yang benar (bukan punya ketua).
+                    if (currentBookingId.isNotBlank()) {
+                        trackingRepository.saveServerLogId(
+                            bookingId = currentBookingId,
+                            pendakiId = pendakiId,
+                            postId = data.post.id,
+                            serverId = data.checkpointLogId,
+                            method = METHOD_QR
+                        )
+                    }
                     _uiState.update {
                         it.copy(
                             isMarkingMember = false,

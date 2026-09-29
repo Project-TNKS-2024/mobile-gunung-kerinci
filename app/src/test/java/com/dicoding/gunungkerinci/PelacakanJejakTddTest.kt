@@ -176,6 +176,42 @@ class PelacakanJejakTddTest {
         assertFalse(repository.hasCheckedIn("booking-1", "pendaki-1", 5))
     }
 
+    // ============================================================
+    // TDD-A09 — simpan ID log dari server supaya kehadiran bisa dibatalkan
+    // ============================================================
+    @Test
+    fun `TDD A09 - ID log server disimpan dan bisa diambil kembali`() = runBlocking {
+        val dao = FakeCheckpointLogDao()
+        val repository = TrackingRepository(apiTidakDipakai(), checkpointLogDao = dao)
+
+        // Belum ada catatan → tidak ada ID.
+        assertNull(repository.getServerLogId("booking-1", "pendaki-1", 4))
+
+        repository.saveServerLogId("booking-1", "pendaki-1", 4, serverId = 15, method = "qr")
+
+        assertEquals(15, repository.getServerLogId("booking-1", "pendaki-1", 4))
+        // Pendaki atau pos lain tidak ikut terpengaruh.
+        assertNull(repository.getServerLogId("booking-1", "pendaki-2", 4))
+    }
+
+    // ============================================================
+    // TDD-A10 — pembatalan menghapus catatan lokal agar bisa dicatat ulang
+    // ============================================================
+    @Test
+    fun `TDD A10 - pembatalan kehadiran membersihkan catatan lokal`() = runBlocking {
+        val dao = FakeCheckpointLogDao()
+        val repository = TrackingRepository(apiTidakDipakai(), checkpointLogDao = dao)
+
+        repository.saveServerLogId("booking-1", "pendaki-1", 4, serverId = 15, method = "qr")
+        assertTrue(repository.hasCheckedIn("booking-1", "pendaki-1", 4))
+
+        repository.deleteCheckInLocal("booking-1", "pendaki-1", 4)
+
+        // Setelah dibatalkan, pos itu dianggap belum tercatat → bisa check-in lagi.
+        assertFalse(repository.hasCheckedIn("booking-1", "pendaki-1", 4))
+        assertNull(repository.getServerLogId("booking-1", "pendaki-1", 4))
+    }
+
     // ==================== helper ====================
 
     private fun post(id: Int, nama: String, urutan: Int) = TrackingPost(
@@ -242,5 +278,18 @@ class PelacakanJejakTddTest {
         override suspend fun markSent(localId: String, serverId: Int?, status: String) = error("tidak dipakai")
         override suspend fun markFailed(localId: String, status: String) = error("tidak dipakai")
         override suspend fun markPermanentFailure(localId: String) = error("tidak dipakai")
+
+        // Dipakai saat membatalkan kehadiran (toggle dimatikan).
+        override suspend fun getServerId(bookingId: String, pendakiId: String, postId: Int): Int? =
+            logs.firstOrNull {
+                it.bookingId == bookingId && it.pendakiId == pendakiId &&
+                    it.postId == postId && it.serverId != null
+            }?.serverId
+
+        override suspend fun deleteCheckIn(bookingId: String, pendakiId: String, postId: Int) {
+            logs.removeAll {
+                it.bookingId == bookingId && it.pendakiId == pendakiId && it.postId == postId
+            }
+        }
     }
 }
