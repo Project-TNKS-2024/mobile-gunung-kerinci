@@ -7,6 +7,7 @@ import com.dicoding.gunungkerinci.model.CheckpointQrResponse
 import com.dicoding.gunungkerinci.model.CountryResponse
 import com.dicoding.gunungkerinci.model.DestinasiResponse
 import com.dicoding.gunungkerinci.model.DetailDestinasiResponse
+import com.dicoding.gunungkerinci.model.EmergencyActiveResponse
 import com.dicoding.gunungkerinci.model.ForgotPasswordRequest
 import com.dicoding.gunungkerinci.model.GantiPasswordRequest
 import com.dicoding.gunungkerinci.model.GoogleRedirectResponse
@@ -18,6 +19,7 @@ import com.dicoding.gunungkerinci.model.LoginRequest
 import com.dicoding.gunungkerinci.model.LoginResponse
 import com.dicoding.gunungkerinci.model.ManualCheckInRequest
 import com.dicoding.gunungkerinci.model.ManualCheckInResponse
+import com.dicoding.gunungkerinci.model.MyPositionResponse
 import com.dicoding.gunungkerinci.model.MyTiketResponse
 import com.dicoding.gunungkerinci.model.PendakiIdentityResponse
 import com.dicoding.gunungkerinci.model.ProfileResponse
@@ -261,6 +263,12 @@ interface ApiService {
         @Body request: TrackingBatchRequest
     ): Response<BaseResponse<TrackingBatchData>>
 
+    @GET("api/tracking/my-position")
+    @Headers("Accept: application/json")
+    suspend fun getMyPosition(
+        @Header("Authorization") token: String
+    ): Response<MyPositionResponse>
+
     @GET("api/tracking/progress/{booking_id}")
     @Headers("Accept: application/json")
     suspend fun getTrackingProgress(
@@ -274,6 +282,12 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Path("gate_id") gateId: Int
     ): Response<TrackingPostResponse>
+
+    @GET("api/emergency/active")
+    @Headers("Accept: application/json")
+    suspend fun getActiveEmergencies(
+        @Header("Authorization") token: String
+    ): Response<EmergencyActiveResponse>
 
     @GET("api/mytiket")
     @Headers(

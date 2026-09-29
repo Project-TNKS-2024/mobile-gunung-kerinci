@@ -114,6 +114,7 @@ dependencies {
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.material:material-icons-core")
     implementation("androidx.activity:activity-compose:1.13.0")
     implementation("io.coil-kt:coil-compose:2.7.0")
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
