@@ -31,10 +31,6 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -60,9 +56,21 @@ internal fun PelacakanJejakLocationDetailScreen(
     members: List<JejakMemberUi> = emptyList(),
     gpsGateState: GpsGateState = GpsGateState.Unknown,
     isCheckingGps: Boolean = false,
+    /** true selagi permintaan kehadiran anggota diproses — toggle dinonaktifkan. */
+    isMarkingMember: Boolean = false,
+    /** Pesan berhasil penandaan kehadiran anggota. */
+    memberMarkMessage: String? = null,
+    /** Pesan galat penandaan kehadiran anggota (mis. ditolak server karena bukan ketua). */
+    memberMarkErrorMessage: String? = null,
     onBack: () -> Unit,
     onScanQrClick: () -> Unit,
-    onGpsCheckInClick: () -> Unit = {}
+    onGpsCheckInClick: () -> Unit = {},
+    /**
+     * Ketua tim mengubah status kehadiran anggota pada pos ini.
+     * Dipanggil dengan (pendakiId, checked). Server memverifikasi hak akses,
+     * jadi UI tidak perlu tahu siapa ketua.
+     */
+    onMemberToggle: (pendakiId: String, checked: Boolean) -> Unit = { _, _ -> }
 ) {
     Column(
         modifier = Modifier
@@ -125,10 +133,21 @@ internal fun PelacakanJejakLocationDetailScreen(
                     name = member.name,
                     avatarColor = avatarColorFor(member.name),
                     checked = member.checked,
+                    enabled = !isMarkingMember,
+                    onToggle = { checked -> onMemberToggle(member.pendakiId, checked) },
                 )
                 if (index != members.lastIndex) {
                     Spacer(Modifier.height(10.dp))
                 }
+            }
+            // Umpan balik penandaan kehadiran anggota (berhasil / ditolak server).
+            memberMarkErrorMessage?.let { pesan ->
+                Spacer(Modifier.height(10.dp))
+                Text(pesan, color = Color(0xFFCF372B), fontSize = 13.sp, lineHeight = 18.sp)
+            }
+            memberMarkMessage?.let { pesan ->
+                Spacer(Modifier.height(10.dp))
+                Text(pesan, color = JejakGreen, fontSize = 13.sp, lineHeight = 18.sp)
             }
         }
         Spacer(Modifier.height(18.dp))
@@ -432,8 +451,17 @@ private fun InfoGridItem(label: String, value: String, iconRes: Int, modifier: M
 }
 
 @Composable
-private fun MemberCheckCard(name: String, avatarColor: Color, checked: Boolean) {
-    var isChecked by remember { mutableStateOf(checked) }
+private fun MemberCheckCard(
+    name: String,
+    avatarColor: Color,
+    checked: Boolean,
+    enabled: Boolean,
+    onToggle: (Boolean) -> Unit
+) {
+    // `checked` tetap dibaca dari parameter (sumber = server), bukan disalin ke state lokal.
+    // Sebelumnya nilai disalin sekali lewat remember → perubahan dari server tidak pernah
+    // terlihat. Sekarang switch selalu mencerminkan data server; kalau backend menolak,
+    // nilai akan kembali sendiri setelah progress dimuat ulang.
     Surface(shape = RoundedCornerShape(18.dp), color = JejakWhite, border = BorderStroke(1.dp, JejakBorder), modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -442,9 +470,9 @@ private fun MemberCheckCard(name: String, avatarColor: Color, checked: Boolean) 
                 }
                 Spacer(Modifier.width(12.dp))
                 Text(name, color = JejakTextPrimary, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
-                MemberToggle(checked = isChecked, onCheckedChange = { isChecked = it })
+                MemberToggle(checked = checked, enabled = enabled, onCheckedChange = onToggle)
             }
-            if (!isChecked) {
+            if (!checked) {
                 Spacer(Modifier.height(12.dp))
                 Surface(shape = RoundedCornerShape(12.dp), color = JejakWhite, border = BorderStroke(1.dp, JejakBorder), modifier = Modifier.fillMaxWidth().height(42.dp)) {
                     Row(Modifier.padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -459,9 +487,14 @@ private fun MemberCheckCard(name: String, avatarColor: Color, checked: Boolean) 
 }
 
 @Composable
-private fun MemberToggle(checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
+private fun MemberToggle(
+    checked: Boolean,
+    enabled: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
     Switch(
         checked = checked,
+        enabled = enabled,
         onCheckedChange = onCheckedChange,
         colors = SwitchDefaults.colors(
             checkedThumbColor = JejakWhite,
