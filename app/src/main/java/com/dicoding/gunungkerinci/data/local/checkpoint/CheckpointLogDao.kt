@@ -22,6 +22,18 @@ interface CheckpointLogDao {
     @Query("SELECT COUNT(*) FROM checkpoint_logs WHERE bookingId = :bookingId AND pendakiId = :pendakiId AND postId = :postId")
     suspend fun countExistingCheckIn(bookingId: String, pendakiId: String, postId: Int): Int
 
+    /**
+     * Ambil ID log di server untuk satu pos dan satu pendaki.
+     * `serverId` diisi saat kirim berhasil (langsung maupun lewat antrean),
+     * dan dipakai untuk membatalkan kehadiran lewat DELETE /checkpoint/{id}.
+     */
+    @Query("SELECT serverId FROM checkpoint_logs WHERE bookingId = :bookingId AND pendakiId = :pendakiId AND postId = :postId AND serverId IS NOT NULL ORDER BY checkedAt DESC LIMIT 1")
+    suspend fun getServerId(bookingId: String, pendakiId: String, postId: Int): Int?
+
+    /** Hapus catatan lokal satu pos setelah kehadirannya dibatalkan di server. */
+    @Query("DELETE FROM checkpoint_logs WHERE bookingId = :bookingId AND pendakiId = :pendakiId AND postId = :postId")
+    suspend fun deleteCheckIn(bookingId: String, pendakiId: String, postId: Int)
+
     @Query("UPDATE checkpoint_logs SET syncStatus = :status WHERE localId = :localId")
     suspend fun updateStatus(localId: String, status: String)
 
