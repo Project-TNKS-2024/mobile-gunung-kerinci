@@ -18,6 +18,7 @@ import com.dicoding.gunungkerinci.model.LoginRequest
 import com.dicoding.gunungkerinci.model.LoginResponse
 import com.dicoding.gunungkerinci.model.ManualCheckInRequest
 import com.dicoding.gunungkerinci.model.ManualCheckInResponse
+import com.dicoding.gunungkerinci.model.MyPositionResponse
 import com.dicoding.gunungkerinci.model.MyTiketResponse
 import com.dicoding.gunungkerinci.model.PendakiIdentityResponse
 import com.dicoding.gunungkerinci.model.ProfileResponse
@@ -252,6 +253,12 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Body request: TrackingBatchRequest
     ): Response<BaseResponse<TrackingBatchData>>
+
+    @GET("api/tracking/my-position")
+    @Headers("Accept: application/json")
+    suspend fun getMyPosition(
+        @Header("Authorization") token: String
+    ): Response<MyPositionResponse>
 
     @GET("api/tracking/progress/{booking_id}")
     @Headers("Accept: application/json")

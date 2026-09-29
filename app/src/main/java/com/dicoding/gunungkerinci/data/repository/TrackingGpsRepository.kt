@@ -54,6 +54,22 @@ internal class TrackingGpsRepository(private val api: ApiService) {
         }
     }
 
+    /**
+     * Posisi terakhir pendaki aktif dari gk_tracking — sumber kebenaran semua
+     * jalur kirim (tombol manual, otomatis pasca check-in, batch offline).
+     * Mengembalikan `recorded_at` ISO-8601; null bila belum pernah ada titik.
+     */
+    suspend fun getMyPosition(token: String): Result<String?> = runCatching {
+        val bearer = bearerOf(token)
+        val response = api.getMyPosition(bearer)
+        val body = response.body()
+        if (response.isSuccessful && body?.success == true) {
+            body.data?.recordedAt
+        } else {
+            error(body?.message ?: "Gagal mengambil posisi terakhir (${response.code()})")
+        }
+    }
+
     private fun bearerOf(token: String) =
         if (token.startsWith("Bearer ")) token else "Bearer $token"
 
