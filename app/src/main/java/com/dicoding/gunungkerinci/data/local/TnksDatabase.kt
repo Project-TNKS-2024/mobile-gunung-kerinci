@@ -12,8 +12,10 @@ import com.dicoding.gunungkerinci.data.local.checkpoint.TrackingPostEntity
 //import com.dicoding.gunungkerinci.data.local.disaster.PendingDisasterReportEntity
 //import com.dicoding.gunungkerinci.data.local.message.PendingEmergencyMessageDao
 //import com.dicoding.gunungkerinci.data.local.message.PendingEmergencyMessageEntity
-//import com.dicoding.gunungkerinci.data.local.sos.PendingSosDao
-//import com.dicoding.gunungkerinci.data.local.sos.PendingSosEntity
+import com.dicoding.gunungkerinci.data.local.sos.PendingChatDao
+import com.dicoding.gunungkerinci.data.local.sos.PendingChatEntity
+import com.dicoding.gunungkerinci.data.local.sos.PendingSosDao
+import com.dicoding.gunungkerinci.data.local.sos.PendingSosEntity
 //import com.dicoding.gunungkerinci.data.local.warning.EarlyWarningDao
 //import com.dicoding.gunungkerinci.data.local.warning.EarlyWarningEntity
 
@@ -21,18 +23,20 @@ import com.dicoding.gunungkerinci.data.local.checkpoint.TrackingPostEntity
     entities = [
         TrackingPostEntity::class,
         CheckpointLogEntity::class,
-//        PendingSosEntity::class,
+        PendingSosEntity::class,
+        PendingChatEntity::class,
 //        PendingEmergencyMessageEntity::class,
 //        PendingDisasterReportEntity::class,
 //        EarlyWarningEntity::class
     ],
-    version = 4,
+    version = 6,
     exportSchema = false
 )
 abstract class TnksDatabase : RoomDatabase() {
     abstract fun trackingPostDao(): TrackingPostDao
     abstract fun checkpointLogDao(): CheckpointLogDao
-//    abstract fun pendingSosDao(): PendingSosDao
+    abstract fun pendingSosDao(): PendingSosDao
+    abstract fun pendingChatDao(): PendingChatDao
 //    abstract fun pendingEmergencyMessageDao(): PendingEmergencyMessageDao
 //    abstract fun pendingDisasterReportDao(): PendingDisasterReportDao
 //    abstract fun earlyWarningDao(): EarlyWarningDao
@@ -48,6 +52,7 @@ abstract class TnksDatabase : RoomDatabase() {
                     TnksDatabase::class.java,
                     "tnks_safety.db"
                 )
+                    // Skema v6: pending_sos_chats (antrean pesan chat darurat offline).
                     // Skema v4: checkpoint_logs + batteryLevel (persen baterai saat check-in).
                     // Skema v3: checkpoint_logs + altitude/accuracy (titik posisi gk_tracking).
                     // Cache lokal → fallbackToDestructiveMigration aman.
