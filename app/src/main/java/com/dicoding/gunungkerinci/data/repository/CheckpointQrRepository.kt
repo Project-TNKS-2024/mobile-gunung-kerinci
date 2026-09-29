@@ -9,13 +9,19 @@ internal class CheckpointQrRepository (private val api: ApiService) {
         token: String,
         qrCodeValue: String,
         latitude: Double? = null,
-        longitude: Double? = null
+        longitude: Double? = null,
+        /**
+         * UUID anggota yang dicatat. `null` = kehadiran diri sendiri.
+         * Diisi = ketua tim mewakili anggota (server memverifikasi hak akses).
+         */
+        pendakiId: String? = null
     ): Result<CheckpointQrData> = runCatching {
         val bearer = if (token.startsWith("Bearer ")) token else "Bearer $token"
         val response = api.checkInQr(
             bearer,
             CheckpointQrRequest(
                 qrCodeValue = qrCodeValue,
+                pendakiId = pendakiId,
                 latitude = latitude,
                 longitude = longitude
             )
@@ -28,7 +34,9 @@ internal class CheckpointQrRepository (private val api: ApiService) {
                 ?: when (response.code()) {
                     404 -> "QR code tidak valid atau pos tidak ditemukan"
                     409 -> "Sudah check-in di pos ini sebelumnya"
-                    403 -> "Tidak ada pendakian aktif"
+                    // 403 punya 3 sebab berbeda — pesan server dipakai bila ada,
+                    // fallback ini hanya untuk respons tanpa body.
+                    403 -> "Tidak berhak mencatat kehadiran ini"
                     429 -> "Terlalu banyak request, coba lagi nanti"
                     else -> "Check-in gagal (${response.code()})"
                 }

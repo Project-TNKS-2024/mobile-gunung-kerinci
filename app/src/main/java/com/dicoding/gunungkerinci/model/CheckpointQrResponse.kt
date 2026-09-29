@@ -11,6 +11,8 @@ data class CheckpointQrResponse(
 
 data class CheckpointQrData(
     @SerializedName("checkpoint_log_id") val checkpointLogId: Int,
+    /** UUID pendaki yang tercatat — pembeda antara scan sendiri dan perwakilan ketua. */
+    @SerializedName("pendaki_id") val pendakiId: String? = null,
     @SerializedName("post") val post: CheckpointQrPost,
     @SerializedName("progress") val progress: CheckpointQrProgress
 )
