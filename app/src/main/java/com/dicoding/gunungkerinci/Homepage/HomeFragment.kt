@@ -20,6 +20,7 @@ import android.util.Log
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import com.dicoding.gunungkerinci.network.ApiConfig
+import com.dicoding.gunungkerinci.pref.UserPreference
 import android.os.Build
 import android.text.Html
 import com.dicoding.gunungkerinci.ui.pelacakan_jejak.ActiveTicketCard
