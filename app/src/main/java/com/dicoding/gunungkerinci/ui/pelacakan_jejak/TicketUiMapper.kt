@@ -16,28 +16,59 @@ internal object TicketUiMapper {
     private const val STATUS_MENDAKI = 6
     private val STATUS_SELESAI = listOf(7, 8)
 
+    /** Urutan prioritas booking yang dianggap "Tiket Aktif" (belum selesai). */
+    private val STATUS_AKTIF_PRIORITAS = listOf(6, 5, 4, 3, 2, 1, 0)
+
+    /**
+     * Label status booking — mengikuti `gk_booking::getStatusBooking()` di backend.
+     * Dipakai untuk badge kuning di kartu tiket.
+     */
+    fun statusLabel(kode: Int?): String = when (kode) {
+        0 -> "Menunggu Persetujuan"
+        1 -> "Menyetujui SNK"
+        2 -> "Mengisi Formulir"
+        3 -> "Menunggu Pembayaran"
+        4 -> "Sudah Bayar"
+        5 -> "Konfirmasi Pendakian"
+        6 -> "Sedang Mendaki"
+        7 -> "Check Out"
+        8 -> "Selesai"
+        40 -> "Kadarluarsa"
+        50 -> "Batal Mendaki"
+        51 -> "Perlu Konfirmasi Check-in"
+        61 -> "Perlu Konfirmasi Check-out"
+        else -> "Tidak Diketahui"
+    }
+
     private val NAMA_BULAN = listOf(
         "Januari", "Februari", "Maret", "April", "Mei", "Juni",
         "Juli", "Agustus", "September", "Oktober", "November", "Desember"
     )
 
-    /** Booking yang sedang mendaki (status 6) → kartu "Tiket Aktif". */
-    fun toActiveTicket(bookings: List<MyTiketItem>): JejakTicketUi? =
-        bookings.firstOrNull { it.statusBooking == STATUS_MENDAKI }?.let { booking ->
-            JejakTicketUi(
-                title = "Tiket Aktif",
-                purchaseLabel = "Pembelian",
-                purchaseDate = formatTanggal(booking.createdAt),
-                status = "Sedang Mendaki",
-                statusType = TicketStatusType.Ongoing,
-                masukDate = formatTanggal(booking.tanggalMasuk),
-                keluarDate = formatTanggal(booking.tanggalKeluar),
-                pendakiCount = formatPendaki(booking),
-                totalPayment = formatRupiah(booking.totalPembayaran),
-                bookingId = "ID Pemesanan: ${shortId(booking.id)}",
-                primaryAction = "Check Point"
-            )
-        }
+    /**
+     * Booking "Tiket Aktif" = booking belum selesai (status 0–6), dipilih berprioritas
+     * (6 mendaki lebih dulu, lalu 5, 4, 3, 2, 1, 0). Badge memakai label status asli.
+     */
+    fun toActiveTicket(bookings: List<MyTiketItem>): JejakTicketUi? {
+        val booking = STATUS_AKTIF_PRIORITAS.firstNotNullOfOrNull { kode ->
+            bookings.firstOrNull { it.statusBooking == kode }
+        } ?: return null
+
+        return JejakTicketUi(
+            title = "Tiket Aktif",
+            purchaseLabel = "Pembelian",
+            purchaseDate = formatTanggal(booking.createdAt),
+            status = statusLabel(booking.statusBooking),
+            statusType = TicketStatusType.Ongoing,
+            masukDate = formatTanggal(booking.tanggalMasuk),
+            keluarDate = formatTanggal(booking.tanggalKeluar),
+            pendakiCount = formatPendaki(booking),
+            totalPayment = formatRupiah(booking.totalPembayaran),
+            bookingId = "ID Pemesanan: ${shortId(booking.id)}",
+            statusBooking = booking.statusBooking,
+            primaryAction = "Check Point"
+        )
+    }
 
     /** Booking yang sudah check-out / selesai (status 7–8) → kartu "Tiket Selesai". */
     fun toFinishedTickets(bookings: List<MyTiketItem>): List<JejakTicketUi> =
@@ -46,13 +77,14 @@ internal object TicketUiMapper {
                 title = "Tiket Selesai",
                 purchaseLabel = "Tiket",
                 purchaseDate = formatTanggal(booking.createdAt),
-                status = if (booking.statusBooking == 8) "Selesai" else "Check Out",
+                status = statusLabel(booking.statusBooking),
                 statusType = TicketStatusType.Done,
                 masukDate = formatTanggal(booking.tanggalMasuk),
                 keluarDate = formatTanggal(booking.tanggalKeluar),
                 pendakiCount = formatPendaki(booking),
                 totalPayment = formatRupiah(booking.totalPembayaran),
                 bookingId = "ID Pemesanan: ${shortId(booking.id)}",
+                statusBooking = booking.statusBooking,
                 primaryAction = "Detail"
             )
         }

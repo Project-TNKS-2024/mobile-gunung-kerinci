@@ -18,6 +18,8 @@ internal data class JejakTicketUi(
     val pendakiCount: String,
     val totalPayment: String,
     val bookingId: String? = null,
+    /** Angka `status_booking` mentah dari backend (lihat TicketUiMapper). */
+    val statusBooking: Int? = null,
     val primaryAction: String
 )
 
