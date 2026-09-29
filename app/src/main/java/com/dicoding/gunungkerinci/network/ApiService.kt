@@ -4,6 +4,7 @@ import com.dicoding.gunungkerinci.model.BaseResponse
 import com.dicoding.gunungkerinci.model.BerandaResponse
 import com.dicoding.gunungkerinci.model.CheckpointQrRequest
 import com.dicoding.gunungkerinci.model.CheckpointQrResponse
+import com.dicoding.gunungkerinci.model.CancelCheckpointResponse
 import com.dicoding.gunungkerinci.model.CountryResponse
 import com.dicoding.gunungkerinci.model.DestinasiResponse
 import com.dicoding.gunungkerinci.model.DetailDestinasiResponse
@@ -35,6 +36,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Headers
@@ -220,6 +222,18 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Body request: CheckpointQrRequest
     ): Response<CheckpointQrResponse>
+
+    /**
+     * Batalkan kehadiran pada satu pos.
+     * Server mengizinkan pendaki membatalkan miliknya sendiri, atau ketua tim
+     * membatalkan milik anggota pada booking yang sama.
+     */
+    @DELETE("api/tracking/checkpoint/{checkpointLogId}")
+    @Headers("Accept: application/json")
+    suspend fun cancelCheckpoint(
+        @Header("Authorization") token: String,
+        @Path("checkpointLogId") checkpointLogId: Int
+    ): Response<CancelCheckpointResponse>
 
     @POST("api/tracking/checkpoint/manual")
     @Headers(
