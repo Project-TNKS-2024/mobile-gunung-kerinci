@@ -7,6 +7,8 @@ import com.dicoding.gunungkerinci.model.CheckpointQrResponse
 import com.dicoding.gunungkerinci.model.CountryResponse
 import com.dicoding.gunungkerinci.model.DestinasiResponse
 import com.dicoding.gunungkerinci.model.DetailDestinasiResponse
+import com.dicoding.gunungkerinci.model.DisasterReportResponse
+import com.dicoding.gunungkerinci.model.DisasterReportsListResponse
 import com.dicoding.gunungkerinci.model.EmergencyActiveResponse
 import com.dicoding.gunungkerinci.model.ForgotPasswordRequest
 import com.dicoding.gunungkerinci.model.GantiPasswordRequest
@@ -27,6 +29,12 @@ import com.dicoding.gunungkerinci.model.ProvinsiResponse
 import com.dicoding.gunungkerinci.model.RegisterRequest
 import com.dicoding.gunungkerinci.model.RegisterResponse
 import com.dicoding.gunungkerinci.model.ResetPasswordRequest
+import com.dicoding.gunungkerinci.model.SosActiveResponse
+import com.dicoding.gunungkerinci.model.SosCallOptionsResponse
+import com.dicoding.gunungkerinci.model.SosMessagesResponse
+import com.dicoding.gunungkerinci.model.SosSendMessageResponse
+import com.dicoding.gunungkerinci.model.SosTriggerRequest
+import com.dicoding.gunungkerinci.model.SosTriggerResponse
 import com.dicoding.gunungkerinci.model.TrackingBatchData
 import com.dicoding.gunungkerinci.model.TrackingBatchRequest
 import com.dicoding.gunungkerinci.model.TrackingGpsData
@@ -44,6 +52,7 @@ import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface ApiService {
 
@@ -297,5 +306,63 @@ interface ApiService {
         @Header("Authorization") token: String
     ): Response<MyTiketResponse>
 
+    // ================= SOS / PANIC BUTTON =================
+
+    @POST("api/sos/trigger")
+    @Headers("Accept: application/json")
+    suspend fun triggerSos(
+        @Header("Authorization") token: String,
+        @Body request: SosTriggerRequest
+    ): Response<SosTriggerResponse>
+
+    @GET("api/sos/active")
+    @Headers("Accept: application/json")
+    suspend fun getActiveSos(
+        @Header("Authorization") token: String
+    ): Response<SosActiveResponse>
+
+    @Multipart
+    @POST("api/sos/chat/{sos_id}/send")
+    @Headers("Accept: application/json")
+    suspend fun sendSosChat(
+        @Header("Authorization") token: String,
+        @Path("sos_id") sosId: Int,
+        @Part("type") type: RequestBody,
+        @Part("content") content: RequestBody?,
+        @Part image: MultipartBody.Part?
+    ): Response<SosSendMessageResponse>
+
+    @GET("api/sos/chat/{sos_id}/messages")
+    @Headers("Accept: application/json")
+    suspend fun getSosMessages(
+        @Header("Authorization") token: String,
+        @Path("sos_id") sosId: Int,
+        @Query("page") page: Int? = null
+    ): Response<SosMessagesResponse>
+
+    @GET("api/sos/call-options")
+    @Headers("Accept: application/json")
+    suspend fun getSosCallOptions(
+        @Header("Authorization") token: String
+    ): Response<SosCallOptionsResponse>
+
+    @Multipart
+    @POST("api/sos/disaster-report")
+    @Headers("Accept: application/json")
+    suspend fun submitDisasterReport(
+        @Header("Authorization") token: String,
+        @Part("potensi_bencana") potensiBencana: RequestBody,
+        @Part("deskripsi") deskripsi: RequestBody,
+        @Part("lokasi") lokasi: RequestBody,
+        @Part("latitude") latitude: RequestBody?,
+        @Part("longitude") longitude: RequestBody?,
+        @Part lampiran: MultipartBody.Part?
+    ): Response<DisasterReportResponse>
+
+    @GET("api/sos/disaster-reports")
+    @Headers("Accept: application/json")
+    suspend fun getMyDisasterReports(
+        @Header("Authorization") token: String
+    ): Response<DisasterReportsListResponse>
 
 }
