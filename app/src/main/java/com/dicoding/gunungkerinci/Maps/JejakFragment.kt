@@ -169,7 +169,11 @@ class JejakFragment : Fragment() {
                     // Tutup dialog konfirmasi GPS tanpa check-in.
                     onDismissGpsDialog = { viewModel.clearGpsAndManualMessages() },
                     // Auto-deteksi radius begitu layar detail pos dibuka (aturan dosen).
-                    onLocationDetailOpened = { launchGpsCheckIn(silent = true) }
+                    onLocationDetailOpened = { launchGpsCheckIn(silent = true) },
+                    // Ketua tim menandai kehadiran anggota pada pos yang sedang dibuka (US-05).
+                    onMemberToggle = { pendakiId, checked, postId ->
+                        viewModel.tandaiKehadiranAnggota(pendakiId, checked, postId)
+                    }
                 )
             }
         }

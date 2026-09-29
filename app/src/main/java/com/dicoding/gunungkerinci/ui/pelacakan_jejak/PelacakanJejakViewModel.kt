@@ -53,6 +53,11 @@ internal data class PelacakanJejakUiState(
     val manualCheckInErrorMessage: String? = null,
     // Data progress mentah — dipakai untuk daftar anggota (section "Cek Anggota")
     val progressHikers: List<TrackingProgressHiker> = emptyList(),
+    // Penandaan kehadiran anggota oleh ketua tim (US-05) — lewat POST /checkpoint/qr
+    // dengan parameter pendaki_id.
+    val isMarkingMember: Boolean = false,
+    val memberMarkMessage: String? = null,
+    val memberMarkErrorMessage: String? = null,
     // Daftar pos jalur (untuk hitung jarak antar-pos di layar Location Detail)
     val loadedPosts: List<TrackingPost> = emptyList()
 )
@@ -346,6 +351,104 @@ internal class PelacakanJejakViewModel(
     }
 
     /**
+     * Catat kehadiran anggota tim oleh ketua (US-05) — atau batalkan, bila server mendukung.
+     *
+     * Memakai endpoint yang SAMA dengan scan QR (`POST /checkpoint/qr`) karena backend
+     * hanya menyediakan jalur itu untuk perwakilan. Nilai QR tidak perlu dipindai ulang:
+     * seeder backend membentuknya deterministik sebagai `TNKS_CHECKPOINT:{postId}`
+     * (lihat TrailPostSeeder.php), pola yang sama dipakai CheckpointSyncWorker untuk
+     * mengirim antrean offline.
+     *
+     * Server yang memutuskan hak akses — UI tidak perlu tahu siapa ketua:
+     *  - bukan pemilik booking  → 403 "Hanya ketua tim yang dapat mewakili anggota"
+     *  - target bukan anggota   → 403 "Pendaki bukan anggota booking aktif"
+     *
+     * @param checked true = tandai hadir. false = batalkan (belum didukung backend).
+     */
+    fun tandaiKehadiranAnggota(pendakiId: String, checked: Boolean, postId: Int?) {
+        if (postId == null) {
+            _uiState.update {
+                it.copy(memberMarkMessage = null, memberMarkErrorMessage = "Pos belum diketahui")
+            }
+            return
+        }
+        if (pendakiId.isBlank()) {
+            _uiState.update {
+                it.copy(memberMarkMessage = null, memberMarkErrorMessage = "Anggota tidak dikenali")
+            }
+            return
+        }
+
+        // Pembatalan kehadiran belum tersedia di backend (tidak ada endpoint DELETE,
+        // dan unique constraint mencegah log kedua). Beri tahu apa adanya, jangan
+        // berpura-pura berhasil dengan mengubah tampilan saja.
+        if (!checked) {
+            _uiState.update {
+                it.copy(
+                    memberMarkMessage = null,
+                    memberMarkErrorMessage = "Pembatalan kehadiran belum didukung sistem"
+                )
+            }
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(isMarkingMember = true, memberMarkMessage = null, memberMarkErrorMessage = null)
+            }
+
+            // Anti-duplikasi: periksa baris TARGET, bukan currentPendakiId.
+            // Kalau salah, penandaan anggota bisa diblokir keliru (atau lolos padahal duplikat).
+            if (currentBookingId.isNotBlank() &&
+                trackingRepository.hasCheckedIn(currentBookingId, pendakiId, postId)
+            ) {
+                _uiState.update {
+                    it.copy(
+                        isMarkingMember = false,
+                        memberMarkMessage = "Anggota ini sudah tercatat di pos ini.",
+                        memberMarkErrorMessage = null
+                    )
+                }
+                return@launch
+            }
+
+            val namaPos = loadedPosts.firstOrNull { it.id == postId }?.nama
+
+            checkpointQrRepository.checkIn(
+                token = currentToken,
+                qrCodeValue = "$QR_PREFIX$postId",
+                pendakiId = pendakiId
+            )
+                .onSuccess { data ->
+                    _uiState.update {
+                        it.copy(
+                            isMarkingMember = false,
+                            memberMarkMessage = "Kehadiran tercatat di ${data.post.nama}${namaPos?.let { n -> " · $n" } ?: ""}",
+                            memberMarkErrorMessage = null
+                        )
+                    }
+                    // Muat ulang progress supaya daftar anggota mencerminkan data server.
+                    if (currentBookingId.isNotBlank()) {
+                        loadProgress()
+                    }
+                }
+                .onFailure { error ->
+                    _uiState.update {
+                        it.copy(
+                            isMarkingMember = false,
+                            memberMarkMessage = null,
+                            memberMarkErrorMessage = error.message ?: "Gagal mencatat kehadiran anggota"
+                        )
+                    }
+                }
+        }
+    }
+
+    fun clearMemberMarkMessage() {
+        _uiState.update { it.copy(memberMarkMessage = null, memberMarkErrorMessage = null) }
+    }
+
+    /**
      * Cek kedekatan GPS ke pos — TIDAK otomatis check-in.
      * Jika [nearbyPost] != null setelah ini, tampilkan dialog konfirmasi di UI.
      *
@@ -596,6 +699,13 @@ internal class PelacakanJejakViewModel(
     private companion object {
         const val METHOD_QR = "qr"
         const val METHOD_MANUAL = "manual"
+
+        /**
+         * Awalan nilai QR checkpoint. Backend membentuknya sebagai
+         * `TNKS_CHECKPOINT:{id pos}` (lihat TrailPostSeeder), dan
+         * CheckpointSyncWorker memakai awalan yang sama untuk antrean offline.
+         */
+        const val QR_PREFIX = "TNKS_CHECKPOINT:"
     }
 }
 

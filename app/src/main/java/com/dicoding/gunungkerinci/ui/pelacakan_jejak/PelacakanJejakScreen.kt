@@ -69,7 +69,9 @@ internal fun PelacakanJejakScreen(
     onGpsCheckInClick: () -> Unit = {},
     onManualCheckInConfirm: (postId: Int) -> Unit = {},
     onDismissGpsDialog: () -> Unit = {},
-    onLocationDetailOpened: () -> Unit = {}
+    onLocationDetailOpened: () -> Unit = {},
+    /** Ketua tim menandai/membatalkan kehadiran anggota pada pos yang sedang dibuka. */
+    onMemberToggle: (pendakiId: String, checked: Boolean, postId: Int?) -> Unit = { _, _, _ -> }
 ) {
     var screenState by remember { mutableStateOf<JejakScreenState>(JejakScreenState.Ticket) }
     var selectedCheckpoint by remember { mutableStateOf<JejakCheckpointUi?>(null) }
@@ -149,9 +151,15 @@ internal fun PelacakanJejakScreen(
                 ),
                 gpsGateState = uiState.gpsGateState,
                 isCheckingGps = uiState.isCheckingGps,
+                isMarkingMember = uiState.isMarkingMember,
+                memberMarkMessage = uiState.memberMarkMessage,
+                memberMarkErrorMessage = uiState.memberMarkErrorMessage,
                 onBack = { screenState = JejakScreenState.Timeline },
                 onScanQrClick = onScanQrClick,
-                onGpsCheckInClick = onGpsCheckInClick
+                onGpsCheckInClick = onGpsCheckInClick,
+                onMemberToggle = { pendakiId, checked ->
+                    onMemberToggle(pendakiId, checked, selectedCheckpoint?.postId)
+                }
             )
         }
 
