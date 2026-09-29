@@ -30,6 +30,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -223,7 +224,9 @@ internal fun PelacakanJejakTicketContent(
             if (activeTicket != null) {
                 ActiveTicketCard(
                     ticket = activeTicket,
-                    onCheckPointClick = onCheckPointClick
+                    onCheckPointClick = onCheckPointClick,
+                    badgeText = activeTicket.status,
+                    checkPointEnabled = activeTicket.statusBooking == 6
                 )
             } else {
                 EmptyTicketCard(
@@ -273,7 +276,13 @@ private fun SectionTitle(text: String) {
 }
 
 @Composable
-private fun ActiveTicketCard(ticket: JejakTicketUi, onCheckPointClick: () -> Unit) {
+internal fun ActiveTicketCard(
+    ticket: JejakTicketUi,
+    onCheckPointClick: () -> Unit,
+    badgeText: String = ticket.status,
+    onBadgeClick: (() -> Unit)? = null,
+    checkPointEnabled: Boolean = true
+) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(18.dp),
@@ -306,11 +315,14 @@ private fun ActiveTicketCard(ticket: JejakTicketUi, onCheckPointClick: () -> Uni
                                 )
                             }
                             Surface(
+                                modifier = Modifier.then(
+                                    if (onBadgeClick != null) Modifier.clickable { onBadgeClick() } else Modifier
+                                ),
                                 shape = RoundedCornerShape(8.dp),
                                 color = JejakYellow
                             ) {
                                 Text(
-                                    text = ticket.status,
+                                    text = badgeText,
                                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                                     color = JejakTextPrimary,
                                     fontSize = 12.sp,
@@ -338,23 +350,6 @@ private fun ActiveTicketCard(ticket: JejakTicketUi, onCheckPointClick: () -> Uni
                         }
                     }
                 }
-
-                // Hiker watermark in the middle of the dashed divider
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .size(34.dp)
-                        .clip(CircleShape)
-                        .background(JejakBlue),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_jejak_hiker),
-                        contentDescription = null,
-                        tint = JejakWhite,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
             }
 
             Spacer(Modifier.height(14.dp))
@@ -365,6 +360,7 @@ private fun ActiveTicketCard(ticket: JejakTicketUi, onCheckPointClick: () -> Uni
             ) {
                 Button(
                     onClick = onCheckPointClick,
+                    enabled = checkPointEnabled,
                     shape = RoundedCornerShape(50),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = JejakBlue,
@@ -373,9 +369,9 @@ private fun ActiveTicketCard(ticket: JejakTicketUi, onCheckPointClick: () -> Uni
                     contentPadding = PaddingValues(horizontal = 28.dp, vertical = 10.dp)
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.ic_jejak_qr),
+                        painter = painterResource(R.drawable.ic_tabler_scan),
                         contentDescription = null,
-                        tint = JejakWhite,
+                        tint = LocalContentColor.current,
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(Modifier.width(8.dp))
