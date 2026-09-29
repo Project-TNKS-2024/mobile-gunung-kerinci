@@ -690,22 +690,10 @@
                                 app:layout_constraintStart_toEndOf="@id/ttlWNA"/>
 
                             <TextView
-                                android:id="@+id/textRpWNA"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Rp"
-                                android:textColor="@color/primary"
-                                android:textSize="16sp"
-                                android:fontFamily="@font/plus_jakarta_sans_semibold"
-                                app:layout_constraintTop_toTopOf="parent"
-                                app:layout_constraintEnd_toStartOf="@id/ttlHargaWNA"
-                                android:layout_marginEnd="5dp"/>
-
-                            <TextView
                                 android:id="@+id/ttlHargaWNA"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="325.000"
+                                android:text="0"
                                 android:textColor="@color/primary"
                                 android:textSize="16sp"
                                 android:fontFamily="@font/plus_jakarta_sans_semibold"
@@ -738,22 +726,10 @@
                                 app:layout_constraintTop_toTopOf="parent"/>
 
                             <TextView
-                                android:id="@+id/textRpMasukWNA"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Rp"
-                                android:textSize="14sp"
-                                android:fontFamily="@font/plus_jakarta_sans_medium"
-                                android:textColor="@color/softgrey"
-                                app:layout_constraintTop_toTopOf="parent"
-                                app:layout_constraintEnd_toStartOf="@id/ttlMasukWNA"
-                                android:layout_marginEnd="5dp"/>
-
-                            <TextView
                                 android:id="@+id/ttlMasukWNA"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="300.000"
+                                android:text="0"
                                 android:textSize="14sp"
                                 android:fontFamily="@font/plus_jakarta_sans_medium"
                                 android:textColor="@color/softgrey"
@@ -786,22 +762,10 @@
                                 app:layout_constraintTop_toTopOf="parent"/>
 
                             <TextView
-                                android:id="@+id/textRpBerkemahWNA"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Rp"
-                                android:textSize="14sp"
-                                android:fontFamily="@font/plus_jakarta_sans_medium"
-                                android:textColor="@color/softgrey"
-                                app:layout_constraintTop_toTopOf="parent"
-                                app:layout_constraintEnd_toStartOf="@id/ttlBerkemahWNA"
-                                android:layout_marginEnd="5dp"/>
-
-                            <TextView
                                 android:id="@+id/ttlBerkemahWNA"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="5.000"
+                                android:text="0"
                                 android:textSize="14sp"
                                 android:fontFamily="@font/plus_jakarta_sans_medium"
                                 android:textColor="@color/softgrey"
@@ -834,22 +798,10 @@
                                 app:layout_constraintTop_toTopOf="parent"/>
 
                             <TextView
-                                android:id="@+id/textRpHiCliWNA"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Rp"
-                                android:textSize="14sp"
-                                android:fontFamily="@font/plus_jakarta_sans_medium"
-                                android:textColor="@color/softgrey"
-                                app:layout_constraintTop_toTopOf="parent"
-                                app:layout_constraintEnd_toStartOf="@id/ttlHiCliWNA"
-                                android:layout_marginEnd="5dp"/>
-
-                            <TextView
                                 android:id="@+id/ttlHiCliWNA"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="20.000"
+                                android:text="0"
                                 android:textSize="14sp"
                                 android:fontFamily="@font/plus_jakarta_sans_medium"
                                 android:textColor="@color/softgrey"
@@ -889,22 +841,10 @@
                                 app:layout_constraintStart_toStartOf="parent"/>
 
                             <TextView
-                                android:id="@+id/textRpPembayaran"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Rp"
-                                android:textSize="20sp"
-                                android:textColor="@color/primary"
-                                android:fontFamily="@font/plus_jakarta_sans_bold"
-                                app:layout_constraintEnd_toStartOf="@id/ttlPembayaran"
-                                app:layout_constraintTop_toTopOf="parent"
-                                android:layout_marginEnd="5dp"/>
-
-                            <TextView
                                 android:id="@+id/ttlPembayaran"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="415.000"
+                                android:text="0"
                                 android:textSize="20sp"
                                 android:textColor="@color/primary"
                                 android:fontFamily="@font/plus_jakarta_sans_bold"

@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit
 object ApiConfig {
 
     //private const val BASE_URL = "https://eticket-tnks.fst.unja.ac.id/"
-    private const val BASE_URL = "http://192.168.110.99:8000/"
+    private const val BASE_URL = "http://172.16.1.28:8000/"
 
 
     fun getApiService(context: Context): ApiService {

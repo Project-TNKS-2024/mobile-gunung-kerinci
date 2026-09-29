@@ -27,7 +27,8 @@ data class PendakiFormulir(
     val booking_id: String,
     val id_bio: String,
     val usia: Int,
-    val biodata: BiodataPendakiFormulir
+    val biodata: BiodataPendakiFormulir,
+    val tagihan: Int? = null
 )
 
 data class BiodataPendakiFormulir(
@@ -40,7 +41,7 @@ data class BiodataPendakiFormulir(
     val dataNegara: NegaraPendakiFormulir?
 )
 
-data class NegaraPendakiFormulir (
+data class NegaraPendakiFormulir(
     val name: String?,
     val flag: String?,
     val code: String?,

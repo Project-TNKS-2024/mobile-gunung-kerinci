@@ -44,6 +44,8 @@ class TiketDataPendakiActivity : AppCompatActivity() {
 
     private var bookingDetail: BookingDetailData? = null
 
+    private var formulirSudahFinalisasi = false
+
     private var selectedRadioButton: RadioButton? = null
 
     private var ketuaPendakiId = ""
@@ -58,7 +60,7 @@ class TiketDataPendakiActivity : AppCompatActivity() {
         if (result.resultCode == RESULT_OK) {
             val nomorPendakiSelesai = result.data?.getIntExtra("nomor_pendaki", -1) ?: -1
 
-            if (nomorPendakiSelesai == -1) {
+            if (nomorPendakiSelesai != -1) {
                 val pendaki = dataPendakiFormulir.getOrNull(nomorPendakiSelesai - 1)
                 if (pendaki != null) {
                     pendakiSudahIsiDarurat.add(pendaki.id)
@@ -137,7 +139,16 @@ class TiketDataPendakiActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            finalisasiFormulir()
+            if (formulirSudahFinalisasi) {
+                val intent = Intent(
+                    this@TiketDataPendakiActivity,
+                    RincianPemesananTiketActivity::class.java
+                )
+                intent.putExtra("booking_id", bookingId)
+                startActivity(intent)
+            } else {
+                finalisasiFormulir()
+            }
         }
 
     }
@@ -160,6 +171,13 @@ class TiketDataPendakiActivity : AppCompatActivity() {
 
                 if (body?.success == true) {
                     bookingDetail = body.data
+                    formulirSudahFinalisasi =
+                        body.data.status_booking == 3
+
+                    Log.d(
+                        "STATUS_BOOKING",
+                        "Booking ${body.data.id} | status=${body.data.status_booking} | sudahFinalisasi=$formulirSudahFinalisasi"
+                    )
                     loadDataFormulir()
                     Log.d(
                         "BOOKING",
@@ -451,9 +469,11 @@ class TiketDataPendakiActivity : AppCompatActivity() {
                 Log.d("FINALISASI_RESPONSE", body.toString())
 
                 if (body?.success == true) {
+                    formulirSudahFinalisasi = true
                     val intent = Intent(this@TiketDataPendakiActivity,
                         RincianPemesananTiketActivity::class.java)
                     intent.putExtra("booking_id", bookingId)
+                    intent.putExtra("ketua_pendaki_id", ketuaPendakiId)
                     startActivity(intent)
                 } else {
                     Toast.makeText(

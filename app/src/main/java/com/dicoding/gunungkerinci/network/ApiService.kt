@@ -25,12 +25,14 @@ import com.dicoding.gunungkerinci.model.ResetPasswordRequest
 import com.dicoding.gunungkerinci.model.DataFormulirResponse
 import com.dicoding.gunungkerinci.model.FinalisasiFormulirRequest
 import com.dicoding.gunungkerinci.model.FinalisasiFormulirResponse
+import com.dicoding.gunungkerinci.model.PaymentResponse
 import com.dicoding.gunungkerinci.model.SetujuiSNKRequest
 import com.dicoding.gunungkerinci.model.SetujuiSNKResponse
 import com.dicoding.gunungkerinci.model.SimpanFormulirRequest
 import com.dicoding.gunungkerinci.model.SimpanFormulirResponse
 import com.dicoding.gunungkerinci.model.TambahPendakiRequest
 import com.dicoding.gunungkerinci.model.TambahPendakiResponse
+import com.dicoding.gunungkerinci.model.UploadPaymentResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -242,6 +244,14 @@ interface ApiService {
         @Path("booking_id") bookingId: String
     ): Response<BookingDetailResponse>
 
+    @GET("api/booking/{booking_id}/payment")
+    @Headers(
+        "Accept: application/json"
+    )
+    suspend fun getPayment(
+        @Path("booking_id") bookingId: String
+    ): Response<PaymentResponse>
+
     @POST("api/booking/formulir/pendaki/add")
     @Headers(
         "Accept: application/json"
@@ -283,4 +293,15 @@ interface ApiService {
     suspend fun cancelBooking(
         @Path("booking_id") bookingId: String
     ): Response<CancelBookingResponse>
+
+    @Multipart
+    @POST("api/booking/payment")
+    @Headers(
+        "Accept: application/json"
+    )
+    suspend fun addPayment(
+        @Part("id") id: RequestBody,
+        @Part("metode") metode: RequestBody,
+        @Part buktiPembayaran: MultipartBody.Part
+    ): Response<UploadPaymentResponse>
 }
