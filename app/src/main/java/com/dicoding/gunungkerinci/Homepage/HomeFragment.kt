@@ -1,7 +1,14 @@
 package com.dicoding.gunungkerinci.Homepage
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationManager
 import android.os.Bundle
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -23,10 +30,13 @@ import android.os.Build
 import android.text.Html
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.dicoding.gunungkerinci.data.repository.EmergencyRepository
+import com.dicoding.gunungkerinci.data.repository.TrackingGpsRepository
 import com.dicoding.gunungkerinci.pref.UserPreference
 import com.dicoding.gunungkerinci.ui.peringatan_dini.EarlyWarningOverlay
 import com.dicoding.gunungkerinci.ui.peringatan_dini.PeringatanDiniViewModel
@@ -41,7 +51,20 @@ class HomeFragment : Fragment() {
     private val peringatanDiniViewModel: PeringatanDiniViewModel by viewModels {
         PeringatanDiniViewModelFactory(
             EmergencyRepository(ApiConfig.getApiService(requireContext()))
+            EmergencyRepository(ApiConfig.getApiService(requireContext())),
+            TrackingGpsRepository(ApiConfig.getApiService(requireContext()))
         )
+    }
+
+    private val locationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { results ->
+        val ctx = context ?: return@registerForActivityResult
+        if (results.values.any { it }) {
+            doUpdateLastLocation()
+        } else {
+            Toast.makeText(ctx, "Izin lokasi ditolak. Aktifkan GPS untuk memperbarui lokasi.", Toast.LENGTH_LONG).show()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -76,9 +99,50 @@ class HomeFragment : Fragment() {
                     uiState = uiState,
                     onBubbleClick = peringatanDiniViewModel::openPopup,
                     onClosePopup = peringatanDiniViewModel::dismissPopup
+                    onClosePopup = peringatanDiniViewModel::dismissPopup,
+                    onUpdateLocation = { onUpdateLocationClick() }
                 )
             }
         }
+    }
+
+    // Jalur manual pembaruan lokasi dari popup peringatan dini (tombol desain UI/UX).
+    private fun onUpdateLocationClick() {
+        val ctx = requireContext()
+        val fine = ContextCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_FINE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED
+        val coarse = ContextCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_COARSE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED
+        if (fine || coarse) {
+            doUpdateLastLocation()
+        } else {
+            locationPermissionLauncher.launch(
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
+            )
+        }
+    }
+
+    private fun doUpdateLastLocation() {
+        val location = getLastKnownLocation()
+        if (location == null) {
+            Toast.makeText(requireContext(), "Lokasi tidak tersedia. Aktifkan GPS lalu coba lagi.", Toast.LENGTH_LONG).show()
+            return
+        }
+        peringatanDiniViewModel.updateLastLocation(
+            token = UserPreference(requireContext()).getToken().orEmpty(),
+            latitude = location.latitude,
+            longitude = location.longitude,
+            altitude = location.altitude,
+            accuracy = location.accuracy.toDouble()
+        )
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun getLastKnownLocation(): Location? {
+        val lm = requireContext().getSystemService(Context.LOCATION_SERVICE) as? LocationManager ?: return null
+        return listOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER)
+            .mapNotNull { runCatching { lm.getLastKnownLocation(it) }.getOrNull() }
+            .maxByOrNull { it.time }
     }
 
     private fun startWarningPolling() {
