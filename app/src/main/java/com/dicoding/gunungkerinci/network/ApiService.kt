@@ -1,6 +1,7 @@
 package com.dicoding.gunungkerinci.network
 
 import com.dicoding.gunungkerinci.model.BaseResponse
+import com.dicoding.gunungkerinci.model.BerandaResponse
 import com.dicoding.gunungkerinci.model.CheckpointQrRequest
 import com.dicoding.gunungkerinci.model.CheckpointQrResponse
 import com.dicoding.gunungkerinci.model.CountryResponse
@@ -194,6 +195,14 @@ interface ApiService {
         "Accept: application/json"
     )
     suspend fun getDestinasi(): Response<DestinasiResponse>
+
+    @GET("api/beranda")
+    @Headers(
+        "Accept: application/json"
+    )
+    suspend fun getBeranda(
+        @Header("Authorization") token: String
+    ): Response<BerandaResponse>
 
     @GET("api/destinasi/{id}")
     @Headers(

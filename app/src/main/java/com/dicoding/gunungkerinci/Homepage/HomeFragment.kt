@@ -14,6 +14,7 @@ import com.dicoding.gunungkerinci.Homepage.Sop.SopActivity
 import com.dicoding.gunungkerinci.Homepage.Wisata.WisataActivity
 import com.dicoding.gunungkerinci.R
 import com.dicoding.gunungkerinci.Ticket.PilihTiketActivity
+import com.dicoding.gunungkerinci.Ticket.Barcode.BarcodeTiketActivity
 import com.dicoding.gunungkerinci.databinding.FragmentHomeBinding
 import android.util.Log
 import androidx.lifecycle.lifecycleScope
@@ -21,6 +22,12 @@ import kotlinx.coroutines.launch
 import com.dicoding.gunungkerinci.network.ApiConfig
 import android.os.Build
 import android.text.Html
+import com.dicoding.gunungkerinci.ui.pelacakan_jejak.ActiveTicketCard
+import com.dicoding.gunungkerinci.ui.pelacakan_jejak.TicketUiMapper
+import com.bumptech.glide.Glide
+import androidx.navigation.fragment.findNavController
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 
 class HomeFragment : Fragment() {
 
@@ -40,6 +47,10 @@ class HomeFragment : Fragment() {
         setupMenu()
 
         getDestinasi()
+
+        setupBeranda()
+
+        setupTiketAktif()
 
         //setupWisataList()
 
@@ -96,6 +107,11 @@ class HomeFragment : Fragment() {
                         )
 
                     binding.recyclerViewWisata.adapter = adapter
+
+                    // Label status gunung (Gunung Kerinci) dari backend.
+                    result?.data?.firstOrNull { it.id == 1 }?.let { kerinci ->
+                        binding.statusGunung.text = kerinci.status_gunung_label
+                    }
                 }
             } catch (e: Exception) {
                 Log.d("DESTINASI_API", e.message.toString())
@@ -157,6 +173,86 @@ class HomeFragment : Fragment() {
             startActivity(Intent(requireContext(), PemberitahuanActivity::class.java))
         }
 
+    }
+
+    /**
+     * Kartu cuaca + jumlah pendaki dari `GET /api/beranda`.
+     * `cuaca` bisa null (WeatherAPI di backend gagal) -> kolom diisi "—".
+     */
+    private fun setupBeranda() {
+        val token = UserPreference(requireContext()).getToken().orEmpty()
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val response = ApiConfig.getApiService(requireContext())
+                    .getBeranda("Bearer $token")
+
+                val data = response.body()?.data
+
+                val cuaca = data?.cuaca
+                val current = cuaca?.current
+                val condition = current?.condition
+
+                binding.suhu.text = current?.tempC?.let { "${it.toInt()}°c" } ?: "—"
+                binding.ketSuhu.text = condition?.text ?: "—"
+                binding.ketKota.text = cuaca?.location?.name ?: "—"
+
+                condition?.icon?.let { icon ->
+                    Glide.with(this@HomeFragment)
+                        .load("https:$icon")
+                        .placeholder(R.drawable.ket_status)
+                        .into(binding.iconStatus)
+                }
+
+                binding.pendakiNow.text = (data?.totalMendaki ?: 0).toString()
+                binding.JmlpendakiNow.text = (data?.totalPendaki ?: 0).toString()
+            } catch (e: Exception) {
+                binding.suhu.text = "—"
+                binding.ketSuhu.text = "—"
+                binding.ketKota.text = "—"
+                Log.d("BERANDA_API", e.message.toString())
+            }
+        }
+    }
+
+    /**
+     * Kartu "Tiket Anda Saat Ini" — pakai ulang kartu layar Pelacakan Jejak.
+     * Hanya booking status 6 (sedang mendaki) yang tampil.
+     */
+    private fun setupTiketAktif() {
+        val token = UserPreference(requireContext()).getToken().orEmpty()
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val response = ApiConfig.getApiService(requireContext())
+                    .getMyTiket("Bearer $token")
+
+                val bookings = response.body()?.data.orEmpty()
+                val activeTicket = TicketUiMapper.toActiveTicket(bookings) ?: return@launch
+
+                binding.layoutBelumAda.visibility = View.GONE
+                binding.composeViewTiketAktif.visibility = View.VISIBLE
+                binding.composeViewTiketAktif.setViewCompositionStrategy(
+                    ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
+                )
+                binding.composeViewTiketAktif.setContent {
+                    ActiveTicketCard(
+                        ticket = activeTicket,
+                        badgeText = "Lihat Tiket →",
+                        onBadgeClick = {
+                            startActivity(
+                                Intent(requireContext(), BarcodeTiketActivity::class.java)
+                            )
+                        },
+                        onCheckPointClick = {
+                            findNavController().navigate(R.id.navigation_jejak)
+                        }
+                    )
+                }
+            } catch (e: Exception) {
+                Log.d("MYTIKET_API", e.message.toString())
+            }
+        }
     }
 
     private fun htmlToText(html: String): String {

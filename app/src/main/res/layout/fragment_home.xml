@@ -160,6 +160,7 @@
                             android:layout_marginTop="5dp"/>
 
                         <TextView
+                            android:id="@+id/statusGunung"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Waspada I"
@@ -247,6 +248,17 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+            <!-- Menu Berkas (6 item: 4 atas, 2 bawah) — Compose, disamakan dengan repo vibe-coding -->
+            <androidx.compose.ui.platform.ComposeView
+                android:id="@+id/composeViewBerkasMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="220dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"/>
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -256,6 +268,18 @@
                 android:textSize="20sp"
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="10dp"/>
+
+            <!-- Kartu "Tiket Anda Saat Ini" (Compose, pakai ulang kartu layar Pelacakan Jejak).
+                 Ditampilkan hanya kalau ada booking status 6; kalau tidak, layoutBelumAda yang tampil. -->
+            <androidx.compose.ui.platform.ComposeView
+                android:id="@+id/composeViewTiketAktif"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="24dp"
+                android:visibility="gone" />
 
             <LinearLayout
                 android:id="@+id/layoutBelumAda"
@@ -314,9 +338,7 @@
                     android:layout_marginTop="10dp"/>
             </FrameLayout>
 
-            <!-- Menu Berkas (6 item: 4 atas, 2 bawah) — Compose, disamakan dengan repo vibe-coding -->
             <androidx.compose.ui.platform.ComposeView
-                android:id="@+id/composeViewBerkasMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:minHeight="220dp"
