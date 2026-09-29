@@ -46,6 +46,45 @@ class TrackingRepository(
         return (checkpointLogDao?.countExistingCheckIn(bookingId, pendakiId, postId) ?: 0) > 0
     }
 
+    /** ID log di server untuk satu pos — dipakai saat membatalkan kehadiran. */
+    suspend fun getServerLogId(bookingId: String, pendakiId: String, postId: Int): Int? {
+        return checkpointLogDao?.getServerId(bookingId, pendakiId, postId)
+    }
+
+    /** Simpan ID log yang dikembalikan server supaya kehadiran bisa dibatalkan nanti. */
+    suspend fun saveServerLogId(
+        bookingId: String,
+        pendakiId: String,
+        postId: Int,
+        serverId: Int,
+        method: String
+    ) {
+        if (checkpointLogDao == null) return
+        val localId = "${bookingId}_${pendakiId}_$postId"
+        val existing = checkpointLogDao.getServerId(bookingId, pendakiId, postId)
+        // Sudah tersimpan — tidak perlu menimpa.
+        if (existing != null) return
+        checkpointLogDao.upsert(
+            CheckpointLogEntity(
+                localId = localId,
+                serverId = serverId,
+                bookingId = bookingId,
+                pendakiId = pendakiId,
+                postId = postId,
+                method = method,
+                latitude = null,
+                longitude = null,
+                checkedAt = System.currentTimeMillis(),
+                syncStatus = "SENT"
+            )
+        )
+    }
+
+    /** Hapus catatan lokal setelah kehadiran dibatalkan di server. */
+    suspend fun deleteCheckInLocal(bookingId: String, pendakiId: String, postId: Int) {
+        checkpointLogDao?.deleteCheckIn(bookingId, pendakiId, postId)
+    }
+
     suspend fun getLastCheckpoint(bookingId: String): CheckpointLogEntity? {
         return checkpointLogDao?.getLastCheckpoint(bookingId)
     }
