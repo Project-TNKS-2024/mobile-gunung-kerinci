@@ -7,18 +7,14 @@
     tools:context=".MainActivity"
     android:background="@color/white">
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottomNavigationView"
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/composeBottomNav"
         android:layout_width="0dp"
-        android:layout_height="80dp"
-        app:itemIconSize="28dp"
-        app:itemIconTint="@color/bottom_nav_selector"
+        android:layout_height="110dp"
+        android:background="@android:color/transparent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:menu="@menu/bottom_nav_menu"
-        app:itemTextColor="@color/bottom_nav_text_color"
-        app:labelVisibilityMode="labeled"/>
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
     <fragment
         android:id="@+id/nav_host_fragment"
@@ -28,10 +24,10 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/bottomNavigationView"
+        app:layout_constraintBottom_toTopOf="@id/composeBottomNav"
         app:defaultNavHost="true"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintVertical_bias="0.0"
-        app:navGraph="@navigation/mobile_navigation"/>
+        app:navGraph="@navigation/mobile_navigation" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

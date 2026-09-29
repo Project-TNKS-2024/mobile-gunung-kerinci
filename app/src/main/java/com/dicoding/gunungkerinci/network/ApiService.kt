@@ -1,22 +1,36 @@
 package com.dicoding.gunungkerinci.network
 
 import com.dicoding.gunungkerinci.model.BaseResponse
+import com.dicoding.gunungkerinci.model.BerandaResponse
+import com.dicoding.gunungkerinci.model.CheckpointQrRequest
+import com.dicoding.gunungkerinci.model.CheckpointQrResponse
 import com.dicoding.gunungkerinci.model.CountryResponse
 import com.dicoding.gunungkerinci.model.DestinasiResponse
 import com.dicoding.gunungkerinci.model.DetailDestinasiResponse
 import com.dicoding.gunungkerinci.model.ForgotPasswordRequest
 import com.dicoding.gunungkerinci.model.GantiPasswordRequest
 import com.dicoding.gunungkerinci.model.GoogleRedirectResponse
+import com.dicoding.gunungkerinci.model.GpsCheckRequest
+import com.dicoding.gunungkerinci.model.GpsCheckResponse
 import com.dicoding.gunungkerinci.model.KabupatenResponse
 import com.dicoding.gunungkerinci.model.KecamatanResponse
 import com.dicoding.gunungkerinci.model.LoginRequest
 import com.dicoding.gunungkerinci.model.LoginResponse
+import com.dicoding.gunungkerinci.model.ManualCheckInRequest
+import com.dicoding.gunungkerinci.model.ManualCheckInResponse
+import com.dicoding.gunungkerinci.model.MyTiketResponse
 import com.dicoding.gunungkerinci.model.PendakiIdentityResponse
 import com.dicoding.gunungkerinci.model.ProfileResponse
 import com.dicoding.gunungkerinci.model.ProvinsiResponse
 import com.dicoding.gunungkerinci.model.RegisterRequest
 import com.dicoding.gunungkerinci.model.RegisterResponse
 import com.dicoding.gunungkerinci.model.ResetPasswordRequest
+import com.dicoding.gunungkerinci.model.TrackingBatchData
+import com.dicoding.gunungkerinci.model.TrackingBatchRequest
+import com.dicoding.gunungkerinci.model.TrackingGpsData
+import com.dicoding.gunungkerinci.model.TrackingPointRequest
+import com.dicoding.gunungkerinci.model.TrackingPostResponse
+import com.dicoding.gunungkerinci.model.TrackingProgressResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -182,6 +196,14 @@ interface ApiService {
     )
     suspend fun getDestinasi(): Response<DestinasiResponse>
 
+    @GET("api/beranda")
+    @Headers(
+        "Accept: application/json"
+    )
+    suspend fun getBeranda(
+        @Header("Authorization") token: String
+    ): Response<BerandaResponse>
+
     @GET("api/destinasi/{id}")
     @Headers(
         "Accept: application/json"
@@ -189,4 +211,77 @@ interface ApiService {
     suspend fun getDetailDestinasi(
         @Path("id") id: Int
     ): Response<DetailDestinasiResponse>
+
+    @POST("api/tracking/checkpoint/qr")
+    @Headers(
+        "Accept: application/json"
+    )
+    suspend fun checkInQr(
+        @Header("Authorization") token: String,
+        @Body request: CheckpointQrRequest
+    ): Response<CheckpointQrResponse>
+
+    @POST("api/tracking/checkpoint/manual")
+    @Headers(
+        "Accept: application/json",
+        "Content-Type: application/json"
+    )
+    suspend fun checkInManual(
+        @Header("Authorization") token: String,
+        @Body request: ManualCheckInRequest
+    ): Response<ManualCheckInResponse>
+
+    @POST("api/tracking/checkpoint/gps")
+    @Headers(
+        "Accept: application/json",
+        "Content-Type: application/json"
+    )
+    suspend fun checkNearbyPostGps(
+        @Header("Authorization") token: String,
+        @Body request: GpsCheckRequest
+    ): Response<GpsCheckResponse>
+
+    @POST("api/tracking/gps")
+    @Headers(
+        "Accept: application/json",
+        "Content-Type: application/json"
+    )
+    suspend fun postTrackingGps(
+        @Header("Authorization") token: String,
+        @Body request: TrackingPointRequest
+    ): Response<BaseResponse<TrackingGpsData>>
+
+    @POST("api/tracking/gps/batch")
+    @Headers(
+        "Accept: application/json",
+        "Content-Type: application/json"
+    )
+    suspend fun postTrackingGpsBatch(
+        @Header("Authorization") token: String,
+        @Body request: TrackingBatchRequest
+    ): Response<BaseResponse<TrackingBatchData>>
+
+    @GET("api/tracking/progress/{booking_id}")
+    @Headers("Accept: application/json")
+    suspend fun getTrackingProgress(
+        @Header("Authorization") token: String,
+        @Path("booking_id") bookingId: String
+    ): Response<TrackingProgressResponse>
+
+    @GET("api/tracking/posts/{gate_id}")
+    @Headers("Accept: application/json")
+    suspend fun getTrackingPosts(
+        @Header("Authorization") token: String,
+        @Path("gate_id") gateId: Int
+    ): Response<TrackingPostResponse>
+
+    @GET("api/mytiket")
+    @Headers(
+        "Accept: application/json"
+    )
+    suspend fun getMyTiket(
+        @Header("Authorization") token: String
+    ): Response<MyTiketResponse>
+
+
 }
