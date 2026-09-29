@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -45,7 +46,8 @@ import com.dicoding.gunungkerinci.R
 internal fun EarlyWarningOverlay(
     uiState: EarlyWarningUiState,
     onBubbleClick: () -> Unit,
-    onClosePopup: () -> Unit
+    onClosePopup: () -> Unit,
+    onUpdateLocation: () -> Unit
 ) {
     val warning = uiState.activeWarning
 
@@ -62,6 +64,10 @@ internal fun EarlyWarningOverlay(
         if (warning != null && uiState.popupVisible) {
             EarlyWarningDialog(
                 warning = warning,
+                isUpdatingLocation = uiState.isUpdatingLocation,
+                lastLocationUpdate = uiState.lastLocationUpdate,
+                locationUpdateMessage = uiState.locationUpdateMessage,
+                onUpdateLocation = onUpdateLocation,
                 onDismiss = onClosePopup
             )
         }
@@ -80,9 +86,10 @@ private fun EarlyWarningBubble(
             .clip(CircleShape)
             .background(
                 brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFFCF372B),
-                        Color(0xFF691C16)
+                    colorStops = arrayOf(
+                        0f to Color(0xFFCF372B),
+                        0.68f to Color(0xFFCF372B),
+                        1f to Color(0xFF691C16)
                     )
                 )
             )
@@ -103,6 +110,10 @@ private fun EarlyWarningBubble(
 @Composable
 private fun EarlyWarningDialog(
     warning: EmergencyWarning,
+    isUpdatingLocation: Boolean,
+    lastLocationUpdate: String?,
+    locationUpdateMessage: String?,
+    onUpdateLocation: () -> Unit,
     onDismiss: () -> Unit
 ) {
     Dialog(
@@ -184,13 +195,48 @@ private fun EarlyWarningDialog(
 
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    // Waktu terbit dari backend (created_at ISO-8601 → "yyyy-MM-dd HH:mm").
+                    // Tombol pembaruan lokasi (sesuai desain UI/UX): kirim posisi
+                    // terakhir pendaki ke sistem langsung dari popup peringatan.
                     Text(
-                        text = "Diterbitkan: " +
-                            warning.createdAt.take(16).replace("T", " "),
-                        fontSize = 12.sp,
-                        color = Color(0xFF8E8E8E)
+                        text = "Update Lokasi Terakhir di Sistem",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color(0xFFCF372B),
+                        textDecoration = TextDecoration.Underline,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) { onUpdateLocation() }
                     )
+
+                    if (lastLocationUpdate != null) {
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = "Terakhir di update $lastLocationUpdate",
+                            fontSize = 12.sp,
+                            color = Color(0xFF8E8E8E)
+                        )
+                    }
+
+                    if (isUpdatingLocation) {
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = "Memperbarui lokasi…",
+                            fontSize = 12.sp,
+                            color = Color(0xFF8E8E8E)
+                        )
+                    }
+
+                    if (locationUpdateMessage != null) {
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = locationUpdateMessage,
+                            fontSize = 12.sp,
+                            color = Color(0xFFE14949),
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
 
                 // Icon melayang di atas card
