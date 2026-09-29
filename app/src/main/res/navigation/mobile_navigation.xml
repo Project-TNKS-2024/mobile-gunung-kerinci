@@ -35,5 +35,10 @@
         android:label="Tiket"
         tools:layout="@layout/fragment_profile"/>
 
+    <fragment
+        android:id="@+id/navigation_pesan_darurat"
+        android:name="com.dicoding.gunungkerinci.SOS.PesanDaruratFragment"
+        android:label="Pesan Darurat"/>
+
 </navigation>
 

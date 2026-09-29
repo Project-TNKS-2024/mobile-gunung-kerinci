@@ -1,9 +1,9 @@
 package com.dicoding.gunungkerinci.ui.common
 
-import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -16,15 +16,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -43,31 +44,28 @@ private val BarGrey = Color(0xFF8E8E8E)
 
 /**
  * Bottom bar custom (desain disamakan dengan repo vibe-coding).
- *
- * CATATAN SCOPE: fitur SOS & Peringatan Dini belum dikerjakan.
- * Tombol SOS tampil sesuai desain, tapi klik-nya hanya menampilkan pesan —
- * SosBottomSheet belum diport dari repo vibe-coding.
+ * Klik tab SOS memanggil [onSosClick] — pemanggil yang membuka SosBottomSheet.
  */
 @Composable
 fun CustomBottomBar(
     selectedTab: NavTab,
-    onTabSelected: (NavTab) -> Unit
+    onTabSelected: (NavTab) -> Unit,
+    onSosClick: () -> Unit = {}
 ) {
-    val context = LocalContext.current
-
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(110.dp)
+            .height(90.dp)
     ) {
-        // Bar putih dengan sudut atas membulat 16dp
+        // Bar putih dengan sudut atas membulat 16dp (tanpa shadow → tidak tampak "melayang")
         Box(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
-                .height(80.dp)
-                .shadow(
-                    elevation = 12.dp,
+                .height(90.dp)
+                .border(
+                    width = 1.dp,
+                    color = Color(0xFFE6E6E6),
                     shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
                 )
                 .background(Color.White, RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
@@ -93,22 +91,15 @@ fun CustomBottomBar(
                     selectedTab = selectedTab,
                     onTabSelected = onTabSelected
                 )
-                BottomNavItem(
-                    tab = NavTab.SOS,
+                SosBottomNavItem(
                     label = "SOS",
-                    iconRes = R.drawable.sos_menu,
-                    iconFillRes = R.drawable.sos_menu_fill,
-                    selectedTab = selectedTab,
-                    onTabSelected = {
-                        // TODO (fitur SOS): buka SosBottomSheet seperti repo vibe-coding.
-                        Toast.makeText(context, "Fitur SOS belum tersedia", Toast.LENGTH_SHORT).show()
-                    }
+                    onClick = onSosClick
                 )
                 BottomNavItem(
                     tab = NavTab.CHECK_POINT,
                     label = "Check Point",
-                    iconRes = R.drawable.vr,
-                    iconFillRes = R.drawable.vr_fill,
+                    iconRes = R.drawable.ic_tabler_scan,
+                    iconFillRes = R.drawable.ic_tabler_scan_fill,
                     selectedTab = selectedTab,
                     onTabSelected = onTabSelected
                 )
@@ -119,6 +110,50 @@ fun CustomBottomBar(
                     iconFillRes = R.drawable.profile_fill,
                     selectedTab = selectedTab,
                     onTabSelected = onTabSelected
+                )
+            }
+        }
+    }
+}
+
+/** Tab SOS khusus: lingkaran biru (rounded penuh) + border 8dp. */
+@Composable
+private fun SosBottomNavItem(
+    label: String,
+    onClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { onClick() }
+            .padding(horizontal = 8.dp, vertical = 6.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .size(60.dp)
+                .clip(CircleShape)
+                .border(6.dp, PrimaryBlue, CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(
+                    painter = painterResource(R.drawable.sos_menu_fill),
+                    contentDescription = label,
+                    tint = PrimaryBlue,
+                    modifier = Modifier.size(22.dp)
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = label,
+                    fontSize = 10.sp,
+                    color = PrimaryBlue,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1
                 )
             }
         }
