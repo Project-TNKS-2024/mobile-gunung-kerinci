@@ -165,6 +165,27 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+            <TextView
+                android:id="@+id/textLabelTotalPembayaran"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Total Pembayaran"
+                android:textSize="16sp"
+                android:textColor="@color/black2"
+                android:fontFamily="@font/plus_jakarta_sans_semibold"
+                android:layout_marginTop="20dp"/>
+
+            <TextView
+                android:id="@+id/textTotalPembayaran"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rp0"
+                android:textSize="24sp"
+                android:textColor="@color/primary"
+                android:fontFamily="@font/plus_jakarta_sans_bold"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"/>
+
             <!-- ====== UPLOAD BUKTI PEMBAYARAN ====== -->
 
             <TextView
@@ -245,7 +266,7 @@
                     android:id="@+id/txtFileName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Ukuran gambar maks 2 MB"
+                    android:text="Ukuran gambar maks 1 MB"
                     android:textColor="@color/grey"
                     android:textSize="16sp"
                     android:fontFamily="@font/plus_jakarta_sans_medium"
@@ -425,6 +446,7 @@
                             app:layout_constraintBottom_toBottomOf="parent"/>
 
                         <TextView
+                            android:id="@+id/textNamaRekening"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:text="A/n Balai Besar Taman Nasional Kerinci Seblat"

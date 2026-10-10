@@ -1,6 +1,7 @@
 package com.dicoding.gunungkerinci.Ticket.DataPendaki
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.dicoding.gunungkerinci.databinding.ItemDetailDataPendakiBinding
@@ -23,25 +24,52 @@ class DetailPendakiAdapter(
 
     override fun getItemCount(): Int = listPendaki.size
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(
+        holder: ViewHolder,
+        position: Int
+    ) {
         val p = listPendaki[position]
 
         holder.binding.apply {
-            // Tampilkan nomor pendaki
-            numberPendaki.text = (position + 1).toString()
 
-            // Ketua / Anggota
-            ketPendaki.text = p.status
+            numberPendaki.text =
+                (position + 1).toString()
 
-            // Isi setiap data sesuai XML
-            namaPendaki.text = p.nama
-            kewarganegaraan.text = p.kewarganegaraan
-            noIdentitas.text = p.noIdentitas
-            jenisKelamin.text = p.jenisKelamin
-            tanggalLahir.text = p.tanggalLahir
-            alamat.text = p.alamat
-            noTelepon.text = p.noTelepon
-            noTeleponDarurat.text = p.noDarurat
+            if (p.status.isNotBlank()) {
+                kurungAwal.visibility = View.VISIBLE
+                ketPendaki.visibility = View.VISIBLE
+                kurungAkhir.visibility = View.VISIBLE
+
+                ketPendaki.text = p.status
+            } else {
+                kurungAwal.visibility = View.GONE
+                ketPendaki.visibility = View.GONE
+                kurungAkhir.visibility = View.GONE
+            }
+
+            namaPendaki.text =
+                p.nama
+
+            kewarganegaraan.text =
+                p.kewarganegaraan
+
+            noIdentitas.text =
+                p.noIdentitas
+
+            jenisKelamin.text =
+                p.jenisKelamin
+
+            tanggalLahir.text =
+                p.tanggalLahir
+
+            alamat.text =
+                p.alamat
+
+            noTelepon.text =
+                p.noTelepon
+
+            noTeleponDarurat.text =
+                p.noDarurat
         }
     }
 }

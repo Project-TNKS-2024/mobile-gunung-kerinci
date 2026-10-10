@@ -30,6 +30,7 @@ import com.dicoding.gunungkerinci.network.ApiConfig
 import com.dicoding.gunungkerinci.pref.UserPreference
 import android.os.Build
 import android.text.Html
+import com.dicoding.gunungkerinci.Homepage.Cuaca.CuacaActivity
 import com.dicoding.gunungkerinci.ui.pelacakan_jejak.ActiveTicketCard
 import com.dicoding.gunungkerinci.ui.pelacakan_jejak.TicketUiMapper
 import com.bumptech.glide.Glide
@@ -72,10 +73,6 @@ class HomeFragment : Fragment() {
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -293,6 +290,10 @@ class HomeFragment : Fragment() {
 
         binding.buttonNotif.setOnClickListener {
             startActivity(Intent(requireContext(), PemberitahuanActivity::class.java))
+        }
+
+        binding.cardCuaca.setOnClickListener {
+            startActivity(Intent(requireContext(), CuacaActivity::class.java))
         }
 
     }

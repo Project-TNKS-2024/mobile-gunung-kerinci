@@ -2,10 +2,14 @@ package com.dicoding.gunungkerinci.network
 
 import com.dicoding.gunungkerinci.model.BaseResponse
 import com.dicoding.gunungkerinci.model.BerandaResponse
+import com.dicoding.gunungkerinci.model.BookingDetailResponse
+import com.dicoding.gunungkerinci.model.CancelBookingResponse
+import com.dicoding.gunungkerinci.model.CancelCheckpointResponse
 import com.dicoding.gunungkerinci.model.CheckpointQrRequest
 import com.dicoding.gunungkerinci.model.CheckpointQrResponse
-import com.dicoding.gunungkerinci.model.CancelCheckpointResponse
 import com.dicoding.gunungkerinci.model.CountryResponse
+import com.dicoding.gunungkerinci.model.CreateBookingRequest
+import com.dicoding.gunungkerinci.model.CreateBookingResponse
 import com.dicoding.gunungkerinci.model.DestinasiResponse
 import com.dicoding.gunungkerinci.model.DetailDestinasiResponse
 import com.dicoding.gunungkerinci.model.DisasterReportResponse
@@ -24,24 +28,36 @@ import com.dicoding.gunungkerinci.model.ManualCheckInRequest
 import com.dicoding.gunungkerinci.model.ManualCheckInResponse
 import com.dicoding.gunungkerinci.model.MyPositionResponse
 import com.dicoding.gunungkerinci.model.MyTiketResponse
+import com.dicoding.gunungkerinci.model.PaketTiketResponse
 import com.dicoding.gunungkerinci.model.PendakiIdentityResponse
 import com.dicoding.gunungkerinci.model.ProfileResponse
 import com.dicoding.gunungkerinci.model.ProvinsiResponse
 import com.dicoding.gunungkerinci.model.RegisterRequest
 import com.dicoding.gunungkerinci.model.RegisterResponse
 import com.dicoding.gunungkerinci.model.ResetPasswordRequest
+import com.dicoding.gunungkerinci.model.DataFormulirResponse
+import com.dicoding.gunungkerinci.model.FinalisasiFormulirRequest
+import com.dicoding.gunungkerinci.model.FinalisasiFormulirResponse
+import com.dicoding.gunungkerinci.model.PaymentResponse
+import com.dicoding.gunungkerinci.model.SetujuiSNKRequest
+import com.dicoding.gunungkerinci.model.SetujuiSNKResponse
+import com.dicoding.gunungkerinci.model.SimpanFormulirRequest
+import com.dicoding.gunungkerinci.model.SimpanFormulirResponse
 import com.dicoding.gunungkerinci.model.SosActiveResponse
 import com.dicoding.gunungkerinci.model.SosCallOptionsResponse
 import com.dicoding.gunungkerinci.model.SosMessagesResponse
 import com.dicoding.gunungkerinci.model.SosSendMessageResponse
 import com.dicoding.gunungkerinci.model.SosTriggerRequest
 import com.dicoding.gunungkerinci.model.SosTriggerResponse
+import com.dicoding.gunungkerinci.model.TambahPendakiRequest
+import com.dicoding.gunungkerinci.model.TambahPendakiResponse
 import com.dicoding.gunungkerinci.model.TrackingBatchData
 import com.dicoding.gunungkerinci.model.TrackingBatchRequest
 import com.dicoding.gunungkerinci.model.TrackingGpsData
 import com.dicoding.gunungkerinci.model.TrackingPointRequest
 import com.dicoding.gunungkerinci.model.TrackingPostResponse
 import com.dicoding.gunungkerinci.model.TrackingProgressResponse
+import com.dicoding.gunungkerinci.model.UploadPaymentResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -379,4 +395,101 @@ interface ApiService {
         @Header("Authorization") token: String
     ): Response<DisasterReportsListResponse>
 
+    @GET("api/destinasi/{id}/paket")
+    suspend fun getPaketDestinasi(
+        @Path("id") destinasiId: Int
+    ): Response<PaketTiketResponse>
+
+    @POST("api/booking/destinasi/paket/tiket")
+    @Headers(
+        "Accept: application/json"
+    )
+    suspend fun createBooking(
+        @Body request: CreateBookingRequest
+    ): Response<CreateBookingResponse>
+
+    @GET("api/booking/{booking_id}/formulir")
+    @Headers(
+        "Accept: application/json"
+    )
+    suspend fun getDataFormulir(
+        @Path("booking_id") bookingId: String
+    ): Response<DataFormulirResponse>
+
+    @POST("api/booking/snk")
+    @Headers(
+        "Accept: application/json"
+    )
+    suspend fun setujuiSNK(
+        @Body request: SetujuiSNKRequest
+    ): Response<SetujuiSNKResponse>
+
+    @GET("api/booking/{booking_id}")
+    @Headers(
+        "Accept: application/json"
+    )
+    suspend fun getBookingDetail(
+        @Path("booking_id") bookingId: String
+    ): Response<BookingDetailResponse>
+
+    @GET("api/booking/{booking_id}/payment")
+    @Headers(
+        "Accept: application/json"
+    )
+    suspend fun getPayment(
+        @Path("booking_id") bookingId: String
+    ): Response<PaymentResponse>
+
+    @POST("api/booking/formulir/pendaki/add")
+    @Headers(
+        "Accept: application/json"
+    )
+    suspend fun tambahPendaki(
+        @Body request: TambahPendakiRequest
+    ): Response<TambahPendakiResponse>
+
+    /*
+    @POST("api/booking/formulir/update")
+    @Headers(
+        "Accept: application/json"
+    )
+    suspend fun updatePendaki(
+        @Body request: UpdatePendakiRequest
+    ): Response<UpdatePendakiResponse>
+     */
+
+    @POST("api/booking/formulir")
+    @Headers(
+        "Accept: application/json"
+    )
+    suspend fun simpanFormulir(
+        @Body request: SimpanFormulirRequest
+    ): Response<SimpanFormulirResponse>
+
+    @POST("api/booking/formulir")
+    @Headers(
+        "Accept: application/json"
+    )
+    suspend fun finalisasiFormulir(
+        @Body request: FinalisasiFormulirRequest
+    ): Response<FinalisasiFormulirResponse>
+
+    @DELETE("api/booking/{booking_id}")
+    @Headers(
+        "Accept: application/json"
+    )
+    suspend fun cancelBooking(
+        @Path("booking_id") bookingId: String
+    ): Response<CancelBookingResponse>
+
+    @Multipart
+    @POST("api/booking/payment")
+    @Headers(
+        "Accept: application/json"
+    )
+    suspend fun addPayment(
+        @Part("id") id: RequestBody,
+        @Part("metode") metode: RequestBody,
+        @Part buktiPembayaran: MultipartBody.Part
+    ): Response<UploadPaymentResponse>
 }
