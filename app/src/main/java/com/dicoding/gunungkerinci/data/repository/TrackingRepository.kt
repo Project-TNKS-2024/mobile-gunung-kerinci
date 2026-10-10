@@ -51,6 +51,16 @@ class TrackingRepository(
         return checkpointLogDao?.getServerId(bookingId, pendakiId, postId)
     }
 
+    /** Catatan lokal satu (booking, pendaki, pos) — dipakai membatalkan sebelum tersinkron. */
+    suspend fun getCheckpointLog(bookingId: String, pendakiId: String, postId: Int): CheckpointLogEntity? {
+        return checkpointLogDao?.getLog(bookingId, pendakiId, postId)
+    }
+
+    /** Semua catatan lokal satu booking — dipakai overlay "menunggu kirim" di UI. */
+    suspend fun getCheckpointLogs(bookingId: String): List<CheckpointLogEntity> {
+        return checkpointLogDao?.getByBooking(bookingId).orEmpty()
+    }
+
     /** Simpan ID log yang dikembalikan server supaya kehadiran bisa dibatalkan nanti. */
     suspend fun saveServerLogId(
         bookingId: String,

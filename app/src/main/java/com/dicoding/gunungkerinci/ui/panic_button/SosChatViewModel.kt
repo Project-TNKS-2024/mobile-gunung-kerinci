@@ -34,23 +34,34 @@ internal class SosChatViewModel(
     /** Titik masuk layar: cari SOS aktif lalu muat pesannya. */
     fun start(token: String) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+            _uiState.update { it.copy(isLoading = true, errorMessage = null, isSosActive = false) }
             sosRepository.getActive(token)
                 .onSuccess { active ->
                     if (active == null) {
                         sosId = null
                         _uiState.update {
-                            it.copy(isLoading = false, messages = emptyList(), queuedMessages = emptyList(), errorMessage = "Tidak ada SOS aktif.")
+                            it.copy(
+                                isLoading = false,
+                                messages = emptyList(),
+                                queuedMessages = emptyList(),
+                                isSosActive = false,
+                                errorMessage = "Tidak ada SOS aktif."
+                            )
                         }
                     } else {
                         sosId = active.id
+                        _uiState.update { it.copy(isSosActive = true) }
                         loadMessages(token, active.id)
                         muatAntreanLokal(active.id)
                     }
                 }
                 .onFailure { error ->
                     _uiState.update {
-                        it.copy(isLoading = false, errorMessage = error.message ?: "Gagal memuat status SOS")
+                        it.copy(
+                            isLoading = false,
+                            isSosActive = false,
+                            errorMessage = error.message ?: "Gagal memuat status SOS"
+                        )
                     }
                 }
         }
@@ -59,7 +70,15 @@ internal class SosChatViewModel(
     fun refresh(token: String) = start(token)
 
     fun sendText(token: String, text: String) {
-        val id = sosId ?: return
+        // Chat hanya bisa dikirim setelah SOS aktif (backend mewajibkan id_sos).
+        // Jangan diam — beri tahu pengguna alasannya.
+        val id = sosId
+        if (id == null) {
+            _uiState.update {
+                it.copy(errorMessage = "Pesan tidak terkirim. Aktifkan SOS dulu untuk memulai chat darurat.")
+            }
+            return
+        }
         viewModelScope.launch {
             _uiState.update { it.copy(isSending = true, errorMessage = null, queuedInfo = null) }
             sosChatRepository.sendText(token, id, text)
@@ -73,7 +92,14 @@ internal class SosChatViewModel(
     }
 
     fun sendImage(token: String, imageFile: File, caption: String? = null) {
-        val id = sosId ?: return
+        // Sama seperti sendText: tanpa SOS aktif tidak ada tempat menempelkan pesan.
+        val id = sosId
+        if (id == null) {
+            _uiState.update {
+                it.copy(errorMessage = "Pesan tidak terkirim. Aktifkan SOS dulu untuk memulai chat darurat.")
+            }
+            return
+        }
         viewModelScope.launch {
             _uiState.update { it.copy(isSending = true, errorMessage = null, queuedInfo = null) }
             sosChatRepository.sendImageFile(token, id, imageFile, caption)

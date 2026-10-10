@@ -32,7 +32,8 @@ internal class SosRepository(
             SosTriggerRequest(
                 latitude = latitude,
                 longitude = longitude,
-                severity = severity,
+                // Backend hanya menerima huruf kecil (low/medium/high) — lihat A22.
+                severity = severity.lowercase(),
                 message = message
             )
         )
@@ -74,7 +75,8 @@ internal class SosRepository(
                     localId = UUID.randomUUID().toString(),
                     latitude = latitude,
                     longitude = longitude,
-                    severity = severity,
+                    // Simpan huruf kecil agar worker mengirim nilai yang valid (A22).
+                    severity = severity.lowercase(),
                     message = message,
                     createdAt = createdAt
                 )

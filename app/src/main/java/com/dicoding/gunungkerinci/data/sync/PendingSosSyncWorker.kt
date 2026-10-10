@@ -32,6 +32,8 @@ class PendingSosSyncWorker(
         if (token.isBlank()) return Result.retry() // belum login — coba lagi nanti
 
         val dao = TnksDatabase.getInstance(applicationContext).pendingSosDao()
+        // Reset baris SYNCING sisa worker yang mati di tengah kirim (A13).
+        dao.resetStuckSyncing()
         val antrean = dao.getPendingSync().filter { it.retryCount < MAX_RETRY }
         if (antrean.isEmpty()) return Result.success()
 

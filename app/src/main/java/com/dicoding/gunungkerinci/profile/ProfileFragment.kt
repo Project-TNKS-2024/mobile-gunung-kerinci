@@ -12,6 +12,7 @@ import com.dicoding.gunungkerinci.Login.LoginActivity
 import com.dicoding.gunungkerinci.R
 import com.dicoding.gunungkerinci.databinding.FragmentProfileBinding
 import com.dicoding.gunungkerinci.network.ApiConfig
+import com.dicoding.gunungkerinci.pref.UserPreference
 import kotlinx.coroutines.launch
 
 class ProfileFragment : Fragment() {
@@ -106,7 +107,7 @@ class ProfileFragment : Fragment() {
 
         if (token.isNullOrEmpty()) return
 
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val response = ApiConfig
                     .getApiService(requireContext())
@@ -156,7 +157,7 @@ class ProfileFragment : Fragment() {
     }
 
     private fun getPendakiIdentity(token: String) {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val response = ApiConfig
                     .getApiService(requireContext())
@@ -202,11 +203,12 @@ class ProfileFragment : Fragment() {
         val token = pref.getString("token", null)
 
         if (token.isNullOrEmpty()) {
+            clearSession()
             goToLogin()
             return
         }
 
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
                 ApiConfig.getApiService(requireContext())
                     .logout("Bearer $token")
@@ -226,6 +228,7 @@ class ProfileFragment : Fragment() {
         pref.edit()
             .clear()
             .apply()
+        UserPreference(requireContext()).clearToken()
     }
 
     private fun goToLogin() {
@@ -250,8 +253,8 @@ class ProfileFragment : Fragment() {
     }
 
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onDestroyView() {
+        super.onDestroyView()
         _binding = null
     }
 

@@ -51,7 +51,8 @@ import kotlinx.coroutines.isActive
 
 class HomeFragment : Fragment() {
 
-    private lateinit var binding: FragmentHomeBinding
+    private var _binding: FragmentHomeBinding? = null
+    private val binding get() = _binding!!
 
     private val peringatanDiniViewModel: PeringatanDiniViewModel by viewModels {
         PeringatanDiniViewModelFactory(
@@ -80,7 +81,7 @@ class HomeFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentHomeBinding.inflate(inflater, container, false)
+        _binding = FragmentHomeBinding.inflate(inflater, container, false)
 
         setupMenu()
 
@@ -169,6 +170,11 @@ class HomeFragment : Fragment() {
         startWarningPolling()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     private companion object {
         const val POLL_INTERVAL_MS = 60_000L
     }
@@ -188,7 +194,7 @@ class HomeFragment : Fragment() {
 
                         val imageUrl =
                             if (destinasi.gambar_destinasi.isNotEmpty()) {
-                                "https://eticket-tnks.fst.unja.ac.id/${destinasi.gambar_destinasi[0].src}"
+                                "https://tnks.satriabahari.my.id/${destinasi.gambar_destinasi[0].src}"
                             } else {
                                 ""
                             }

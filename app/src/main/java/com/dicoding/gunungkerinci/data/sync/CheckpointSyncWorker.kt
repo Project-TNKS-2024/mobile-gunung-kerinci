@@ -38,6 +38,8 @@ class CheckpointSyncWorker(
         if (token.isBlank()) return Result.retry() // belum login — coba lagi nanti
 
         val dao = TnksDatabase.getInstance(applicationContext).checkpointLogDao()
+        // Reset baris SYNCING sisa worker yang mati di tengah kirim (A13).
+        dao.resetStuckSyncing()
         val antrean = dao.getPendingSync().filter { it.retryCount < MAX_RETRY }
         if (antrean.isEmpty()) return Result.success()
 
@@ -91,11 +93,14 @@ class CheckpointSyncWorker(
                     bearer,
                     CheckpointQrRequest(
                         qrCodeValue = "$QR_PREFIX${log.postId}",
+                        // Kirim pendaki target: antrean bisa berisi penandaan anggota oleh
+                        // ketua (wakilkan), jadi jangan selalu dianggap "diri sendiri".
+                        pendakiId = log.pendakiId,
                         latitude = log.latitude,
                         longitude = log.longitude
                     )
                 )
-                klasifikasi(response.isSuccessful, response.code(), null)
+                klasifikasi(response.isSuccessful, response.code(), response.body()?.data?.checkpointLogId)
             }
 
             METHOD_MANUAL -> {
@@ -113,7 +118,7 @@ class CheckpointSyncWorker(
                             longitude = longitude
                         )
                     )
-                    klasifikasi(response.isSuccessful, response.code(), null)
+                    klasifikasi(response.isSuccessful, response.code(), response.body()?.data?.checkpointLogId)
                 }
             }
 

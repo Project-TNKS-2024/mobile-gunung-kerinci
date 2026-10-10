@@ -27,7 +27,7 @@ internal class SyncScheduler(context: Context) {
             .setConstraints(constraints)
             .build()
         WorkManager.getInstance(appContext)
-            .enqueueUniqueWork(WORK_NAME_CHECKPOINT, ExistingWorkPolicy.KEEP, request)
+            .enqueueUniqueWork(WORK_NAME_CHECKPOINT, ExistingWorkPolicy.APPEND_OR_REPLACE, request)
     }
 
     /** Kirim ulang semua SOS yang tersimpan lokal (dikirim saat offline). */
@@ -36,7 +36,7 @@ internal class SyncScheduler(context: Context) {
             .setConstraints(constraints)
             .build()
         WorkManager.getInstance(appContext)
-            .enqueueUniqueWork(WORK_NAME_SOS, ExistingWorkPolicy.KEEP, request)
+            .enqueueUniqueWork(WORK_NAME_SOS, ExistingWorkPolicy.APPEND_OR_REPLACE, request)
     }
 
     /** Kirim ulang semua pesan chat darurat yang tersimpan lokal (US-12). */
@@ -45,7 +45,7 @@ internal class SyncScheduler(context: Context) {
             .setConstraints(constraints)
             .build()
         WorkManager.getInstance(appContext)
-            .enqueueUniqueWork(WORK_NAME_CHAT, ExistingWorkPolicy.KEEP, request)
+            .enqueueUniqueWork(WORK_NAME_CHAT, ExistingWorkPolicy.APPEND_OR_REPLACE, request)
     }
 
     private companion object {

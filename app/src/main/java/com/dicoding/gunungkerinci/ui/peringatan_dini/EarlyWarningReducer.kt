@@ -27,7 +27,9 @@ internal object EarlyWarningReducer {
         val active = EarlyWarningSelector.select(warnings)
         if (active == null) {
             // Tidak ada peringatan aktif → bubble & popup hilang.
-            return EarlyWarningUiState() to lastAutoShownId
+            // Reset id (A20): bila peringatan ber-ID sama muncul lagi nanti,
+            // popup-nya boleh muncul otomatis lagi.
+            return EarlyWarningUiState() to null
         }
 
         val isNew = active.id != lastAutoShownId
@@ -43,9 +45,21 @@ internal object EarlyWarningReducer {
     fun showPopup(state: EarlyWarningUiState): EarlyWarningUiState =
         if (state.activeWarning != null) state.copy(popupVisible = true) else state
 
-    /** Gagal ambil data (mis. jaringan) → state aman, aplikasi tidak error. */
-    fun fromError(message: String?): EarlyWarningUiState =
-        EarlyWarningUiState(activeWarning = null, popupVisible = false, errorMessage = message)
+    /**
+     * Gagal ambil data → state aman, aplikasi tidak error.
+     *
+     * [isTerminal] = true untuk gagal permanen (401 sesi habis / 403 tidak ada
+     * pendakian aktif): peringatan lama DIHAPUS karena sudah tidak berlaku.
+     * [isTerminal] = false untuk gagal sementara (jaringan/5xx): peringatan lama
+     * TETAP ditampilkan — blip jaringan tidak boleh menyembunyikan bahaya asli.
+     */
+    fun fromError(
+        current: EarlyWarningUiState,
+        message: String?,
+        isTerminal: Boolean
+    ): EarlyWarningUiState =
+        if (isTerminal) EarlyWarningUiState(errorMessage = message)
+        else current.copy(errorMessage = message)
 
     fun dismissPopup(state: EarlyWarningUiState): EarlyWarningUiState =
         state.copy(popupVisible = false)

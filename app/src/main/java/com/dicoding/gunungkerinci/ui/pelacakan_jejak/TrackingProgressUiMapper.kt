@@ -48,15 +48,26 @@ internal object TrackingProgressUiMapper {
      * Daftar anggota tim + status kehadiran mereka **di pos tertentu**
      * (section "Cek Anggota"). Sumber: `GET /tracking/progress/{booking_id}` → `hikers[]`.
      */
-    fun toMembers(hikers: List<TrackingProgressHiker>, postId: Int?): List<JejakMemberUi> =
-        hikers.map { hiker ->
+    fun toMembers(
+        hikers: List<TrackingProgressHiker>,
+        postId: Int?,
+        localMarks: List<LocalMemberMark> = emptyList()
+    ): List<JejakMemberUi> {
+        val marksForPost = if (postId == null) emptyList()
+        else localMarks.filter { it.postId == postId }
+        return hikers.map { hiker ->
+            val serverChecked = postId != null &&
+                hiker.checkpoints.any { it.postId == postId && it.completed }
+            val localMark = marksForPost.firstOrNull { it.pendakiId == hiker.pendakiId }
             JejakMemberUi(
                 pendakiId = hiker.pendakiId,
                 name = hiker.nama,
-                checked = postId != null &&
-                    hiker.checkpoints.any { it.postId == postId && it.completed }
+                checked = serverChecked || localMark != null,
+                // Hanya "menunggu kirim" kalau catatan lokal ada TAPI server belum mencatatnya.
+                pending = localMark?.pending == true && !serverChecked
             )
         }
+    }
 
     private fun buildDescription(checkpoint: TrackingProgressCheckpoint): String {
         val methodText = when (checkpoint.method) {

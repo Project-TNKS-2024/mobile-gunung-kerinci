@@ -5,6 +5,12 @@ import com.dicoding.gunungkerinci.network.ApiService
 import com.dicoding.gunungkerinci.ui.peringatan_dini.EmergencyWarning
 
 /**
+ * Exception API peringatan dini — membawa kode HTTP supaya pemanggil bisa
+ * membedakan gagal sementara (jaringan/5xx) dari gagal permanen (401/403).
+ */
+internal class EmergencyApiException(val code: Int, message: String) : Exception(message)
+
+/**
  * Sumber peringatan dini bahaya untuk pendaki (GET /api/emergency/active).
  *
  * Catatan: endpoint mengembalikan SEMUA tipe (admin_broadcast & hiker_alert);
@@ -19,7 +25,8 @@ internal class EmergencyRepository(private val api: ApiService) {
         if (response.isSuccessful && body?.success == true) {
             body.data.orEmpty().map { it.toWarning() }
         } else {
-            error(
+            throw EmergencyApiException(
+                response.code(),
                 body?.message ?: when (response.code()) {
                     401 -> "Sesi berakhir, silakan login ulang"
                     403 -> "Tidak ada pendakian aktif"

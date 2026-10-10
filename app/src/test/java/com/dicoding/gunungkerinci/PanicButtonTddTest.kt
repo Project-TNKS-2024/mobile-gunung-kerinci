@@ -19,7 +19,7 @@ import java.io.IOException
 /**
  * Test Case TDD — fitur Panic Button (Tabel 22).
  *
- * Satu method = satu baris Tabel 22 (C01–C07). Murni JVM:
+ * Satu method = satu baris Tabel 22 (TDD-C01–TDD-C08). Murni JVM:
  * tanpa emulator, tanpa mock, tanpa Robolectric.
  */
 class PanicButtonTddTest {
@@ -28,7 +28,7 @@ class PanicButtonTddTest {
     // TDD-C01 — pemicu SOS valid (GPS + severity valid)
     // ============================================================
     @Test
-    fun `TDD C01 - pemicu SOS dengan data valid`() {
+    fun `TDD-C01 - pemicu SOS dengan data valid`() {
         val hasil = SosTriggerValidator.error(
             latitude = -1.6975,
             longitude = 101.2635,
@@ -43,7 +43,7 @@ class PanicButtonTddTest {
     // TDD-C02 — koordinat lokasi tidak valid
     // ============================================================
     @Test
-    fun `TDD C02 - koordinat lokasi tidak valid`() {
+    fun `TDD-C02 - koordinat lokasi tidak valid`() {
         val kosong = SosTriggerValidator.error(
             latitude = null, longitude = 101.2635, severity = "high", message = null
         )
@@ -59,7 +59,7 @@ class PanicButtonTddTest {
     // TDD-C03 — tingkat bahaya (severity) tidak valid
     // ============================================================
     @Test
-    fun `TDD C03 - tingkat SOS tidak valid`() {
+    fun `TDD-C03 - tingkat SOS tidak valid`() {
         val hasil = SosTriggerValidator.error(
             latitude = -1.6975, longitude = 101.2635, severity = "extreme", message = null
         )
@@ -71,7 +71,7 @@ class PanicButtonTddTest {
     // TDD-C04 — pesan darurat kosong atau melebihi batas karakter
     // ============================================================
     @Test
-    fun `TDD C04 - pesan darurat kosong atau melebihi batas`() {
+    fun `TDD-C04 - pesan darurat kosong atau melebihi batas`() {
         val kosong = SosTriggerValidator.error(
             latitude = -1.6975, longitude = 101.2635, severity = "high",
             message = "", wajibPesan = true
@@ -89,7 +89,7 @@ class PanicButtonTddTest {
     // TDD-C05 — laporan/lampiran bencana tidak valid
     // ============================================================
     @Test
-    fun `TDD C05 - laporan bencana field atau lampiran tidak valid`() {
+    fun `TDD-C05 - laporan bencana field atau lampiran tidak valid`() {
         val tanpaPotensi = DisasterReportValidator.error(
             potensiBencana = "", deskripsi = "Deskripsi", lokasi = "Lokasi"
         )
@@ -111,7 +111,7 @@ class PanicButtonTddTest {
     // TDD-C06 — simpan data SOS secara lokal saat jaringan tidak ada
     // ============================================================
     @Test
-    fun `TDD C06 - data SOS disimpan lokal saat jaringan tidak tersedia`() {
+    fun `TDD-C06 - data SOS disimpan lokal saat jaringan tidak tersedia`() {
         assertTrue(SosQueueRule.simpanOffline(IOException("no network")))
         assertFalse(SosQueueRule.simpanOffline(RuntimeException("server menolak")))
     }
@@ -120,7 +120,7 @@ class PanicButtonTddTest {
     // TDD-C07 — kirim ulang data SOS saat koneksi tersedia
     // ============================================================
     @Test
-    fun `TDD C07 - data SOS dikirim ulang saat koneksi tersedia`() {
+    fun `TDD-C07 - data SOS dikirim ulang saat koneksi tersedia`() {
         assertTrue(SosQueueRule.harusKirimUlang(code = null, error = IOException("timeout")))
         assertTrue(SosQueueRule.harusKirimUlang(code = 500, error = null))
         assertFalse(SosQueueRule.harusKirimUlang(code = 403, error = null))
@@ -130,7 +130,7 @@ class PanicButtonTddTest {
     // TDD-C08 — pesan chat darurat di-queue saat offline (US-12)
     // ============================================================
     @Test
-    fun `TDD C08 - pesan chat darurat disimpan ke antrean saat offline`() = runBlocking {
+    fun `TDD-C08 - pesan chat darurat disimpan ke antrean saat offline`() = runBlocking {
         val dao = FakePendingChatDao()
         // ApiService tidak pernah dipanggil — cukup dibuat lewat Retrofit tanpa server.
         val api = Retrofit.Builder().baseUrl("http://localhost/").build().create(ApiService::class.java)

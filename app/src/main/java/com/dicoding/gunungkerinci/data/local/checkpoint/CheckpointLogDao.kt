@@ -30,6 +30,14 @@ interface CheckpointLogDao {
     @Query("SELECT serverId FROM checkpoint_logs WHERE bookingId = :bookingId AND pendakiId = :pendakiId AND postId = :postId AND serverId IS NOT NULL ORDER BY checkedAt DESC LIMIT 1")
     suspend fun getServerId(bookingId: String, pendakiId: String, postId: Int): Int?
 
+    /** Ambil satu catatan lokal — dipakai memeriksa status sebelum membatalkan kehadiran. */
+    @Query("SELECT * FROM checkpoint_logs WHERE bookingId = :bookingId AND pendakiId = :pendakiId AND postId = :postId ORDER BY checkedAt DESC LIMIT 1")
+    suspend fun getLog(bookingId: String, pendakiId: String, postId: Int): CheckpointLogEntity?
+
+    /** Semua catatan lokal satu booking — dipakai overlay "menunggu kirim" di daftar anggota. */
+    @Query("SELECT * FROM checkpoint_logs WHERE bookingId = :bookingId")
+    suspend fun getByBooking(bookingId: String): List<CheckpointLogEntity>
+
     /** Hapus catatan lokal satu pos setelah kehadirannya dibatalkan di server. */
     @Query("DELETE FROM checkpoint_logs WHERE bookingId = :bookingId AND pendakiId = :pendakiId AND postId = :postId")
     suspend fun deleteCheckIn(bookingId: String, pendakiId: String, postId: Int)
@@ -45,4 +53,11 @@ interface CheckpointLogDao {
 
     @Query("UPDATE checkpoint_logs SET syncStatus = 'FAILED', retryCount = 99 WHERE localId = :localId")
     suspend fun markPermanentFailure(localId: String)
+
+    /**
+     * Reset baris yang tertinggal di status SYNCING (worker mati di tengah kirim)
+     * kembali ke PENDING agar ikut dikirim ulang — lihat A13.
+     */
+    @Query("UPDATE checkpoint_logs SET syncStatus = 'PENDING' WHERE syncStatus = 'SYNCING'")
+    suspend fun resetStuckSyncing()
 }

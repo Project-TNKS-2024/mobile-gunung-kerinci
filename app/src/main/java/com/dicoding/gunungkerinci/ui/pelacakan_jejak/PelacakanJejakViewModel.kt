@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.dicoding.gunungkerinci.data.local.checkpoint.CheckpointLogEntity
+import com.dicoding.gunungkerinci.data.local.sync.SyncStatus
 import com.dicoding.gunungkerinci.data.repository.ActiveHikeRepository
 import com.dicoding.gunungkerinci.data.repository.CheckpointQrRepository
 import com.dicoding.gunungkerinci.data.repository.GpsCheckInRepository
@@ -53,6 +54,8 @@ internal data class PelacakanJejakUiState(
     val manualCheckInErrorMessage: String? = null,
     // Data progress mentah — dipakai untuk daftar anggota (section "Cek Anggota")
     val progressHikers: List<TrackingProgressHiker> = emptyList(),
+    // Penanda lokal dari checkpoint_logs — overlay "menunggu kirim" untuk penandaan offline.
+    val localMemberMarks: List<LocalMemberMark> = emptyList(),
     // Penandaan kehadiran anggota oleh ketua tim (US-05) — lewat POST /checkpoint/qr
     // dengan parameter pendaki_id.
     val isMarkingMember: Boolean = false,
@@ -128,7 +131,13 @@ internal class PelacakanJejakViewModel(
                     if (hike == null) {
                         showNoActiveHike()
                     } else {
-                        currentPendakiId = hike.pendakiIds.firstOrNull().orEmpty()
+                        // Pilih anggota rombongan yang benar-benar user yang login (A16),
+                        // bukan asal anggota pertama.
+                        val myPendakiIds = activeHikeRepository.getMyPendakiIds(token)
+                        currentPendakiId = ActiveHikeRepository.pilihPendakiSaya(
+                            hike.pendakiIds,
+                            myPendakiIds
+                        )
                         loadPosts(token, hike.gateId, hike.bookingId)
                     }
                 }
@@ -216,6 +225,8 @@ internal class PelacakanJejakViewModel(
                             progressErrorMessage = null
                         )
                     }
+                    // Sinkronkan penanda lokal (mis. penandaan anggota yang masih di antrean).
+                    refreshLocalMemberMarks()
                 }
                 .onFailure { error ->
                     _uiState.update {
@@ -399,9 +410,42 @@ internal class PelacakanJejakViewModel(
                     it.copy(isMarkingMember = true, memberMarkMessage = null, memberMarkErrorMessage = null)
                 }
 
-                val logId = if (currentBookingId.isNotBlank()) {
-                    trackingRepository.getServerLogId(currentBookingId, pendakiId, postId)
+                val localLog = if (currentBookingId.isNotBlank()) {
+                    trackingRepository.getCheckpointLog(currentBookingId, pendakiId, postId)
                 } else null
+                val logId = localLog?.serverId
+
+                // Belum tersinkron (masih di antrean offline): cukup buang catatan lokal —
+                // tidak ada yang perlu dihapus di server.
+                if (localLog != null && logId == null) {
+                    // A17: baris berstatus SENT tapi tanpa serverId terjadi saat server
+                    // menjawab 409 ("sudah check-in di pos ini"). Kehadirannya SUDAH ada di
+                    // server, jadi jangan klaim berhasil dibatalkan.
+                    val belumTerkirim = localLog.syncStatus != SyncStatus.SENT.name
+                    if (!belumTerkirim) {
+                        _uiState.update {
+                            it.copy(
+                                isMarkingMember = false,
+                                memberMarkMessage = null,
+                                memberMarkErrorMessage =
+                                    "Kehadiran sudah tercatat di server dan tidak dapat dibatalkan dari aplikasi"
+                            )
+                        }
+                        return@launch
+                    }
+
+                    trackingRepository.deleteCheckInLocal(currentBookingId, pendakiId, postId)
+                    completedPostIds -= postId
+                    _uiState.update {
+                        it.copy(
+                            isMarkingMember = false,
+                            memberMarkMessage = "Kehadiran dibatalkan (belum terkirim ke server)",
+                            memberMarkErrorMessage = null
+                        )
+                    }
+                    refreshLocalMemberMarks()
+                    return@launch
+                }
 
                 if (logId == null) {
                     _uiState.update {
@@ -499,12 +543,40 @@ internal class PelacakanJejakViewModel(
                     }
                 }
                 .onFailure { error ->
-                    _uiState.update {
-                        it.copy(
-                            isMarkingMember = false,
-                            memberMarkMessage = null,
-                            memberMarkErrorMessage = error.message ?: "Gagal mencatat kehadiran anggota"
+                    if (adalahMasalahJaringan(error)) {
+                        // Sinyal putus saat ketua mewakilkan: simpan ke antrean untuk pendaki
+                        // TARGET (bukan ketua), tanpa menandai timeline ketua.
+                        val namaAnggota = _uiState.value.progressHikers
+                            .firstOrNull { it.pendakiId == pendakiId }?.nama
+                        val tersimpan = simpanKeAntrean(
+                            postId = postId,
+                            method = METHOD_QR,
+                            latitude = null,
+                            longitude = null,
+                            pendakiId = pendakiId,
+                            tandaiTimeline = false
                         )
+                        _uiState.update {
+                            it.copy(
+                                isMarkingMember = false,
+                                memberMarkMessage = if (tersimpan) {
+                                    "Tidak ada sinyal — kehadiran ${namaAnggota ?: "anggota"} disimpan & akan dikirim otomatis."
+                                } else null,
+                                memberMarkErrorMessage = if (tersimpan) {
+                                    null
+                                } else {
+                                    error.message ?: "Gagal mencatat kehadiran anggota"
+                                }
+                            )
+                        }
+                    } else {
+                        _uiState.update {
+                            it.copy(
+                                isMarkingMember = false,
+                                memberMarkMessage = null,
+                                memberMarkErrorMessage = error.message ?: "Gagal mencatat kehadiran anggota"
+                            )
+                        }
                     }
                 }
         }
@@ -715,6 +787,10 @@ internal class PelacakanJejakViewModel(
      * Simpan check-in yang gagal karena jaringan ke antrean lokal (Room),
      * lalu jadwalkan worker untuk mengirimnya saat internet tersedia.
      *
+     * @param pendakiId pemilik kehadiran; `null` = pendaki yang sedang login (diri sendiri).
+     *   Diisi = ketua tim mencatat anggota (wakilkan).
+     * @param tandaiTimeline true bila pos ini juga tampil selesai di timeline pengguna sendiri.
+     *   Untuk penandaan anggota biarkan false agar timeline ketua tidak ikut berubah.
      * @return true bila berhasil masuk antrean.
      */
     private suspend fun simpanKeAntrean(
@@ -724,15 +800,18 @@ internal class PelacakanJejakViewModel(
         longitude: Double?,
         altitude: Double? = null,
         accuracy: Double? = null,
-        batteryLevel: Int? = null
+        batteryLevel: Int? = null,
+        pendakiId: String? = null,
+        tandaiTimeline: Boolean = true
     ): Boolean {
-        if (currentBookingId.isBlank() || currentPendakiId.isBlank()) return false
+        val targetPendaki = pendakiId ?: currentPendakiId
+        if (currentBookingId.isBlank() || targetPendaki.isBlank()) return false
 
         val log = CheckpointLogEntity(
-            localId = "${currentBookingId}_${currentPendakiId}_$postId",
+            localId = "${currentBookingId}_${targetPendaki}_$postId",
             serverId = null,
             bookingId = currentBookingId,
-            pendakiId = currentPendakiId,
+            pendakiId = targetPendaki,
             postId = postId,
             method = method,
             latitude = latitude,
@@ -746,13 +825,37 @@ internal class PelacakanJejakViewModel(
 
         if (tersimpan) {
             syncScheduler?.scheduleCheckpointSync()
-            // Optimistis: tampilkan pos ini sebagai selesai di timeline.
-            completedPostIds += postId
-            _uiState.update {
-                it.copy(postCheckpoints = TrackingPostUiMapper.toCheckpointUi(loadedPosts, completedPostIds))
+            if (tandaiTimeline) {
+                // Optimistis: tampilkan pos ini sebagai selesai di timeline.
+                completedPostIds += postId
+                _uiState.update {
+                    it.copy(postCheckpoints = TrackingPostUiMapper.toCheckpointUi(loadedPosts, completedPostIds))
+                }
+            } else {
+                // Penandaan anggota: segarkan overlay "menunggu kirim" di daftar anggota.
+                refreshLocalMemberMarks()
             }
         }
         return tersimpan
+    }
+
+    /**
+     * Segarkan penanda lokal kehadiran anggota dari tabel `checkpoint_logs`.
+     * Dipakai overlay "menunggu kirim" pada daftar anggota (section "Cek Anggota").
+     */
+    private suspend fun refreshLocalMemberMarks() {
+        if (currentBookingId.isBlank()) {
+            _uiState.update { it.copy(localMemberMarks = emptyList()) }
+            return
+        }
+        val marks = trackingRepository.getCheckpointLogs(currentBookingId).map { log ->
+            LocalMemberMark(
+                postId = log.postId,
+                pendakiId = log.pendakiId,
+                pending = log.syncStatus != SyncStatus.SENT.name
+            )
+        }
+        _uiState.update { it.copy(localMemberMarks = marks) }
     }
 
     private fun adalahMasalahJaringan(error: Throwable): Boolean =

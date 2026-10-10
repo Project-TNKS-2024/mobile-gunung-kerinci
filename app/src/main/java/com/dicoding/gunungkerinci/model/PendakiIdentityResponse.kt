@@ -11,5 +11,5 @@ data class PendakiIdentityData (
     val id_bio: String?,
     val status_verifikasi: String?,
     val verified_at: String?,
-    val pendaki_ids: List<Any>?
+    val pendaki_ids: List<String>?
 )

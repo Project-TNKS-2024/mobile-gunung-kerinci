@@ -163,7 +163,7 @@
 
                 <data
                     android:scheme="https"
-                    android:host="eticket-tnks.fst.unja.ac.id"
+                    android:host="tnks.satriabahari.my.id"
                     android:pathPrefix="/verify-redirect" />
             </intent-filter>
         </activity>

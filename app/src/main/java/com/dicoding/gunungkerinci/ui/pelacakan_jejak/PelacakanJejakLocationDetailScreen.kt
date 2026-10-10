@@ -133,6 +133,7 @@ internal fun PelacakanJejakLocationDetailScreen(
                     name = member.name,
                     avatarColor = avatarColorFor(member.name),
                     checked = member.checked,
+                    pending = member.pending,
                     enabled = !isMarkingMember,
                     onToggle = { checked -> onMemberToggle(member.pendakiId, checked) },
                 )
@@ -455,6 +456,7 @@ private fun MemberCheckCard(
     name: String,
     avatarColor: Color,
     checked: Boolean,
+    pending: Boolean,
     enabled: Boolean,
     onToggle: (Boolean) -> Unit
 ) {
@@ -466,11 +468,19 @@ private fun MemberCheckCard(
         Column(Modifier.padding(12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.size(48.dp).clip(CircleShape).background(avatarColor), contentAlignment = Alignment.Center) {
-                    Text(name.first().toString(), color = JejakWhite, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                    Text(name.firstOrNull()?.toString() ?: "?", color = JejakWhite, fontWeight = FontWeight.Bold, fontSize = 20.sp)
                 }
                 Spacer(Modifier.width(12.dp))
                 Text(name, color = JejakTextPrimary, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
                 MemberToggle(checked = checked, enabled = enabled, onCheckedChange = onToggle)
+            }
+            if (pending) {
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = "Menunggu kirim (perangkat offline)",
+                    color = Color(0xFFB26A00),
+                    fontSize = 12.sp
+                )
             }
             if (!checked) {
                 Spacer(Modifier.height(12.dp))

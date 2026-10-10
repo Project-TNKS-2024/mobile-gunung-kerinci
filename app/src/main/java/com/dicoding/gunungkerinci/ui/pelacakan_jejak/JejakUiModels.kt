@@ -80,5 +80,17 @@ internal sealed interface GpsGateState {
 internal data class JejakMemberUi(
     val pendakiId: String,
     val name: String,
-    val checked: Boolean
+    val checked: Boolean,
+    /** True bila kehadiran baru dicatat lokal (antrean offline) dan belum sampai server. */
+    val pending: Boolean = false
+)
+
+/**
+ * Penanda kehadiran lokal dari tabel `checkpoint_logs` — dipakai sebagai overlay
+ * pada daftar anggota supaya penandaan offline langsung terlihat ("menunggu kirim").
+ */
+internal data class LocalMemberMark(
+    val postId: Int,
+    val pendakiId: String,
+    val pending: Boolean
 )

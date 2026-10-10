@@ -3,6 +3,7 @@ package com.dicoding.gunungkerinci.ui.peringatan_dini
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.dicoding.gunungkerinci.data.repository.EmergencyApiException
 import com.dicoding.gunungkerinci.data.repository.EmergencyRepository
 import com.dicoding.gunungkerinci.data.repository.TrackingGpsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -52,7 +53,12 @@ internal class PeringatanDiniViewModel(
                         fetchLastPosition(token)
                     }
                 }
-                .onFailure { _uiState.value = EarlyWarningReducer.fromError(it.message) }
+                .onFailure { e ->
+                    // 401 (sesi habis) & 403 (tidak ada pendakian aktif) = gagal permanen:
+                    // peringatan lama dihapus. Gagal lain (jaringan/5xx) = sementara: tetap tampil.
+                    val terminal = (e as? EmergencyApiException)?.code in listOf(401, 403)
+                    _uiState.value = EarlyWarningReducer.fromError(_uiState.value, e.message, terminal)
+                }
         }
     }
 

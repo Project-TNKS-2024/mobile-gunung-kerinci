@@ -5,8 +5,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -197,18 +199,31 @@ private fun EarlyWarningDialog(
 
                     // Tombol pembaruan lokasi (sesuai desain UI/UX): kirim posisi
                     // terakhir pendaki ke sistem langsung dari popup peringatan.
-                    Text(
-                        text = "Update Lokasi Terakhir di Sistem",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFFCF372B),
-                        textDecoration = TextDecoration.Underline,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null
-                        ) { onUpdateLocation() }
-                    )
+                    Row(
+                        modifier = Modifier
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null
+                            ) { onUpdateLocation() },
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_rotation),
+                            contentDescription = null,
+                            tint = Color.Unspecified,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(Modifier.size(6.dp))
+                        Text(
+                            text = "Update Lokasi Terakhir di Sistem",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color(0xFFCF372B),
+                            textDecoration = TextDecoration.Underline,
+                            textAlign = TextAlign.Center
+                        )
+                    }
 
                     if (lastLocationUpdate != null) {
                         Spacer(modifier = Modifier.height(6.dp))

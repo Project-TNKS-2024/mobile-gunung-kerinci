@@ -33,6 +33,18 @@ internal class ActiveHikeRepository(private val api: ApiService) {
                 ?: error("Belum ada pendakian aktif. Check-in tiket dulu untuk memakai Pelacakan Jejak.")
         }
 
+    /**
+     * Id pendaki milik user yang login (GET /profile/pendaki-identity).
+     * Dipakai untuk memilih anggota rombongan yang benar (A16).
+     */
+    suspend fun getMyPendakiIds(token: String): Set<String> = runCatching {
+        val bearer = if (token.startsWith("Bearer ")) token else "Bearer $token"
+        val response = api.getPendakiIdentity(bearer)
+        val body = response.body()
+        if (!response.isSuccessful || body?.success != true) emptySet()
+        else body.data?.pendaki_ids.orEmpty().toSet()
+    }.getOrDefault(emptySet())
+
     companion object {
         private const val STATUS_BOOKING_MENDAKI = 6
 
@@ -51,5 +63,12 @@ internal class ActiveHikeRepository(private val api: ApiService) {
                 tanggalKeluar = booking.tanggalKeluar
             )
         }
+
+        /**
+         * Fungsi murni: pilih anggota rombongan yang cocok dengan user yang login.
+         * Kalau tidak ada yang cocok, pakai yang pertama (jaga-jaga) — lihat A16.
+         */
+        fun pilihPendakiSaya(pendakiIds: List<String>, myPendakiIds: Set<String>): String =
+            pendakiIds.firstOrNull { it in myPendakiIds } ?: pendakiIds.firstOrNull().orEmpty()
     }
 }

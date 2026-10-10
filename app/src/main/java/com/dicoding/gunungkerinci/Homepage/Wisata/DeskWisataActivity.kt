@@ -152,7 +152,7 @@ class DeskWisataActivity : AppCompatActivity() {
                     val imageUrls =
                         destinasi.gambar_destinasi.map {
 
-                            "https://eticket-tnks.fst.unja.ac.id/${it.src}"
+                            "https://tnks.satriabahari.my.id/${it.src}"
 
                         }
 

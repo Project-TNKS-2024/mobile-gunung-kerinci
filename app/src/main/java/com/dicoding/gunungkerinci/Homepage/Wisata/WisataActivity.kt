@@ -61,7 +61,7 @@ class WisataActivity : AppCompatActivity() {
                     result?.data?.forEach { destinasi ->
                         val imageUrl =
                             if (destinasi.gambar_destinasi.isNotEmpty()) {
-                                "https://eticket-tnks.fst.unja.ac.id/${destinasi.gambar_destinasi[0].src}"
+                                "https://tnks.satriabahari.my.id/${destinasi.gambar_destinasi[0].src}"
                             } else {
                                 ""
                             }

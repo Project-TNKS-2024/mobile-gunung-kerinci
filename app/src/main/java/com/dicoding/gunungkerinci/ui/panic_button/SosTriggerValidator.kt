@@ -19,6 +19,7 @@ internal object SosTriggerValidator {
         wajibPesan: Boolean = false
     ): String? {
         if (latitude == null || longitude == null ||
+            !latitude.isFinite() || !longitude.isFinite() ||
             latitude < -90.0 || latitude > 90.0 ||
             longitude < -180.0 || longitude > 180.0
         ) {

@@ -94,6 +94,7 @@ internal fun SosChatScreen(
             MessageInputBar(
                 value = input,
                 isSending = uiState.isSending,
+                canSend = uiState.isSosActive,
                 onInputChange = { input = it },
                 onSendClick = {
                     val text = input.trim()
@@ -114,7 +115,8 @@ internal fun SosChatScreen(
         ) {
             when {
                 uiState.isLoading -> LoadingState()
-                uiState.messages.isEmpty() && uiState.queuedMessages.isEmpty() -> EmptyState(onRefreshClick)
+                uiState.messages.isEmpty() && uiState.queuedMessages.isEmpty() ->
+                    EmptyState(errorMessage = uiState.errorMessage, onRefreshClick = onRefreshClick)
                 else -> {
                     uiState.errorMessage?.let { ErrorBanner(it) }
                     uiState.queuedInfo?.let { InfoBanner(it) }
@@ -149,19 +151,23 @@ private fun LoadingState() {
 }
 
 @Composable
-private fun EmptyState(onRefreshClick: () -> Unit) {
+private fun EmptyState(errorMessage: String?, onRefreshClick: () -> Unit) {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Surface(shape = RoundedCornerShape(20.dp), color = Color.White, tonalElevation = 2.dp) {
-            Column(
-                modifier = Modifier.padding(22.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text("Belum ada pesan", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = Color(0xFF101828))
-                Spacer(Modifier.height(8.dp))
-                Text("Kirim pesan untuk menghubungi petugas.", color = Color(0xFF667085), fontSize = 14.sp)
-                Spacer(Modifier.height(16.dp))
-                Button(onClick = onRefreshClick, colors = ButtonDefaults.buttonColors(containerColor = EmergencyBlue)) {
-                    Text("Muat Ulang")
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            // Error tetap tampil walau chat kosong — sebelumnya tertutup kartu "Belum ada pesan".
+            errorMessage?.let { ErrorBanner(it) }
+            Surface(shape = RoundedCornerShape(20.dp), color = Color.White, tonalElevation = 2.dp) {
+                Column(
+                    modifier = Modifier.padding(22.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text("Belum ada pesan", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = Color(0xFF101828))
+                    Spacer(Modifier.height(8.dp))
+                    Text("Kirim pesan untuk menghubungi petugas.", color = Color(0xFF667085), fontSize = 14.sp)
+                    Spacer(Modifier.height(16.dp))
+                    Button(onClick = onRefreshClick, colors = ButtonDefaults.buttonColors(containerColor = EmergencyBlue)) {
+                        Text("Muat Ulang")
+                    }
                 }
             }
         }
@@ -249,6 +255,7 @@ private fun ErrorBanner(message: String) {
 private fun MessageInputBar(
     value: String,
     isSending: Boolean,
+    canSend: Boolean,
     onInputChange: (String) -> Unit,
     onSendClick: () -> Unit,
     onAttachImageClick: () -> Unit
@@ -263,20 +270,20 @@ private fun MessageInputBar(
             value = value,
             onValueChange = onInputChange,
             modifier = Modifier.weight(1f),
-            enabled = !isSending,
+            enabled = canSend && !isSending,
             placeholder = { Text("Tulis pesan anda", color = Color(0xFFB3B3B3), fontSize = 14.sp) },
             maxLines = 4,
             shape = CircleShape,
             trailingIcon = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = onAttachImageClick, enabled = !isSending) {
+                    IconButton(onClick = onAttachImageClick, enabled = canSend && !isSending) {
                         Icon(
                             painter = painterResource(R.drawable.ic_gallery),
                             contentDescription = "Lampirkan gambar",
                             tint = EmergencyBlue
                         )
                     }
-                    IconButton(onClick = onSendClick, enabled = !isSending) {
+                    IconButton(onClick = onSendClick, enabled = canSend && !isSending) {
                         if (isSending) {
                             CircularProgressIndicator(
                                 modifier = Modifier.size(18.dp),

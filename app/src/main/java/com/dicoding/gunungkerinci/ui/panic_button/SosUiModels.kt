@@ -25,6 +25,8 @@ internal data class SosChatUiState(
     val queuedInfo: String? = null,
     val isLoading: Boolean = false,
     val isSending: Boolean = false,
+    /** True bila server punya SOS aktif — chat hanya bisa dikirim saat ini true. */
+    val isSosActive: Boolean = false,
     val errorMessage: String? = null
 )
 

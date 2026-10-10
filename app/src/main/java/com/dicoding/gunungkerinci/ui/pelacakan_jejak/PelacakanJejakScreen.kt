@@ -147,7 +147,8 @@ internal fun PelacakanJejakScreen(
                 ),
                 members = TrackingProgressUiMapper.toMembers(
                     uiState.progressHikers,
-                    selectedCheckpoint?.postId
+                    selectedCheckpoint?.postId,
+                    uiState.localMemberMarks
                 ),
                 gpsGateState = uiState.gpsGateState,
                 isCheckingGps = uiState.isCheckingGps,
