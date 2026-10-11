@@ -3,8 +3,8 @@ package com.dicoding.gunungkerinci.ui.peringatan_dini
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.dicoding.gunungkerinci.data.repository.EmergencyApiException
-import com.dicoding.gunungkerinci.data.repository.EmergencyRepository
+import com.dicoding.gunungkerinci.data.repository.PeringatanDiniApiException
+import com.dicoding.gunungkerinci.data.repository.PeringatanDiniRepository
 import com.dicoding.gunungkerinci.data.repository.TrackingGpsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,20 +16,13 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
-/**
- * ViewModel tipis untuk peringatan dini bahaya.
- *
- * Semua keputusan state ada di [EarlyWarningReducer] / [EarlyWarningSelector]
- * (logika murni yang diuji lewat PeringatanDiniTddTest). ViewModel hanya
- * mengurus kapan memanggil API dan menyimpan state untuk UI.
- */
 internal class PeringatanDiniViewModel(
-    private val emergencyRepository: EmergencyRepository,
+    private val peringatanDiniRepository: PeringatanDiniRepository,
     private val trackingGpsRepository: TrackingGpsRepository? = null
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(EarlyWarningUiState())
-    val uiState: StateFlow<EarlyWarningUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(PeringatanDiniUiState())
+    val uiState: StateFlow<PeringatanDiniUiState> = _uiState.asStateFlow()
 
     /** Peringatan yang terakhir otomatis dibuka popup-nya (cegah popup muncul berulang). */
     private var lastAutoShownWarningId: Int? = null
@@ -37,9 +30,9 @@ internal class PeringatanDiniViewModel(
     /** Ambil peringatan aktif. Dipanggil saat layar tampil dan saat polling. */
     fun load(token: String) {
         viewModelScope.launch {
-            emergencyRepository.getActiveWarnings(token)
+            peringatanDiniRepository.getActiveWarnings(token)
                 .onSuccess { warnings ->
-                    val (state, shownId) = EarlyWarningReducer.onNewWarnings(
+                    val (state, shownId) = PeringatanDiniReducer.onNewWarnings(
                         current = _uiState.value,
                         warnings = warnings,
                         lastAutoShownId = lastAutoShownWarningId
@@ -56,8 +49,8 @@ internal class PeringatanDiniViewModel(
                 .onFailure { e ->
                     // 401 (sesi habis) & 403 (tidak ada pendakian aktif) = gagal permanen:
                     // peringatan lama dihapus. Gagal lain (jaringan/5xx) = sementara: tetap tampil.
-                    val terminal = (e as? EmergencyApiException)?.code in listOf(401, 403)
-                    _uiState.value = EarlyWarningReducer.fromError(_uiState.value, e.message, terminal)
+                    val terminal = (e as? PeringatanDiniApiException)?.code in listOf(401, 403)
+                    _uiState.value = PeringatanDiniReducer.fromError(_uiState.value, e.message, terminal)
                 }
         }
     }
@@ -131,25 +124,25 @@ internal class PeringatanDiniViewModel(
         }.format(waktu)
     }
 
-    /** User menekan tombol X pada popup. */
+    // menutup pop up peringatan dini bahaya
     fun dismissPopup() {
-        _uiState.update { EarlyWarningReducer.dismissPopup(it) }
+        _uiState.update { PeringatanDiniReducer.dismissPopup(it) }
     }
 
-    /** User menekan bubble untuk membuka popup lagi. */
+    // membuka pop up peringatan dini bahaya
     fun openPopup() {
-        _uiState.update { EarlyWarningReducer.showPopup(it) }
+        _uiState.update { PeringatanDiniReducer.showPopup(it) } 
     }
 }
 
 internal class PeringatanDiniViewModelFactory(
-    private val emergencyRepository: EmergencyRepository,
+    private val peringatanDiniRepository: PeringatanDiniRepository,
     private val trackingGpsRepository: TrackingGpsRepository? = null
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(PeringatanDiniViewModel::class.java)) {
-            return PeringatanDiniViewModel(emergencyRepository, trackingGpsRepository) as T
+            return PeringatanDiniViewModel(peringatanDiniRepository, trackingGpsRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

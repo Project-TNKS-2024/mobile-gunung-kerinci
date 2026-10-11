@@ -23,7 +23,9 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:paddingBottom="8dp"
+                android:clipToPadding="false">
 
                 <TextView
                     android:id="@+id/halo"
@@ -97,13 +99,13 @@
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardCuaca"
                     android:layout_width="match_parent"
-                    android:layout_height="72dp"
+                    android:layout_height="100dp"
                     app:layout_constraintStart_toStartOf="@id/gambar"
                     app:layout_constraintEnd_toEndOf="@id/gambar"
                     app:layout_constraintTop_toTopOf="@id/gambar"
-                    android:layout_marginStart="30dp"
-                    android:layout_marginEnd="30dp"
-                    android:layout_marginTop="200dp"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginTop="192dp"
                     app:cardCornerRadius="8dp"
                     app:cardPreventCornerOverlap="false">
 
@@ -111,11 +113,31 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
 
+                        <com.google.android.material.progressindicator.CircularProgressIndicator
+                            android:id="@+id/loadingCuaca"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:indeterminate="true"
+                            android:visibility="gone"
+                            app:indicatorSize="24dp"
+                            app:trackThickness="3dp"
+                            app:indicatorColor="@color/primary"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"/>
+
+                        <androidx.constraintlayout.widget.Group
+                            android:id="@+id/grupKontenCuaca"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:visibility="gone"
+                            app:constraint_referenced_ids="suhu,ketSuhu,ketKota,iconStatus,statusGunung,ttlPendaki,saat,pendakiNow,per,JmlpendakiNow,orang"/>
+
                         <TextView
                             android:id="@+id/suhu"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="21°c"
                             android:fontFamily="@font/plus_jakarta_sans_bold"
                             android:textSize="18dp"
                             android:textColor="@color/black2"
@@ -123,13 +145,12 @@
                             app:layout_constraintTop_toTopOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             android:layout_marginStart="15dp"
-                            android:layout_marginTop="5dp"/>
+                            android:layout_marginTop="12dp"/>
 
                         <TextView
                             android:id="@+id/ketSuhu"
                             android:layout_width="50dp"
                             android:layout_height="wrap_content"
-                            android:text="Gerimis Ringan"
                             android:fontFamily="@font/plus_jakarta_sans"
                             android:textSize="10dp"
                             android:textColor="@color/black2"
@@ -137,19 +158,22 @@
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             android:layout_marginStart="15dp"
-                            android:layout_marginBottom="7dp"/>
+                            android:layout_marginBottom="12dp"/>
 
                         <TextView
                             android:id="@+id/ketKota"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Solok Selatan"
                             android:fontFamily="@font/plus_jakarta_sans_semibold"
                             android:textSize="12dp"
                             android:textColor="@color/black2"
+                            android:maxLines="1"
+                            android:ellipsize="end"
                             app:layout_constraintBottom_toBottomOf="@id/suhu"
                             app:layout_constraintStart_toEndOf="@id/suhu"
-                            android:layout_marginStart="20dp"/>
+                            app:layout_constraintEnd_toStartOf="@id/pendakiNow"
+                            android:layout_marginStart="20dp"
+                            android:layout_marginEnd="12dp"/>
 
                         <ImageView
                             android:id="@+id/iconStatus"
@@ -158,7 +182,7 @@
                             android:src="@drawable/ket_status"
                             app:layout_constraintTop_toTopOf="@id/ketSuhu"
                             app:layout_constraintStart_toStartOf="@id/ketKota"
-                            android:layout_marginTop="5dp"/>
+                            android:layout_marginTop="8dp"/>
 
                         <TextView
                             android:id="@+id/statusGunung"
@@ -199,7 +223,6 @@
                             android:id="@+id/pendakiNow"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="100"
                             android:textSize="18sp"
                             android:fontFamily="@font/plus_jakarta_sans_extrabold"
                             android:textColor="@color/black2"
@@ -222,7 +245,6 @@
                             android:id="@+id/JmlpendakiNow"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="100"
                             android:textSize="12sp"
                             android:fontFamily="@font/plus_jakarta_sans"
                             android:textColor="@color/black2"
@@ -241,7 +263,7 @@
                             android:textAlignment="center"
                             app:layout_constraintEnd_toStartOf="@id/saat"
                             app:layout_constraintTop_toTopOf="@id/ketSuhu"
-                            android:layout_marginEnd="30dp"/>
+                            android:layout_marginEnd="6dp"/>
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 

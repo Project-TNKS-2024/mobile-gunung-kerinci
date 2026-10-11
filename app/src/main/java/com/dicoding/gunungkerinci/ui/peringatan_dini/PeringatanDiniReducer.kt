@@ -4,11 +4,11 @@ package com.dicoding.gunungkerinci.ui.peringatan_dini
  * Perubahan state layar peringatan dini.
  * Popup muncul hanya bila ada peringatan aktif; menutup popup TIDAK menghapus datanya.
  */
-internal object EarlyWarningReducer {
+internal object PeringatanDiniReducer {
 
-    fun fromWarnings(warnings: List<EmergencyWarning>): EarlyWarningUiState {
-        val active = EarlyWarningSelector.select(warnings)
-        return EarlyWarningUiState(activeWarning = active, popupVisible = active != null)
+    fun fromWarnings(warnings: List<PeringatanDini>): PeringatanDiniUiState {
+        val active = PeringatanDiniSelector.select(warnings)
+        return PeringatanDiniUiState(activeWarning = active, popupVisible = active != null)
     }
 
     /**
@@ -20,16 +20,16 @@ internal object EarlyWarningReducer {
      * @return state baru + id peringatan yang terakhir otomatis dibuka.
      */
     fun onNewWarnings(
-        current: EarlyWarningUiState,
-        warnings: List<EmergencyWarning>,
+        current: PeringatanDiniUiState,
+        warnings: List<PeringatanDini>,
         lastAutoShownId: Int?
-    ): Pair<EarlyWarningUiState, Int?> {
-        val active = EarlyWarningSelector.select(warnings)
+    ): Pair<PeringatanDiniUiState, Int?> {
+        val active = PeringatanDiniSelector.select(warnings)
         if (active == null) {
             // Tidak ada peringatan aktif → bubble & popup hilang.
             // Reset id (A20): bila peringatan ber-ID sama muncul lagi nanti,
             // popup-nya boleh muncul otomatis lagi.
-            return EarlyWarningUiState() to null
+            return PeringatanDiniUiState() to null
         }
 
         val isNew = active.id != lastAutoShownId
@@ -42,7 +42,7 @@ internal object EarlyWarningReducer {
     }
 
     /** Bubble diklik → buka popup lagi (hanya bila ada peringatan aktif). */
-    fun showPopup(state: EarlyWarningUiState): EarlyWarningUiState =
+    fun showPopup(state: PeringatanDiniUiState): PeringatanDiniUiState =
         if (state.activeWarning != null) state.copy(popupVisible = true) else state
 
     /**
@@ -54,13 +54,13 @@ internal object EarlyWarningReducer {
      * TETAP ditampilkan — blip jaringan tidak boleh menyembunyikan bahaya asli.
      */
     fun fromError(
-        current: EarlyWarningUiState,
+        current: PeringatanDiniUiState,
         message: String?,
         isTerminal: Boolean
-    ): EarlyWarningUiState =
-        if (isTerminal) EarlyWarningUiState(errorMessage = message)
+    ): PeringatanDiniUiState =
+        if (isTerminal) PeringatanDiniUiState(errorMessage = message)
         else current.copy(errorMessage = message)
 
-    fun dismissPopup(state: EarlyWarningUiState): EarlyWarningUiState =
+    fun dismissPopup(state: PeringatanDiniUiState): PeringatanDiniUiState =
         state.copy(popupVisible = false)
 }

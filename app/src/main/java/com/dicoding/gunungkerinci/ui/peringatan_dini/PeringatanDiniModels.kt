@@ -1,6 +1,6 @@
 package com.dicoding.gunungkerinci.ui.peringatan_dini
 
-internal data class EmergencyWarning(
+internal data class PeringatanDini(
     val id: Int,
     val type: String?,
     val title: String,
@@ -9,8 +9,8 @@ internal data class EmergencyWarning(
     val createdAt: String
 )
 
-internal data class EarlyWarningUiState(
-    val activeWarning: EmergencyWarning? = null,
+internal data class PeringatanDiniUiState(
+    val activeWarning: PeringatanDini? = null,
     val popupVisible: Boolean = false,
     val errorMessage: String? = null,
     val isUpdatingLocation: Boolean = false,

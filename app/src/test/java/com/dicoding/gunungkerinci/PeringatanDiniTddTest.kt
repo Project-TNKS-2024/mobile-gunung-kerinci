@@ -1,9 +1,9 @@
 package com.dicoding.gunungkerinci
 
-import com.dicoding.gunungkerinci.ui.peringatan_dini.EarlyWarningReducer
-import com.dicoding.gunungkerinci.ui.peringatan_dini.EarlyWarningSelector
-import com.dicoding.gunungkerinci.ui.peringatan_dini.EarlyWarningUiState
-import com.dicoding.gunungkerinci.ui.peringatan_dini.EmergencyWarning
+import com.dicoding.gunungkerinci.ui.peringatan_dini.PeringatanDiniReducer
+import com.dicoding.gunungkerinci.ui.peringatan_dini.PeringatanDiniSelector
+import com.dicoding.gunungkerinci.ui.peringatan_dini.PeringatanDiniUiState
+import com.dicoding.gunungkerinci.ui.peringatan_dini.PeringatanDini
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -24,7 +24,7 @@ class PeringatanDiniTddTest {
     // ============================================================
     @Test
     fun `TDD-B01 - daftar peringatan aktif kosong`() {
-        val state = EarlyWarningReducer.fromWarnings(emptyList())
+        val state = PeringatanDiniReducer.fromWarnings(emptyList())
 
         assertNull(state.activeWarning)
         assertFalse(state.popupVisible)
@@ -35,7 +35,7 @@ class PeringatanDiniTddTest {
     // ============================================================
     @Test
     fun `TDD-B02 - pilih peringatan severity tertinggi`() {
-        val hasil = EarlyWarningSelector.select(
+        val hasil = PeringatanDiniSelector.select(
             listOf(
                 warning(id = 1, severity = "low"),
                 warning(id = 2, severity = "critical"),
@@ -51,7 +51,7 @@ class PeringatanDiniTddTest {
     // ============================================================
     @Test
     fun `TDD-B03 - severity sama pilih yang terbaru`() {
-        val hasil = EarlyWarningSelector.select(
+        val hasil = PeringatanDiniSelector.select(
             listOf(
                 warning(id = 1, severity = "high", createdAt = "2026-09-18T03:00:00.000000Z"),
                 warning(id = 2, severity = "high", createdAt = "2026-09-18T05:00:00.000000Z")
@@ -66,7 +66,7 @@ class PeringatanDiniTddTest {
     // ============================================================
     @Test
     fun `TDD-B04 - popup tidak tampil saat belum ada peringatan`() {
-        val state = EarlyWarningReducer.fromWarnings(emptyList())
+        val state = PeringatanDiniReducer.fromWarnings(emptyList())
 
         assertFalse(state.popupVisible)
     }
@@ -76,10 +76,10 @@ class PeringatanDiniTddTest {
     // ============================================================
     @Test
     fun `TDD-B05 - tutup popup, data peringatan tetap ada`() {
-        val state = EarlyWarningReducer.fromWarnings(listOf(warning(id = 9, severity = "high")))
+        val state = PeringatanDiniReducer.fromWarnings(listOf(warning(id = 9, severity = "high")))
         assertTrue(state.popupVisible)
 
-        val ditutup = EarlyWarningReducer.dismissPopup(state)
+        val ditutup = PeringatanDiniReducer.dismissPopup(state)
 
         assertFalse(ditutup.popupVisible)
         assertNotNull(ditutup.activeWarning)
@@ -90,8 +90,8 @@ class PeringatanDiniTddTest {
     // ============================================================
     @Test
     fun `TDD-B06 - gangguan jaringan tidak menghapus peringatan aktif`() {
-        val sebelumnya = EarlyWarningReducer.fromWarnings(listOf(warning(id = 5, severity = "high")))
-        val state = EarlyWarningReducer.fromError(sebelumnya, "timeout", isTerminal = false)
+        val sebelumnya = PeringatanDiniReducer.fromWarnings(listOf(warning(id = 5, severity = "high")))
+        val state = PeringatanDiniReducer.fromError(sebelumnya, "timeout", isTerminal = false)
 
         // Blip jaringan tidak boleh menyembunyikan peringatan yang masih aktif.
         assertNotNull(state.activeWarning)
@@ -105,9 +105,9 @@ class PeringatanDiniTddTest {
     @Test
     fun `TDD-B07 - polling tidak membuka ulang popup yang sudah ditutup`() {
         val daftar = listOf(warning(id = 5, severity = "high"))
-        val ditutup = EarlyWarningReducer.dismissPopup(EarlyWarningReducer.fromWarnings(daftar))
+        val ditutup = PeringatanDiniReducer.dismissPopup(PeringatanDiniReducer.fromWarnings(daftar))
 
-        val (hasil, _) = EarlyWarningReducer.onNewWarnings(
+        val (hasil, _) = PeringatanDiniReducer.onNewWarnings(
             current = ditutup,
             warnings = daftar,
             lastAutoShownId = 5
@@ -122,8 +122,8 @@ class PeringatanDiniTddTest {
     // ============================================================
     @Test
     fun `TDD-B08 - peringatan hilang menutup bubble dan popup`() {
-        val (hasil, _) = EarlyWarningReducer.onNewWarnings(
-            current = EarlyWarningUiState(
+        val (hasil, _) = PeringatanDiniReducer.onNewWarnings(
+            current = PeringatanDiniUiState(
                 activeWarning = warning(id = 5, severity = "high"),
                 popupVisible = true
             ),
@@ -141,7 +141,7 @@ class PeringatanDiniTddTest {
         id: Int,
         severity: String,
         createdAt: String = "2026-09-18T03:00:00.000000Z"
-    ) = EmergencyWarning(
+    ) = PeringatanDini(
         id = id,
         type = "admin_broadcast",
         title = "Peringatan $id",

@@ -14,7 +14,7 @@ import com.dicoding.gunungkerinci.model.DestinasiResponse
 import com.dicoding.gunungkerinci.model.DetailDestinasiResponse
 import com.dicoding.gunungkerinci.model.DisasterReportResponse
 import com.dicoding.gunungkerinci.model.DisasterReportsListResponse
-import com.dicoding.gunungkerinci.model.EmergencyActiveResponse
+import com.dicoding.gunungkerinci.model.PeringatanDiniResponse
 import com.dicoding.gunungkerinci.model.ForgotPasswordRequest
 import com.dicoding.gunungkerinci.model.GantiPasswordRequest
 import com.dicoding.gunungkerinci.model.GoogleRedirectResponse
@@ -324,9 +324,9 @@ interface ApiService {
 
     @GET("api/emergency/active")
     @Headers("Accept: application/json")
-    suspend fun getActiveEmergencies(
+    suspend fun getActivePeringatanDini(
         @Header("Authorization") token: String
-    ): Response<EmergencyActiveResponse>
+    ): Response<PeringatanDiniResponse>
 
     @GET("api/mytiket")
     @Headers(

@@ -39,12 +39,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
-import com.dicoding.gunungkerinci.data.repository.EmergencyRepository
+import com.dicoding.gunungkerinci.data.repository.PeringatanDiniRepository
 import com.dicoding.gunungkerinci.data.repository.TrackingGpsRepository
-import com.dicoding.gunungkerinci.ui.peringatan_dini.EarlyWarningOverlay
+import com.dicoding.gunungkerinci.ui.peringatan_dini.PeringatanDiniOverlay
 import com.dicoding.gunungkerinci.ui.peringatan_dini.PeringatanDiniViewModel
 import com.dicoding.gunungkerinci.ui.peringatan_dini.PeringatanDiniViewModelFactory
 import kotlinx.coroutines.delay
@@ -57,7 +58,7 @@ class HomeFragment : Fragment() {
 
     private val peringatanDiniViewModel: PeringatanDiniViewModel by viewModels {
         PeringatanDiniViewModelFactory(
-            EmergencyRepository(ApiConfig.getApiService(requireContext())),
+            PeringatanDiniRepository(ApiConfig.getApiService(requireContext())),
             TrackingGpsRepository(ApiConfig.getApiService(requireContext()))
         )
     }
@@ -101,7 +102,7 @@ class HomeFragment : Fragment() {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 val uiState by peringatanDiniViewModel.uiState.collectAsState()
-                EarlyWarningOverlay(
+                PeringatanDiniOverlay(
                     uiState = uiState,
                     onBubbleClick = peringatanDiniViewModel::openPopup,
                     onClosePopup = peringatanDiniViewModel::dismissPopup,
@@ -305,6 +306,9 @@ class HomeFragment : Fragment() {
     private fun setupBeranda() {
         val token = UserPreference(requireContext()).getToken().orEmpty()
 
+        binding.loadingCuaca.isVisible = true
+        binding.grupKontenCuaca.isVisible = false
+
         viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val response = ApiConfig.getApiService(requireContext())
@@ -334,6 +338,9 @@ class HomeFragment : Fragment() {
                 binding.ketSuhu.text = "—"
                 binding.ketKota.text = "—"
                 Log.d("BERANDA_API", e.message.toString())
+            } finally {
+                binding.loadingCuaca.isVisible = false
+                binding.grupKontenCuaca.isVisible = true
             }
         }
     }

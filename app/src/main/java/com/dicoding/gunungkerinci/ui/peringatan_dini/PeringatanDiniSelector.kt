@@ -7,9 +7,9 @@ package com.dicoding.gunungkerinci.ui.peringatan_dini
  * Catatan: server mengembalikan peringatan aktif urut `created_at desc`
  * tanpa pengurutan severity, jadi pemilihan dilakukan di client.
  */
-internal object EarlyWarningSelector {
+internal object PeringatanDiniSelector {
 
-    fun select(warnings: List<EmergencyWarning>): EmergencyWarning? =
+    fun select(warnings: List<PeringatanDini>): PeringatanDini? =
         warnings.maxWithOrNull(
             compareBy({ severityRank(it.severity) }, { it.createdAt })
         )

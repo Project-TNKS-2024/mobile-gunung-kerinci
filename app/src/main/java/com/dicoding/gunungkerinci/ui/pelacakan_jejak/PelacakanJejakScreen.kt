@@ -29,6 +29,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Surface
@@ -230,15 +231,15 @@ internal fun PelacakanJejakTicketContent(
         item { JejakTopBar(onBack = {}) }
         item { SectionTitle("Tiket Aktif") }
         item {
-            if (activeTicket != null) {
-                ActiveTicketCard(
+            when {
+                uiState.isLoadingTickets -> LoadingTicketCard()
+                activeTicket != null -> ActiveTicketCard(
                     ticket = activeTicket,
                     onCheckPointClick = onCheckPointClick,
                     badgeText = activeTicket.status,
                     checkPointEnabled = activeTicket.statusBooking == 6
                 )
-            } else {
-                EmptyTicketCard(
+                else -> EmptyTicketCard(
                     text = uiState.noActiveHikeMessage
                         ?: "Belum ada pendakian aktif. Check-in tiket dulu untuk memakai Pelacakan Jejak."
                 )
@@ -271,6 +272,29 @@ private fun EmptyTicketCard(text: String) {
             lineHeight = 18.sp,
             color = JejakTextSecondary
         )
+    }
+}
+
+@Composable
+private fun LoadingTicketCard() {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(18.dp),
+        color = JejakWhite,
+        border = BorderStroke(1.dp, JejakBorder)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(28.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(28.dp),
+                strokeWidth = 3.dp,
+                color = JejakBlue
+            )
+        }
     }
 }
 

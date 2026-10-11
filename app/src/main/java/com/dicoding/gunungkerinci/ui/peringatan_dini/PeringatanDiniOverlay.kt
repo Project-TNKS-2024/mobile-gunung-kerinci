@@ -38,15 +38,9 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.dicoding.gunungkerinci.R
 
-/**
- * Overlay peringatan dini bahaya (Compose island di HomeFragment):
- * - bubble siren muncul selama ada peringatan aktif;
- * - popup detail muncul saat [EarlyWarningUiState.popupVisible];
- * - tombol X hanya menutup popup lokal, bubble tetap ada.
- */
 @Composable
-internal fun EarlyWarningOverlay(
-    uiState: EarlyWarningUiState,
+internal fun PeringatanDiniOverlay(
+    uiState: PeringatanDiniUiState,
     onBubbleClick: () -> Unit,
     onClosePopup: () -> Unit,
     onUpdateLocation: () -> Unit
@@ -55,7 +49,7 @@ internal fun EarlyWarningOverlay(
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (warning != null) {
-            EarlyWarningBubble(
+            PeringatanDiniBubble(
                 modifier = Modifier
                     .align(Alignment.BottomStart)
                     .padding(start = 4.dp, bottom = 350.dp),
@@ -64,7 +58,7 @@ internal fun EarlyWarningOverlay(
         }
 
         if (warning != null && uiState.popupVisible) {
-            EarlyWarningDialog(
+            PeringatanDiniDialog(
                 warning = warning,
                 isUpdatingLocation = uiState.isUpdatingLocation,
                 lastLocationUpdate = uiState.lastLocationUpdate,
@@ -77,7 +71,7 @@ internal fun EarlyWarningOverlay(
 }
 
 @Composable
-private fun EarlyWarningBubble(
+private fun PeringatanDiniBubble(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
@@ -110,8 +104,8 @@ private fun EarlyWarningBubble(
 }
 
 @Composable
-private fun EarlyWarningDialog(
-    warning: EmergencyWarning,
+private fun PeringatanDiniDialog(
+    warning: PeringatanDini,
     isUpdatingLocation: Boolean,
     lastLocationUpdate: String?,
     locationUpdateMessage: String?,
@@ -139,7 +133,7 @@ private fun EarlyWarningDialog(
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
-                    ) { /* absorb klik di dalam card */ }
+                    ) {  }
             ) {
                 Column(
                     modifier = Modifier
@@ -197,8 +191,7 @@ private fun EarlyWarningDialog(
 
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    // Tombol pembaruan lokasi (sesuai desain UI/UX): kirim posisi
-                    // terakhir pendaki ke sistem langsung dari popup peringatan.
+                    // Tombol pembaruan lokasi: kirim posisi
                     Row(
                         modifier = Modifier
                             .clickable(
@@ -254,7 +247,6 @@ private fun EarlyWarningDialog(
                     }
                 }
 
-                // Icon melayang di atas card
                 Image(
                     painter = painterResource(R.drawable.ic_siren),
                     contentDescription = null,

@@ -3,14 +3,14 @@ package com.dicoding.gunungkerinci.model
 import com.google.gson.annotations.SerializedName
 
 /** Respons GET /api/emergency/active (peringatan dini bahaya untuk pendaki aktif). */
-data class EmergencyActiveResponse(
+data class PeringatanDiniResponse(
     @SerializedName("success") val success: Boolean,
     @SerializedName("message") val message: String?,
-    @SerializedName("data") val data: List<EmergencyWarningDto>?,
+    @SerializedName("data") val data: List<PeringatanDiniDto>?,
     @SerializedName("errors") val errors: Any?
 )
 
-data class EmergencyWarningDto(
+data class PeringatanDiniDto(
     @SerializedName("id") val id: Int,
     @SerializedName("type") val type: String?,
     @SerializedName("title") val title: String?,
