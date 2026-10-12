@@ -150,7 +150,7 @@ class PanicButtonTddTest {
         )
 
         assertTrue(tersimpan)
-        val baris = dao.isi().single()
+        val baris = requireNotNull(dao.tersimpan)
         // Backend hanya menerima huruf kecil (low/medium/high).
         assertEquals("high", baris.severity)
         assertEquals("PENDING", baris.syncStatus)
@@ -161,51 +161,19 @@ class PanicButtonTddTest {
         assertFalse(tanpaDao.savePendingSos(-1.6975, 101.2635, "high", null))
     }
 
+    /** C09 hanya memakai `upsert`, jadi sisanya dibuat kosong. */
     private class FakePendingSosDao : PendingSosDao {
-        private val antrean = mutableListOf<PendingSosEntity>()
+        var tersimpan: PendingSosEntity? = null
 
-        fun isi(): List<PendingSosEntity> = antrean.toList()
+        override suspend fun upsert(sos: PendingSosEntity) { tersimpan = sos }
 
-        override suspend fun upsert(sos: PendingSosEntity) {
-            antrean.removeAll { it.localId == sos.localId }
-            antrean += sos
-        }
-
-        override suspend fun getPendingSync(pending: String, failed: String) =
-            antrean.filter { it.syncStatus == pending || it.syncStatus == failed }
-
-        override suspend fun updateStatus(localId: String, status: String) {
-            ubah(localId) { it.copy(syncStatus = status) }
-        }
-
-        override suspend fun markSent(localId: String) {
-            ubah(localId) { it.copy(syncStatus = "SENT") }
-        }
-
-        override suspend fun deleteSent() {
-            antrean.removeAll { it.syncStatus == "SENT" }
-        }
-
-        override suspend fun markFailed(localId: String, status: String) {
-            ubah(localId) { it.copy(syncStatus = status, retryCount = it.retryCount + 1) }
-        }
-
-        override suspend fun markPermanentFailure(localId: String) {
-            ubah(localId) { it.copy(syncStatus = "REJECTED") }
-        }
-
-        override suspend fun resetStuckSyncing() {
-            for (i in antrean.indices) {
-                if (antrean[i].syncStatus == "SYNCING") {
-                    antrean[i] = antrean[i].copy(syncStatus = "PENDING")
-                }
-            }
-        }
-
-        private fun ubah(localId: String, baru: (PendingSosEntity) -> PendingSosEntity) {
-            val index = antrean.indexOfFirst { it.localId == localId }
-            if (index >= 0) antrean[index] = baru(antrean[index])
-        }
+        override suspend fun getPendingSync(pending: String, failed: String) = emptyList<PendingSosEntity>()
+        override suspend fun updateStatus(localId: String, status: String) = Unit
+        override suspend fun markSent(localId: String) = Unit
+        override suspend fun deleteSent() = Unit
+        override suspend fun markFailed(localId: String, status: String) = Unit
+        override suspend fun markPermanentFailure(localId: String) = Unit
+        override suspend fun resetStuckSyncing() = Unit
     }
 
     private class FakePendingChatDao : PendingChatDao {
