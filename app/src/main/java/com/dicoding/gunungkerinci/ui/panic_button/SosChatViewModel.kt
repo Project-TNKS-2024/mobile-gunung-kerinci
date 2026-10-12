@@ -138,7 +138,7 @@ internal class SosChatViewModel(
         val tersimpan = sosChatRepository.savePendingChat(sosId, type, content, imagePath)
         if (tersimpan) {
             syncScheduler?.scheduleChatSync()
-            _uiState.update { it.copy(isSending = false, queuedInfo = "Tidak ada sinyal — pesan disimpan & akan dikirim otomatis.") }
+            _uiState.update { it.copy(isSending = false, queuedInfo = "Tidak ada sinyal, pesan disimpan & akan dikirim otomatis.") }
         } else {
             _uiState.update { it.copy(isSending = false, errorMessage = "Gagal menyimpan pesan") }
         }

@@ -236,7 +236,7 @@ private fun GpsCheckInButton(
                 "Kamu ${gateState.distanceMeters.toInt()} m dari ${gateState.postName} " +
                         "(radius ${gateState.radiusMeter} m). Di luar radius, check-in tidak diizinkan."
             is GpsGateState.DalamRadius ->
-                "Kamu berada ${gateState.distanceMeters.toInt()} m dari ${gateState.postName} — siap check-in."
+                "Kamu berada ${gateState.distanceMeters.toInt()} m dari ${gateState.postName}, siap check-in."
             GpsGateState.Unknown -> null
         }
         if (reason != null) {

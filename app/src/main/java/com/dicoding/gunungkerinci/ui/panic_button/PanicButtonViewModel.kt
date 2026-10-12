@@ -81,7 +81,7 @@ internal class PanicButtonViewModel(
                                     isSending = false,
                                     queuedOffline = tersimpan,
                                     successMessage = if (tersimpan) {
-                                        "Tidak ada sinyal — SOS disimpan & akan dikirim otomatis."
+                                        "Tidak ada sinyal, SOS disimpan & akan dikirim otomatis."
                                     } else null,
                                     errorMessage = if (tersimpan) null
                                     else (error.message ?: "Gagal menyimpan SOS")

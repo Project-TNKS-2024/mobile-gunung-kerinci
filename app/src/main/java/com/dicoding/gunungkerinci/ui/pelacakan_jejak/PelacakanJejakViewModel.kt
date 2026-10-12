@@ -347,7 +347,7 @@ internal class PelacakanJejakViewModel(
                             it.copy(
                                 isCheckingIn = false,
                                 qrScanMessage = if (tersimpan) {
-                                    "Tidak ada sinyal — check-in ${payload.postId} disimpan & akan dikirim otomatis."
+                                    "Tidak ada sinyal, check-in ${payload.postId} disimpan & akan dikirim otomatis."
                                 } else null,
                                 qrScanErrorMessage = if (tersimpan) {
                                     null
@@ -560,7 +560,7 @@ internal class PelacakanJejakViewModel(
                             it.copy(
                                 isMarkingMember = false,
                                 memberMarkMessage = if (tersimpan) {
-                                    "Tidak ada sinyal — kehadiran ${namaAnggota ?: "anggota"} disimpan & akan dikirim otomatis."
+                                    "Tidak ada sinyal, kehadiran ${namaAnggota ?: "anggota"} disimpan & akan dikirim otomatis."
                                 } else null,
                                 memberMarkErrorMessage = if (tersimpan) {
                                     null
@@ -697,7 +697,7 @@ internal class PelacakanJejakViewModel(
                             postCheckpoints = TrackingPostUiMapper.toCheckpointUi(loadedPosts, completedPostIds),
                             progressText = "${data.progress.completed}/${data.progress.total} checkpoint selesai · ${data.progress.percentage}%",
                             manualCheckInMessage = "Check-in manual berhasil di ${data.post.nama}" +
-                                    if (data.isManualOverride) " (override — kamu jauh dari pos)" else "",
+                                    if (data.isManualOverride) " (override, kamu jauh dari pos)" else "",
                             manualCheckInErrorMessage = null
                         )
                     }
@@ -720,7 +720,7 @@ internal class PelacakanJejakViewModel(
                                 nearbyPost = null,
                                 posTerdekatId = null,
                                 manualCheckInMessage = if (tersimpan) {
-                                    "Tidak ada sinyal — check-in manual disimpan & akan dikirim otomatis."
+                                    "Tidak ada sinyal, check-in manual disimpan & akan dikirim otomatis."
                                 } else null,
                                 manualCheckInErrorMessage = if (tersimpan) {
                                     null

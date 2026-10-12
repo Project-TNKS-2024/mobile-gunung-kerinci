@@ -49,9 +49,9 @@ internal fun SosConfirmDialog(
     onConfirm: (severity: String) -> Unit
 ) {
     val options = listOf(
-        SeverityOption(SOS_SEVERITY_LOW, "Rendah — butuh bantuan ringan"),
-        SeverityOption(SOS_SEVERITY_MEDIUM, "Sedang — cedera / tersesat"),
-        SeverityOption(SOS_SEVERITY_HIGH, "Tinggi — mengancam jiwa")
+        SeverityOption(SOS_SEVERITY_LOW, "Rendah: butuh bantuan ringan"),
+        SeverityOption(SOS_SEVERITY_MEDIUM, "Sedang: cedera / tersesat"),
+        SeverityOption(SOS_SEVERITY_HIGH, "Tinggi: mengancam jiwa")
     )
     var selected by remember { mutableStateOf(SOS_SEVERITY_HIGH) }
 
