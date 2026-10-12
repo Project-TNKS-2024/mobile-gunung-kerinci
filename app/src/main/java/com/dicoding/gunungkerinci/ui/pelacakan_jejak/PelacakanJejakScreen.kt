@@ -197,6 +197,7 @@ internal fun PelacakanJejakScreen(
                     uiState.localMemberMarks
                 ),
                 posId = selectedCheckpoint?.postId,
+                bisaUbahKehadiran = uiState.isKetua != false,
                 gpsGateState = uiState.gpsGateState,
                 isCheckingGps = uiState.isCheckingGps,
                 isMarkingMember = uiState.isMarkingMember,

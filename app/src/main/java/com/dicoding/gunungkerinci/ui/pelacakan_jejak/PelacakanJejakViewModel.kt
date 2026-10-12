@@ -56,6 +56,9 @@ internal data class PelacakanJejakUiState(
     val progressHikers: List<TrackingProgressHiker> = emptyList(),
     // Penanda lokal dari checkpoint_logs — overlay "menunggu kirim" untuk penandaan offline.
     val localMemberMarks: List<LocalMemberMark> = emptyList(),
+    // Apakah user ini ketua tim pada booking aktif. null = belum diketahui (identitas gagal
+    // diambil) — dalam keadaan itu switch anggota dibiarkan aktif supaya ketua tidak terkunci.
+    val isKetua: Boolean? = null,
     // Penandaan kehadiran anggota oleh ketua tim (US-05) — lewat POST /checkpoint/qr
     // dengan parameter pendaki_id.
     val isMarkingMember: Boolean = false,
@@ -99,7 +102,8 @@ internal class PelacakanJejakViewModel(
                 noActiveHikeMessage = "Belum ada pendakian aktif. Check-in tiket dulu untuk memakai Pelacakan Jejak.",
                 isLoadingProgress = false,
                 progressText = null,
-                progressErrorMessage = null
+                progressErrorMessage = null,
+                isKetua = null
             )
         }
     }
@@ -133,11 +137,17 @@ internal class PelacakanJejakViewModel(
                     } else {
                         // Pilih anggota rombongan yang benar-benar user yang login (A16),
                         // bukan asal anggota pertama.
-                        val myPendakiIds = activeHikeRepository.getMyPendakiIds(token)
+                        val identitas = activeHikeRepository.getMyIdentity(token)
                         currentPendakiId = ActiveHikeRepository.pilihPendakiSaya(
                             hike.pendakiIds,
-                            myPendakiIds
+                            identitas.pendakiIds
                         )
+                        // Pemilik booking = ketua tim (aturan server). Dipakai untuk
+                        // menonaktifkan switch kehadiran anggota bagi yang bukan ketua.
+                        val ketua = if (hike.ketuaUserId != null && identitas.userId != null) {
+                            hike.ketuaUserId == identitas.userId
+                        } else null
+                        _uiState.update { it.copy(isKetua = ketua) }
                         loadPosts(token, hike.gateId, hike.bookingId)
                     }
                 }

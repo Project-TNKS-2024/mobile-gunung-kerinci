@@ -9,8 +9,16 @@ internal data class ActiveHike(
     val gateName: String?,
     val statusBooking: Int,
     val pendakiIds: List<String>,
+    /** Id user pemilik booking — menurut server, pemilik booking inilah ketua tim. */
+    val ketuaUserId: Int? = null,
     val tanggalMasuk: String? = null,
     val tanggalKeluar: String? = null
+)
+
+/** Identitas user yang login: id user dan daftar pendaki miliknya. */
+internal data class IdentitasSaya(
+    val userId: Int?,
+    val pendakiIds: Set<String>
 )
 
 internal class ActiveHikeRepository(private val api: ApiService) {
@@ -34,16 +42,19 @@ internal class ActiveHikeRepository(private val api: ApiService) {
         }
 
     /**
-     * Id pendaki milik user yang login (GET /profile/pendaki-identity).
-     * Dipakai untuk memilih anggota rombongan yang benar (A16).
+     * Identitas user yang login (GET /profile/pendaki-identity): id user + id pendaki
+     * miliknya. Id user dipakai untuk tahu apakah dia ketua tim pada booking aktif.
      */
-    suspend fun getMyPendakiIds(token: String): Set<String> = runCatching {
+    suspend fun getMyIdentity(token: String): IdentitasSaya = runCatching {
         val bearer = if (token.startsWith("Bearer ")) token else "Bearer $token"
         val response = api.getPendakiIdentity(bearer)
         val body = response.body()
-        if (!response.isSuccessful || body?.success != true) emptySet()
-        else body.data?.pendaki_ids.orEmpty().toSet()
-    }.getOrDefault(emptySet())
+        if (!response.isSuccessful || body?.success != true) IdentitasSaya(null, emptySet())
+        else IdentitasSaya(
+            userId = body.data?.id_user,
+            pendakiIds = body.data?.pendaki_ids.orEmpty().toSet()
+        )
+    }.getOrDefault(IdentitasSaya(null, emptySet()))
 
     companion object {
         private const val STATUS_BOOKING_MENDAKI = 6
@@ -59,6 +70,7 @@ internal class ActiveHikeRepository(private val api: ApiService) {
                 gateName = booking.gateMasuk.nama,
                 statusBooking = booking.statusBooking ?: 0,
                 pendakiIds = booking.pendakis.orEmpty().map { it.id },
+                ketuaUserId = booking.idUser,
                 tanggalMasuk = booking.tanggalMasuk,
                 tanggalKeluar = booking.tanggalKeluar
             )
