@@ -17,17 +17,9 @@ import com.dicoding.gunungkerinci.network.ApiService
 import com.dicoding.gunungkerinci.pref.UserPreference
 
 /**
- * Worker pengirim antrean check-in offline.
- *
- * Alur: pendaki check-in saat tidak ada sinyal → log disimpan ke Room
- * (`checkpoint_logs`, status PENDING) → worker ini jalan saat internet tersedia
- * → tiap log dikirim ke endpoint yang sesuai (QR / manual) → status berubah
- * jadi SENT (berhasil) atau FAILED (gagal).
- *
- * Klasifikasi hasil per log:
- * - sukses / 409 (sudah pernah check-in) → SENT
- * - 403 / 404 / 422 (server menolak permanen) → FAILED, tidak dicoba lagi
- * - error jaringan / 5xx → FAILED, worker minta retry (backoff WorkManager)
+ * Kirim antrean check-in yang tersimpan saat offline.
+ * 409 dihitung berhasil (sudah check-in di pos itu), 403/404/422 berhenti,
+ * sisanya dicoba lagi sampai [SyncDefaults.MAX_RETRY] kali.
  */
 class CheckpointSyncWorker(
     appContext: Context,
@@ -36,14 +28,14 @@ class CheckpointSyncWorker(
 
     override suspend fun doWork(): Result {
         val dao = TnksDatabase.getInstance(applicationContext).checkpointLogDao()
-        // Reset baris SYNCING sisa worker yang mati di tengah kirim (A13).
+        // Sisa worker yang mati di tengah kirim.
         dao.resetStuckSyncing()
         val antrean = dao.getPendingSync().filter { it.retryCount < SyncDefaults.MAX_RETRY }
         // Antrean kosong: tidak ada kerjaan, sudahi sebelum cek login.
         if (antrean.isEmpty()) return Result.success()
 
         val token = UserPreference(applicationContext).getToken().orEmpty()
-        if (token.isBlank()) return Result.retry() // belum login — coba lagi nanti
+        if (token.isBlank()) return Result.retry() // belum login, coba lagi nanti
 
         val api = ApiConfig.getApiService(applicationContext)
         var masihAdaSisa = false
@@ -62,8 +54,7 @@ class CheckpointSyncWorker(
             }
         }
 
-        // Titik posisi untuk check-in yang baru saja tersinkron — satu request batch
-        // (tanpa rate limit). Kalau gagal: diamkan, posisi bukan data kritis.
+        // Kirim titik posisi check-in yang baru tersinkron. Kalau gagal, diamkan saja.
         val titik = berhasil.mapNotNull { log ->
             val lat = log.latitude ?: return@mapNotNull null
             val lon = log.longitude ?: return@mapNotNull null
@@ -73,7 +64,7 @@ class CheckpointSyncWorker(
                 altitude = log.altitude,
                 accuracy = log.accuracy,
                 batteryLevel = log.batteryLevel,
-                recordedAt = isoUtc(log.checkedAt) // waktu KEJADIAN, bukan waktu sinkron
+                recordedAt = isoUtc(log.checkedAt) // waktu kejadian, bukan waktu sinkron
             )
         }
         if (titik.isNotEmpty()) {
@@ -95,8 +86,7 @@ class CheckpointSyncWorker(
                     bearer,
                     CheckpointQrRequest(
                         qrCodeValue = "$QR_PREFIX${log.postId}",
-                        // Kirim pendaki target: antrean bisa berisi penandaan anggota oleh
-                        // ketua (wakilkan), jadi jangan selalu dianggap "diri sendiri".
+                        // Bisa berisi penandaan anggota oleh ketua, jadi pakai pendakiId dari log.
                         pendakiId = log.pendakiId,
                         latitude = log.latitude,
                         longitude = log.longitude
@@ -109,7 +99,7 @@ class CheckpointSyncWorker(
                 val latitude = log.latitude
                 val longitude = log.longitude
                 if (latitude == null || longitude == null) {
-                    // Data tidak lengkap — server menolak tanpa koordinat.
+                    // Tanpa koordinat, server pasti menolak.
                     HasilKirim.Permanen
                 } else {
                     val response = api.checkInManual(
@@ -127,7 +117,7 @@ class CheckpointSyncWorker(
             else -> HasilKirim.Permanen
         }
     }.getOrElse { error ->
-        // IOException (tidak ada sinyal / timeout) dan error tak terduga → coba lagi nanti.
+        // Tidak ada sinyal atau timeout: coba lagi nanti. Error lain dianggap permanen.
         if (error is java.io.IOException) HasilKirim.Sementara else HasilKirim.Permanen
     }
 
@@ -137,7 +127,7 @@ class CheckpointSyncWorker(
             code == HTTP_CONFLICT -> HasilKirim.Sukses(null) // sudah check-in di pos ini
             code == HTTP_FORBIDDEN || code == HTTP_NOT_FOUND || code == HTTP_UNPROCESSABLE ->
                 HasilKirim.Permanen
-            else -> HasilKirim.Sementara // 5xx / lainnya — layak dicoba lagi
+            else -> HasilKirim.Sementara // 5xx dan lainnya, layak dicoba lagi
         }
     }
 

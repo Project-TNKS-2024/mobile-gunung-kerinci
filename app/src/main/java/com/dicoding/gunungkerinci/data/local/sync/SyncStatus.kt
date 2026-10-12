@@ -6,6 +6,6 @@ enum class SyncStatus {
     SENT,
     FAILED,
 
-    /** Server menolak permanen — tidak akan dicoba lagi. */
+    /** Server menolak permanen, tidak akan dicoba lagi. */
     REJECTED
 }

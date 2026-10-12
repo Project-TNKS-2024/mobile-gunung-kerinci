@@ -15,17 +15,8 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 
 /**
- * Worker pengirim antrean pesan chat darurat (US-12).
- *
- * Alur: pendaki mengirim pesan saat sinyal putus → pesan disimpan ke Room
- * (`pending_sos_chats`, status PENDING) → worker ini mengirimkannya begitu
- * internet tersedia. Pesan hanya di-queue saat SOS sudah aktif di server,
- * jadi `sosId` selalu valid.
- *
- * Klasifikasi per item:
- * - sukses → baris antrean dihapus (pesan sudah hidup di server)
- * - 429 (rate limit) / 5xx / IOException → FAILED, minta retry (backoff)
- * - 403 / 404 / 422 → baris dihapus (ditolak server)
+ * Kirim antrean pesan chat darurat yang tersimpan saat offline.
+ * Tidak ada batas percobaan: berhentinya cuma kalau terkirim atau ditolak server.
  */
 class PendingChatSyncWorker(
     appContext: Context,
@@ -34,14 +25,12 @@ class PendingChatSyncWorker(
 
     override suspend fun doWork(): Result {
         val dao = TnksDatabase.getInstance(applicationContext).pendingChatDao()
-        // Pesan darurat tidak dibatasi percobaan, sama seperti antrean SOS:
-        // berhentinya cuma kalau terkirim atau ditolak server.
         val antrean = dao.getPendingSync()
         // Antrean kosong: tidak ada kerjaan, sudahi sebelum cek login.
         if (antrean.isEmpty()) return Result.success()
 
         val token = UserPreference(applicationContext).getToken().orEmpty()
-        if (token.isBlank()) return Result.retry() // belum login — coba lagi nanti
+        if (token.isBlank()) return Result.retry() // belum login, coba lagi nanti
 
         val api = ApiConfig.getApiService(applicationContext)
         var masihAdaSisa = false
@@ -99,10 +88,10 @@ class PendingChatSyncWorker(
         code == HTTP_TOO_MANY_REQUESTS -> Hasil.Sementara // rate limit, coba lagi nanti
         code == HTTP_FORBIDDEN || code == HTTP_NOT_FOUND || code == HTTP_UNPROCESSABLE ->
             Hasil.Permanen
-        else -> Hasil.Sementara // 5xx / lainnya
+        else -> Hasil.Sementara // 5xx dan lainnya
     }
 
-    /** Lampiran gambar yang sudah terkirim/ditolak permanen tidak perlu disimpan. */
+    /** Hapus file gambar yang sudah tidak dipakai. */
     private fun bersihkanFile(chat: PendingChatEntity) {
         if (chat.type == TYPE_IMAGE) {
             runCatching { File(chat.imagePath.orEmpty()).delete() }
