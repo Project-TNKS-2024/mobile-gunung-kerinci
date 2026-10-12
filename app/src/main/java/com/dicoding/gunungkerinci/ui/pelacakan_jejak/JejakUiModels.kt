@@ -15,6 +15,8 @@ internal data class JejakTicketUi(
     val statusType: TicketStatusType,
     val masukDate: String,
     val keluarDate: String,
+    /** Nama gate masuk dari booking. Dipakai kartu ringkasan di timeline. */
+    val gateName: String? = null,
     val pendakiCount: String,
     val totalPayment: String,
     val bookingId: String? = null,
@@ -60,6 +62,9 @@ internal sealed interface GpsGateState {
 
     /** GPS mati, izin ditolak, atau lokasi tidak tersedia → check-in terkunci. */
     data object GpsOff : GpsGateState
+
+    /** Server gagal dihubungi saat cek posisi (biasanya tidak ada jaringan). */
+    data object GagalCek : GpsGateState
 
     /** GPS aktif, tetapi pendaki di luar radius pos terdekat → check-in terkunci. */
     data class LuarRadius(

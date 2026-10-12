@@ -712,7 +712,7 @@ private fun HikingSummaryCard(uiState: PelacakanJejakUiState) {
             Spacer(Modifier.height(10.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
                 SummaryStat("Anggota", if (jumlahAnggota > 0) "$jumlahAnggota Orang" else "-")
-                SummaryStat("Gate", uiState.activeTicket?.let { gateNameFrom(it) } ?: "-")
+                SummaryStat("Gate", uiState.activeTicket?.gateName ?: "-")
                 SummaryStat("Tanggal", hariAktif?.date ?: "-")
             }
         }
@@ -727,9 +727,6 @@ private fun SummaryStat(label: String, value: String) {
         Text(value, color = JejakWhite, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
     }
 }
-
-/** Nama gate tidak disimpan di JejakTicketUi — pakai label masuk sebagai pengganti. */
-private fun gateNameFrom(ticket: JejakTicketUi): String = ticket.masukDate
 
 @Composable
 private fun DaySelector(

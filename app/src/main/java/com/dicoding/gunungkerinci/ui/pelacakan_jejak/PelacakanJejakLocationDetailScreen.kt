@@ -184,6 +184,7 @@ internal fun PelacakanJejakLocationDetailScreen(
  *
  * - [GpsGateState.Unknown]     → "Cek Posisi GPS"
  * - [GpsGateState.GpsOff]      → "Aktifkan GPS & Cek Ulang"
+ * - [GpsGateState.GagalCek]    → "Coba Cek Posisi Lagi" (server tidak terhubung)
  * - [GpsGateState.LuarRadius]  → "Cek Ulang Posisi" (tidak bisa absen)
  * - [GpsGateState.DalamRadius] → "Check-in Pos Ini" (aktif, hijau)
  */
@@ -200,6 +201,7 @@ private fun GpsCheckInButton(
         isReady -> "Check-in Pos Ini"
         gateState is GpsGateState.LuarRadius -> "Cek Ulang Posisi"
         gateState is GpsGateState.GpsOff -> "Aktifkan GPS & Cek Ulang"
+        gateState is GpsGateState.GagalCek -> "Coba Cek Posisi Lagi"
         else -> "Cek Posisi GPS"
     }
 
@@ -237,6 +239,8 @@ private fun GpsCheckInButton(
                         "(radius ${gateState.radiusMeter} m). Di luar radius, check-in tidak diizinkan."
             is GpsGateState.DalamRadius ->
                 "Kamu berada ${gateState.distanceMeters.toInt()} m dari ${gateState.postName}, siap check-in."
+            is GpsGateState.GagalCek ->
+                "Cek posisi ke server gagal (butuh internet). Pakai Scan QR Check-in, atau coba lagi."
             GpsGateState.Unknown -> null
         }
         if (reason != null) {

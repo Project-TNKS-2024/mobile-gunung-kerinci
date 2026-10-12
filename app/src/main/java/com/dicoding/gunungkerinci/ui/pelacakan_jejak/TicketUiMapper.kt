@@ -62,6 +62,7 @@ internal object TicketUiMapper {
             statusType = TicketStatusType.Ongoing,
             masukDate = formatTanggal(booking.tanggalMasuk),
             keluarDate = formatTanggal(booking.tanggalKeluar),
+            gateName = booking.gateMasuk?.nama,
             pendakiCount = formatPendaki(booking),
             totalPayment = formatRupiah(booking.totalPembayaran),
             bookingId = "ID Pemesanan: ${shortId(booking.id)}",

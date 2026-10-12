@@ -633,14 +633,18 @@ internal class PelacakanJejakViewModel(
                     }
                 }
                 .onFailure { error ->
+                    // Server yang menghitung jarak, jadi tanpa internet cek posisi memang gagal.
+                    // Statusnya dibedakan dari GpsOff supaya tidak dituduh GPS-nya mati.
                     _uiState.update {
                         it.copy(
                             isCheckingGps = false,
                             nearbyPost = null,
                             posTerdekatId = null,
-                            gpsGateState = GpsGateState.GpsOff,
+                            gpsGateState = GpsGateState.GagalCek,
                             gpsCheckErrorMessage = if (silent) null
-                            else error.message ?: "Gagal cek posisi GPS"
+                            else if (adalahMasalahJaringan(error)) {
+                                "Tidak ada jaringan. Cek posisi butuh internet, pakai Scan QR atau coba lagi."
+                            } else error.message ?: "Gagal cek posisi GPS"
                         )
                     }
                 }
