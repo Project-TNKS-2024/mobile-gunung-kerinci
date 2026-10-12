@@ -17,7 +17,8 @@ interface PendingChatDao {
         failed: String = "FAILED"
     ): List<PendingChatEntity>
 
-    @Query("SELECT * FROM pending_sos_chats WHERE sosId = :sosId AND syncStatus = 'PENDING' ORDER BY createdAt ASC")
+    /** Pesan yang belum sampai ke server: masih menunggu, atau sudah gagal sementara. */
+    @Query("SELECT * FROM pending_sos_chats WHERE sosId = :sosId AND syncStatus IN ('PENDING','FAILED') ORDER BY createdAt ASC")
     suspend fun getPendingForSos(sosId: Int): List<PendingChatEntity>
 
     @Query("UPDATE pending_sos_chats SET retryCount = retryCount + 1, syncStatus = 'FAILED' WHERE localId = :localId")

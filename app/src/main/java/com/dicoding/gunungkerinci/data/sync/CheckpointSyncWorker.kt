@@ -5,6 +5,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.dicoding.gunungkerinci.data.local.TnksDatabase
 import com.dicoding.gunungkerinci.data.local.checkpoint.CheckpointLogEntity
+import com.dicoding.gunungkerinci.data.local.sync.SyncDefaults
 import com.dicoding.gunungkerinci.data.local.sync.SyncStatus
 import com.dicoding.gunungkerinci.data.repository.TrackingGpsRepository
 import com.dicoding.gunungkerinci.data.repository.isoUtc
@@ -34,14 +35,15 @@ class CheckpointSyncWorker(
 ) : CoroutineWorker(appContext, params) {
 
     override suspend fun doWork(): Result {
-        val token = UserPreference(applicationContext).getToken().orEmpty()
-        if (token.isBlank()) return Result.retry() // belum login — coba lagi nanti
-
         val dao = TnksDatabase.getInstance(applicationContext).checkpointLogDao()
         // Reset baris SYNCING sisa worker yang mati di tengah kirim (A13).
         dao.resetStuckSyncing()
-        val antrean = dao.getPendingSync().filter { it.retryCount < MAX_RETRY }
+        val antrean = dao.getPendingSync().filter { it.retryCount < SyncDefaults.MAX_RETRY }
+        // Antrean kosong: tidak ada kerjaan, sudahi sebelum cek login.
         if (antrean.isEmpty()) return Result.success()
+
+        val token = UserPreference(applicationContext).getToken().orEmpty()
+        if (token.isBlank()) return Result.retry() // belum login — coba lagi nanti
 
         val api = ApiConfig.getApiService(applicationContext)
         var masihAdaSisa = false
@@ -146,7 +148,6 @@ class CheckpointSyncWorker(
     }
 
     private companion object {
-        const val MAX_RETRY = 5
         const val METHOD_QR = "qr"
         const val METHOD_MANUAL = "manual"
         const val QR_PREFIX = "TNKS_CHECKPOINT:"

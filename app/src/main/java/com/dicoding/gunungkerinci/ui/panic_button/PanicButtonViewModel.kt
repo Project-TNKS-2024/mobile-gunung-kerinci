@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.dicoding.gunungkerinci.data.repository.SosCallRepository
 import com.dicoding.gunungkerinci.data.repository.SosCooldownException
 import com.dicoding.gunungkerinci.data.repository.SosRepository
+import com.dicoding.gunungkerinci.data.sync.SosQueueRule
 import com.dicoding.gunungkerinci.data.sync.SyncScheduler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

@@ -16,11 +16,13 @@ import com.dicoding.gunungkerinci.pref.UserPreference
  *
  * Alur: pendaki menekan SOS tanpa sinyal → data disimpan ke Room (`pending_sos`,
  * status PENDING) → worker ini mengirimnya saat internet tersedia.
+ * Tidak ada batas jumlah percobaan: antrean baru berhenti kalau terkirim
+ * atau ditolak server.
  *
- * Klasifikasi hasil per item:
+ * Klasifikasi hasil per item (aturan lengkap ada di [SosQueueRule]):
  * - sukses → SENT
- * - 429 (cooldown) / 5xx / IOException → FAILED, worker minta retry (backoff)
- * - 403 / 404 / 422 (ditolak permanen) → FAILED, tidak dicoba lagi
+ * - IOException / 401 / 408 / 429 / 5xx → FAILED, worker minta retry (backoff)
+ * - sisanya (403 / 404 / 422 dan kode 4xx lain) → REJECTED, tidak dicoba lagi
  */
 class PendingSosSyncWorker(
     appContext: Context,
@@ -28,14 +30,19 @@ class PendingSosSyncWorker(
 ) : CoroutineWorker(appContext, params) {
 
     override suspend fun doWork(): Result {
-        val token = UserPreference(applicationContext).getToken().orEmpty()
-        if (token.isBlank()) return Result.retry() // belum login — coba lagi nanti
-
         val dao = TnksDatabase.getInstance(applicationContext).pendingSosDao()
         // Reset baris SYNCING sisa worker yang mati di tengah kirim (A13).
         dao.resetStuckSyncing()
-        val antrean = dao.getPendingSync().filter { it.retryCount < MAX_RETRY }
+        // Buang baris yang sudah terkirim dari sesi sebelumnya.
+        dao.deleteSent()
+        // SOS tidak dibatasi jumlah percobaan: selama ada jaringan terus dicoba.
+        // Yang menghentikannya cuma berhasil terkirim atau ditolak server.
+        val antrean = dao.getPendingSync()
+        // Antrean kosong: tidak ada kerjaan, sudahi sebelum cek login.
         if (antrean.isEmpty()) return Result.success()
+
+        val token = UserPreference(applicationContext).getToken().orEmpty()
+        if (token.isBlank()) return Result.retry() // belum login — coba lagi nanti
 
         val api = ApiConfig.getApiService(applicationContext)
         var masihAdaSisa = false
@@ -66,34 +73,20 @@ class PendingSosSyncWorker(
             SosTriggerRequest(
                 latitude = sos.latitude,
                 longitude = sos.longitude,
-                severity = sos.severity,
+                severity = sos.severity.lowercase(),
                 message = sos.message
             )
         )
-        klasifikasi(response.isSuccessful, response.code())
+        if (response.isSuccessful) Hasil.Sukses
+        else if (SosQueueRule.harusKirimUlang(response.code(), null)) Hasil.Sementara
+        else Hasil.Permanen
     }.getOrElse { error ->
-        if (error is java.io.IOException) Hasil.Sementara else Hasil.Permanen
-    }
-
-    private fun klasifikasi(success: Boolean, code: Int): Hasil = when {
-        success -> Hasil.Sukses
-        code == HTTP_TOO_MANY_REQUESTS -> Hasil.Sementara // cooldown, coba lagi nanti
-        code == HTTP_FORBIDDEN || code == HTTP_NOT_FOUND || code == HTTP_UNPROCESSABLE ->
-            Hasil.Permanen
-        else -> Hasil.Sementara // 5xx / lainnya
+        if (SosQueueRule.harusKirimUlang(null, error)) Hasil.Sementara else Hasil.Permanen
     }
 
     private sealed interface Hasil {
         data object Sukses : Hasil
         data object Sementara : Hasil
         data object Permanen : Hasil
-    }
-
-    private companion object {
-        const val MAX_RETRY = 5
-        const val HTTP_FORBIDDEN = 403
-        const val HTTP_NOT_FOUND = 404
-        const val HTTP_TOO_MANY_REQUESTS = 429
-        const val HTTP_UNPROCESSABLE = 422
     }
 }

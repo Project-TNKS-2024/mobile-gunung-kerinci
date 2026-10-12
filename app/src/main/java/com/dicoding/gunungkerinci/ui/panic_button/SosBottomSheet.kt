@@ -98,7 +98,7 @@ internal fun SosBottomSheet(
             SosMenuItem(
                 iconRes = R.drawable.ic_siren,
                 title = "SOS (Keadaan Darurat)",
-                subtitle = "Sistem akan mengirim sinyal SOS dan lokasi terakhir anda pada petugas.",
+                subtitle = "Sistem akan mengirim sinyal SOS dan lokasi anda saat ini pada petugas.",
                 sosItem = true,
                 onClick = onSosTrigger
             )

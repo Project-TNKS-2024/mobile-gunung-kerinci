@@ -23,10 +23,18 @@ interface PendingSosDao {
     @Query("UPDATE pending_sos SET syncStatus = 'SENT' WHERE localId = :localId")
     suspend fun markSent(localId: String)
 
+    /** Buang baris yang sudah terkirim supaya tabelnya tidak menumpuk. */
+    @Query("DELETE FROM pending_sos WHERE syncStatus = 'SENT'")
+    suspend fun deleteSent()
+
     @Query("UPDATE pending_sos SET syncStatus = :status, retryCount = retryCount + 1 WHERE localId = :localId")
     suspend fun markFailed(localId: String, status: String = "FAILED")
 
-    @Query("UPDATE pending_sos SET syncStatus = 'FAILED', retryCount = 99 WHERE localId = :localId")
+    /**
+     * Server menolak permanen — ubah statusnya supaya baris ini
+     * tidak ikut terambil oleh [getPendingSync].
+     */
+    @Query("UPDATE pending_sos SET syncStatus = 'REJECTED' WHERE localId = :localId")
     suspend fun markPermanentFailure(localId: String)
 
     /**

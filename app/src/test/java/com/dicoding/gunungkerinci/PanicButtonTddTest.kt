@@ -3,9 +3,9 @@ package com.dicoding.gunungkerinci
 import com.dicoding.gunungkerinci.data.local.sos.PendingChatDao
 import com.dicoding.gunungkerinci.data.local.sos.PendingChatEntity
 import com.dicoding.gunungkerinci.data.repository.SosChatRepository
+import com.dicoding.gunungkerinci.data.sync.SosQueueRule
 import com.dicoding.gunungkerinci.network.ApiService
 import com.dicoding.gunungkerinci.ui.panic_button.DisasterReportValidator
-import com.dicoding.gunungkerinci.ui.panic_button.SosQueueRule
 import com.dicoding.gunungkerinci.ui.panic_button.SosTriggerValidator
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -109,6 +109,8 @@ class PanicButtonTddTest {
     fun `TDD-C07 - data SOS dikirim ulang saat koneksi tersedia`() {
         assertTrue(SosQueueRule.harusKirimUlang(code = null, error = IOException("timeout")))
         assertTrue(SosQueueRule.harusKirimUlang(code = 500, error = null))
+        // 401 = token kedaluwarsa, masih bisa berhasil setelah pendaki login ulang.
+        assertTrue(SosQueueRule.harusKirimUlang(code = 401, error = null))
         assertFalse(SosQueueRule.harusKirimUlang(code = 403, error = null))
     }
 
@@ -145,7 +147,7 @@ class PanicButtonTddTest {
             chats.filter { it.syncStatus == pending || it.syncStatus == failed }
 
         override suspend fun getPendingForSos(sosId: Int) =
-            chats.filter { it.sosId == sosId && it.syncStatus == "PENDING" }
+            chats.filter { it.sosId == sosId && it.syncStatus in listOf("PENDING", "FAILED") }
 
         override suspend fun markFailed(localId: String) {
             val index = chats.indexOfFirst { it.localId == localId }

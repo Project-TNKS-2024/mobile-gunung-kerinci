@@ -25,7 +25,7 @@ import java.io.File
  * Klasifikasi per item:
  * - sukses → baris antrean dihapus (pesan sudah hidup di server)
  * - 429 (rate limit) / 5xx / IOException → FAILED, minta retry (backoff)
- * - 403 / 404 / 422 → FAILED permanen, baris dihapus (ditolak server)
+ * - 403 / 404 / 422 → baris dihapus (ditolak server)
  */
 class PendingChatSyncWorker(
     appContext: Context,
@@ -33,12 +33,15 @@ class PendingChatSyncWorker(
 ) : CoroutineWorker(appContext, params) {
 
     override suspend fun doWork(): Result {
+        val dao = TnksDatabase.getInstance(applicationContext).pendingChatDao()
+        // Pesan darurat tidak dibatasi percobaan, sama seperti antrean SOS:
+        // berhentinya cuma kalau terkirim atau ditolak server.
+        val antrean = dao.getPendingSync()
+        // Antrean kosong: tidak ada kerjaan, sudahi sebelum cek login.
+        if (antrean.isEmpty()) return Result.success()
+
         val token = UserPreference(applicationContext).getToken().orEmpty()
         if (token.isBlank()) return Result.retry() // belum login — coba lagi nanti
-
-        val dao = TnksDatabase.getInstance(applicationContext).pendingChatDao()
-        val antrean = dao.getPendingSync().filter { it.retryCount < MAX_RETRY }
-        if (antrean.isEmpty()) return Result.success()
 
         val api = ApiConfig.getApiService(applicationContext)
         var masihAdaSisa = false
@@ -113,7 +116,6 @@ class PendingChatSyncWorker(
     }
 
     private companion object {
-        const val MAX_RETRY = 5
         const val TYPE_IMAGE = "image"
         const val HTTP_FORBIDDEN = 403
         const val HTTP_NOT_FOUND = 404
