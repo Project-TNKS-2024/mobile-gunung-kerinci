@@ -7,6 +7,7 @@ import com.dicoding.gunungkerinci.data.sync.SosQueueRule
 import com.dicoding.gunungkerinci.network.ApiService
 import com.dicoding.gunungkerinci.ui.panic_button.DisasterReportValidator
 import com.dicoding.gunungkerinci.ui.panic_button.SosTriggerValidator
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -150,6 +151,7 @@ class PanicButtonTddTest {
 
         override suspend fun getPendingSync(pending: String, failed: String) = emptyList<PendingChatEntity>()
         override suspend fun getPendingForSos(sosId: Int) = emptyList<PendingChatEntity>()
+        override fun observePendingForSos(sosId: Int) = flowOf(emptyList<PendingChatEntity>())
         override suspend fun markFailed(localId: String) = Unit
     }
 }

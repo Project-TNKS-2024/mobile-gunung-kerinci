@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PendingChatDao {
@@ -20,6 +21,10 @@ interface PendingChatDao {
     /** Pesan yang belum sampai ke server: masih menunggu, atau sudah gagal sementara. */
     @Query("SELECT * FROM pending_sos_chats WHERE sosId = :sosId AND syncStatus IN ('PENDING','FAILED') ORDER BY createdAt ASC")
     suspend fun getPendingForSos(sosId: Int): List<PendingChatEntity>
+
+    /** Versi live dari query di atas, supaya layar chat ikut berubah saat antrean terkirim. */
+    @Query("SELECT * FROM pending_sos_chats WHERE sosId = :sosId AND syncStatus IN ('PENDING','FAILED') ORDER BY createdAt ASC")
+    fun observePendingForSos(sosId: Int): Flow<List<PendingChatEntity>>
 
     @Query("UPDATE pending_sos_chats SET retryCount = retryCount + 1, syncStatus = 'FAILED' WHERE localId = :localId")
     suspend fun markFailed(localId: String)

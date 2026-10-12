@@ -8,6 +8,7 @@ import com.dicoding.gunungkerinci.data.repository.SosChatRepository
 import com.dicoding.gunungkerinci.data.repository.SosRepository
 import com.dicoding.gunungkerinci.data.sync.SosQueueRule
 import com.dicoding.gunungkerinci.data.sync.SyncScheduler
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,6 +30,7 @@ internal class SosChatViewModel(
     val uiState: StateFlow<SosChatUiState> = _uiState.asStateFlow()
 
     private var sosId: Int? = null
+    private var ikutiJob: Job? = null
 
     /** Dipanggil saat layar dibuka: cari SOS aktif lalu muat pesannya. */
     fun start(token: String) {
@@ -51,7 +53,7 @@ internal class SosChatViewModel(
                         sosId = active.id
                         _uiState.update { it.copy(isSosActive = true) }
                         loadMessages(token, active.id)
-                        muatAntreanLokal(active.id)
+                        ikutiAntrean(token, active.id)
                     }
                 }
                 .onFailure { error ->
@@ -136,16 +138,27 @@ internal class SosChatViewModel(
         val tersimpan = sosChatRepository.savePendingChat(sosId, type, content, imagePath)
         if (tersimpan) {
             syncScheduler?.scheduleChatSync()
-            muatAntreanLokal(sosId)
             _uiState.update { it.copy(isSending = false, queuedInfo = "Tidak ada sinyal — pesan disimpan & akan dikirim otomatis.") }
         } else {
             _uiState.update { it.copy(isSending = false, errorMessage = "Gagal menyimpan pesan") }
         }
     }
 
-    private suspend fun muatAntreanLokal(sosId: Int) {
-        val antrean = sosChatRepository.getPendingChats(sosId)
-        _uiState.update { it.copy(queuedMessages = antrean.map { entity -> entity.toQueuedUi() }) }
+    /** Ikuti isi antrean lokal, supaya layar ikut berubah begitu worker selesai mengirim. */
+    private fun ikutiAntrean(token: String, sosId: Int) {
+        ikutiJob?.cancel()
+        ikutiJob = viewModelScope.launch {
+            var sebelumnya = 0
+            sosChatRepository.observePendingChats(sosId).collect { antrean ->
+                _uiState.update { it.copy(queuedMessages = antrean.map { entity -> entity.toQueuedUi() }) }
+                if (antrean.size < sebelumnya) {
+                    // Ada pesan yang terkirim: buang notifikasi lama lalu muat riwayat terbaru.
+                    _uiState.update { it.copy(queuedInfo = null) }
+                    loadMessages(token, sosId)
+                }
+                sebelumnya = antrean.size
+            }
+        }
     }
 
     private fun PendingChatEntity.toQueuedUi(): QueuedChatUi = QueuedChatUi(

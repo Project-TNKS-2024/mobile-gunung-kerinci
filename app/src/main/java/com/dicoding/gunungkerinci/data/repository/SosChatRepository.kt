@@ -6,6 +6,8 @@ import com.dicoding.gunungkerinci.model.SosMessagesData
 import com.dicoding.gunungkerinci.model.SosSendMessageResponse
 import com.dicoding.gunungkerinci.model.SosSentMessage
 import com.dicoding.gunungkerinci.network.ApiService
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -75,8 +77,9 @@ internal class SosChatRepository(
         }.getOrDefault(false)
     }
 
-    suspend fun getPendingChats(sosId: Int): List<PendingChatEntity> =
-        pendingChatDao?.getPendingForSos(sosId) ?: emptyList()
+    /** Antrean pesan satu SOS, ikut berubah sendiri saat isinya berubah. */
+    fun observePendingChats(sosId: Int): Flow<List<PendingChatEntity>> =
+        pendingChatDao?.observePendingForSos(sosId) ?: flowOf(emptyList())
 
     suspend fun deletePendingChat(localId: String) {
         pendingChatDao?.delete(localId)
