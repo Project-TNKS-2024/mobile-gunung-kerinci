@@ -11,17 +11,9 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-/**
- * Test Case TDD — fitur Peringatan Dini Bahaya (Tabel 19).
- *
- * Satu method = satu baris Tabel 19 (TDD-B01–TDD-B08). Murni JVM:
- * tanpa emulator, tanpa mock, tanpa Robolectric.
- */
 class PeringatanDiniTddTest {
 
-    // ============================================================
     // TDD-B01 — daftar peringatan aktif kosong
-    // ============================================================
     @Test
     fun `TDD-B01 - daftar peringatan aktif kosong`() {
         val state = PeringatanDiniReducer.fromWarnings(emptyList())
@@ -30,9 +22,7 @@ class PeringatanDiniTddTest {
         assertFalse(state.popupVisible)
     }
 
-    // ============================================================
     // TDD-B02 — pilih peringatan severity tertinggi
-    // ============================================================
     @Test
     fun `TDD-B02 - pilih peringatan severity tertinggi`() {
         val hasil = PeringatanDiniSelector.select(
@@ -46,9 +36,7 @@ class PeringatanDiniTddTest {
         assertEquals(2, hasil?.id)
     }
 
-    // ============================================================
     // TDD-B03 — severity sama, pilih yang terbaru
-    // ============================================================
     @Test
     fun `TDD-B03 - severity sama pilih yang terbaru`() {
         val hasil = PeringatanDiniSelector.select(
@@ -61,21 +49,9 @@ class PeringatanDiniTddTest {
         assertEquals(2, hasil?.id)
     }
 
-    // ============================================================
-    // TDD-B04 — popup tidak tampil saat belum ada peringatan
-    // ============================================================
+    // TDD-B04 — tutup popup, data peringatan tetap ada
     @Test
-    fun `TDD-B04 - popup tidak tampil saat belum ada peringatan`() {
-        val state = PeringatanDiniReducer.fromWarnings(emptyList())
-
-        assertFalse(state.popupVisible)
-    }
-
-    // ============================================================
-    // TDD-B05 — tutup popup, data peringatan tetap ada
-    // ============================================================
-    @Test
-    fun `TDD-B05 - tutup popup, data peringatan tetap ada`() {
+    fun `TDD-B04 - tutup popup, data peringatan tetap ada`() {
         val state = PeringatanDiniReducer.fromWarnings(listOf(warning(id = 9, severity = "high")))
         assertTrue(state.popupVisible)
 
@@ -85,11 +61,9 @@ class PeringatanDiniTddTest {
         assertNotNull(ditutup.activeWarning)
     }
 
-    // ============================================================
-    // TDD-B06 — gangguan jaringan tidak menghapus peringatan aktif
-    // ============================================================
+    // TDD-B05 — gangguan jaringan tidak menghapus peringatan aktif
     @Test
-    fun `TDD-B06 - gangguan jaringan tidak menghapus peringatan aktif`() {
+    fun `TDD-B05 - gangguan jaringan tidak menghapus peringatan aktif`() {
         val sebelumnya = PeringatanDiniReducer.fromWarnings(listOf(warning(id = 5, severity = "high")))
         val state = PeringatanDiniReducer.fromError(sebelumnya, "timeout", isTerminal = false)
 
@@ -99,11 +73,9 @@ class PeringatanDiniTddTest {
         assertEquals("timeout", state.errorMessage)
     }
 
-    // ============================================================
-    // TDD-B07 — polling tidak membuka ulang popup yang sudah ditutup
-    // ============================================================
+    // TDD-B06 — polling tidak membuka ulang popup yang sudah ditutup
     @Test
-    fun `TDD-B07 - polling tidak membuka ulang popup yang sudah ditutup`() {
+    fun `TDD-B06 - polling tidak membuka ulang popup yang sudah ditutup`() {
         val daftar = listOf(warning(id = 5, severity = "high"))
         val ditutup = PeringatanDiniReducer.dismissPopup(PeringatanDiniReducer.fromWarnings(daftar))
 
@@ -117,11 +89,9 @@ class PeringatanDiniTddTest {
         assertNotNull(hasil.activeWarning)
     }
 
-    // ============================================================
-    // TDD-B08 — peringatan hilang menutup bubble & popup
-    // ============================================================
+    // TDD-B07 — peringatan hilang menutup bubble & popup
     @Test
-    fun `TDD-B08 - peringatan hilang menutup bubble dan popup`() {
+    fun `TDD-B07 - peringatan hilang menutup bubble dan popup`() {
         val (hasil, _) = PeringatanDiniReducer.onNewWarnings(
             current = PeringatanDiniUiState(
                 activeWarning = warning(id = 5, severity = "high"),
@@ -135,7 +105,22 @@ class PeringatanDiniTddTest {
         assertFalse(hasil.popupVisible)
     }
 
-    // ==================== helper ====================
+    // TDD-B08 — peringatan dari cache tetap tampil & ditandai data usang
+    @Test
+    fun `TDD-B08 - peringatan dari cache tetap tampil dan ditandai usang`() {
+        val state = PeringatanDiniReducer.fromCache(
+            items = listOf(warning(id = 5, severity = "high")),
+            lastUpdatedAt = "14.30"
+        )
+
+        // Offline: peringatan terakhir tetap ditampilkan (fitur tidak "senyap") …
+        assertEquals(5, state.activeWarning?.id)
+        assertEquals("14.30", state.lastUpdatedAt)
+        // … dan ditandai sebagai data usang (belum tersinkron).
+        assertTrue(state.isStale)
+    }
+
+    // helper
 
     private fun warning(
         id: Int,

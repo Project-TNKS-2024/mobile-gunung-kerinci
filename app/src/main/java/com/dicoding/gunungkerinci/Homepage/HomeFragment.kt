@@ -1,12 +1,8 @@
 package com.dicoding.gunungkerinci.Homepage
 
 import android.Manifest
-import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.location.Location
-import android.location.LocationManager
 import android.os.Bundle
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -43,11 +39,14 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import com.dicoding.gunungkerinci.data.local.TnksDatabase
 import com.dicoding.gunungkerinci.data.repository.PeringatanDiniRepository
 import com.dicoding.gunungkerinci.data.repository.TrackingGpsRepository
 import com.dicoding.gunungkerinci.ui.peringatan_dini.PeringatanDiniOverlay
 import com.dicoding.gunungkerinci.ui.peringatan_dini.PeringatanDiniViewModel
 import com.dicoding.gunungkerinci.ui.peringatan_dini.PeringatanDiniViewModelFactory
+import com.dicoding.gunungkerinci.util.LokasiProvider
+import com.dicoding.gunungkerinci.util.SessionOwner
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 
@@ -58,7 +57,10 @@ class HomeFragment : Fragment() {
 
     private val peringatanDiniViewModel: PeringatanDiniViewModel by viewModels {
         PeringatanDiniViewModelFactory(
-            PeringatanDiniRepository(ApiConfig.getApiService(requireContext())),
+            PeringatanDiniRepository(
+                ApiConfig.getApiService(requireContext()),
+                dao = TnksDatabase.getInstance(requireContext()).peringatanDiniDao()
+            ),
             TrackingGpsRepository(ApiConfig.getApiService(requireContext()))
         )
     }
@@ -70,7 +72,7 @@ class HomeFragment : Fragment() {
         if (results.values.any { it }) {
             doUpdateLastLocation()
         } else {
-            Toast.makeText(ctx, "Izin lokasi ditolak. Aktifkan GPS untuk memperbarui lokasi.", Toast.LENGTH_LONG).show()
+            Toast.makeText(ctx, "Izin lokasi ditolak. Berikan izin lokasi untuk memperbarui posisi.", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -96,7 +98,7 @@ class HomeFragment : Fragment() {
         return binding.root
     }
 
-    // Peringatan dini: overlay Compose + polling selagi layar terlihat.
+    // Peringatan dini: overlay Compose + polling selama layar terlihat
     private fun setupPeringatanDiniOverlay() {
         binding.composePeringatan.apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
@@ -112,7 +114,7 @@ class HomeFragment : Fragment() {
         }
     }
 
-    // Jalur manual pembaruan lokasi dari popup peringatan dini (tombol desain UI/UX).
+    // Update lokasi manual dari tombol di popup peringatan dini
     private fun onUpdateLocationClick() {
         val ctx = requireContext()
         val fine = ContextCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_FINE_LOCATION) ==
@@ -128,27 +130,30 @@ class HomeFragment : Fragment() {
         }
     }
 
+    // Minta lokasi baru dari GPS, bukan cuma baca catatan lama (lihat LokasiProvider)
     private fun doUpdateLastLocation() {
-        val location = getLastKnownLocation()
-        if (location == null) {
-            Toast.makeText(requireContext(), "Lokasi tidak tersedia. Aktifkan GPS lalu coba lagi.", Toast.LENGTH_LONG).show()
+        val ctx = requireContext()
+        if (!LokasiProvider.gpsAktif(ctx)) {
+            Toast.makeText(ctx, "GPS belum aktif. Nyalakan GPS lalu coba lagi.", Toast.LENGTH_LONG).show()
             return
         }
-        peringatanDiniViewModel.updateLastLocation(
-            token = UserPreference(requireContext()).getToken().orEmpty(),
-            latitude = location.latitude,
-            longitude = location.longitude,
-            altitude = location.altitude,
-            accuracy = location.accuracy.toDouble()
-        )
-    }
 
-    @SuppressLint("MissingPermission")
-    private fun getLastKnownLocation(): Location? {
-        val lm = requireContext().getSystemService(Context.LOCATION_SERVICE) as? LocationManager ?: return null
-        return listOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER)
-            .mapNotNull { runCatching { lm.getLastKnownLocation(it) }.getOrNull() }
-            .maxByOrNull { it.time }
+        peringatanDiniViewModel.mulaiCariLokasi()
+        LokasiProvider.cariSekarang(ctx) { lokasi ->
+            // View bisa sudah hancur saat GPS menjawab.
+            if (!isAdded) return@cariSekarang
+            if (lokasi == null) {
+                peringatanDiniViewModel.gagalCariLokasi("Sinyal lokasi belum dapat. Coba lagi sebentar.")
+                return@cariSekarang
+            }
+            peringatanDiniViewModel.updateLastLocation(
+                token = UserPreference(ctx).getToken().orEmpty(),
+                latitude = lokasi.latitude,
+                longitude = lokasi.longitude,
+                altitude = if (lokasi.hasAltitude()) lokasi.altitude else null,
+                accuracy = if (lokasi.hasAccuracy()) lokasi.accuracy.toDouble() else null
+            )
+        }
     }
 
     private fun startWarningPolling() {
@@ -156,7 +161,7 @@ class HomeFragment : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 while (isActive) {
                     val token = UserPreference(requireContext()).getToken().orEmpty()
-                    peringatanDiniViewModel.load(token)
+                    peringatanDiniViewModel.load(token, SessionOwner.currentKey(requireContext()))
                     delay(POLL_INTERVAL_MS)
                 }
             }
@@ -174,7 +179,7 @@ class HomeFragment : Fragment() {
     }
 
     private companion object {
-        const val POLL_INTERVAL_MS = 60_000L
+        const val POLL_INTERVAL_MS = 15_000L
     }
 
     private fun getDestinasi() {

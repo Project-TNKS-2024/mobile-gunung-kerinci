@@ -24,9 +24,7 @@ import java.io.IOException
  */
 class PanicButtonTddTest {
 
-    // ============================================================
     // TDD-C01 — pemicu SOS valid (GPS + severity valid)
-    // ============================================================
     @Test
     fun `TDD-C01 - pemicu SOS dengan data valid`() {
         val hasil = SosTriggerValidator.error(
@@ -39,9 +37,7 @@ class PanicButtonTddTest {
         assertNull(hasil)
     }
 
-    // ============================================================
     // TDD-C02 — koordinat lokasi tidak valid
-    // ============================================================
     @Test
     fun `TDD-C02 - koordinat lokasi tidak valid`() {
         val kosong = SosTriggerValidator.error(
@@ -55,9 +51,7 @@ class PanicButtonTddTest {
         assertEquals("Lokasi GPS tidak valid", diLuar)
     }
 
-    // ============================================================
     // TDD-C03 — tingkat bahaya (severity) tidak valid
-    // ============================================================
     @Test
     fun `TDD-C03 - tingkat SOS tidak valid`() {
         val hasil = SosTriggerValidator.error(
@@ -67,9 +61,7 @@ class PanicButtonTddTest {
         assertEquals("Tingkat SOS tidak valid", hasil)
     }
 
-    // ============================================================
     // TDD-C04 — pesan darurat kosong atau melebihi batas karakter
-    // ============================================================
     @Test
     fun `TDD-C04 - pesan darurat kosong atau melebihi batas`() {
         val kosong = SosTriggerValidator.error(
@@ -85,9 +77,7 @@ class PanicButtonTddTest {
         assertEquals("Pesan darurat tidak valid", kepanjangan)
     }
 
-    // ============================================================
     // TDD-C05 — laporan/lampiran bencana tidak valid
-    // ============================================================
     @Test
     fun `TDD-C05 - laporan bencana field atau lampiran tidak valid`() {
         val tanpaPotensi = DisasterReportValidator.error(
@@ -107,18 +97,14 @@ class PanicButtonTddTest {
         assertEquals("Lampiran tidak valid", terlaluBesar)
     }
 
-    // ============================================================
     // TDD-C06 — simpan data SOS secara lokal saat jaringan tidak ada
-    // ============================================================
     @Test
     fun `TDD-C06 - data SOS disimpan lokal saat jaringan tidak tersedia`() {
         assertTrue(SosQueueRule.simpanOffline(IOException("no network")))
         assertFalse(SosQueueRule.simpanOffline(RuntimeException("server menolak")))
     }
 
-    // ============================================================
     // TDD-C07 — kirim ulang data SOS saat koneksi tersedia
-    // ============================================================
     @Test
     fun `TDD-C07 - data SOS dikirim ulang saat koneksi tersedia`() {
         assertTrue(SosQueueRule.harusKirimUlang(code = null, error = IOException("timeout")))
@@ -126,9 +112,7 @@ class PanicButtonTddTest {
         assertFalse(SosQueueRule.harusKirimUlang(code = 403, error = null))
     }
 
-    // ============================================================
     // TDD-C08 — pesan chat darurat di-queue saat offline (US-12)
-    // ============================================================
     @Test
     fun `TDD-C08 - pesan chat darurat disimpan ke antrean saat offline`() = runBlocking {
         val dao = FakePendingChatDao()

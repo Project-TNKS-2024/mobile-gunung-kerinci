@@ -16,8 +16,9 @@ import com.dicoding.gunungkerinci.data.local.sos.PendingChatDao
 import com.dicoding.gunungkerinci.data.local.sos.PendingChatEntity
 import com.dicoding.gunungkerinci.data.local.sos.PendingSosDao
 import com.dicoding.gunungkerinci.data.local.sos.PendingSosEntity
-//import com.dicoding.gunungkerinci.data.local.warning.EarlyWarningDao
-//import com.dicoding.gunungkerinci.data.local.warning.EarlyWarningEntity
+import com.dicoding.gunungkerinci.data.local.warning.PeringatanDiniDao
+import com.dicoding.gunungkerinci.data.local.warning.PeringatanDiniEntity
+import com.dicoding.gunungkerinci.data.local.warning.PeringatanDiniMetaEntity
 
 @Database(
     entities = [
@@ -27,9 +28,10 @@ import com.dicoding.gunungkerinci.data.local.sos.PendingSosEntity
         PendingChatEntity::class,
 //        PendingEmergencyMessageEntity::class,
 //        PendingDisasterReportEntity::class,
-//        EarlyWarningEntity::class
+        PeringatanDiniEntity::class,
+        PeringatanDiniMetaEntity::class
     ],
-    version = 6,
+    version = 7,
     exportSchema = false
 )
 abstract class TnksDatabase : RoomDatabase() {
@@ -39,7 +41,7 @@ abstract class TnksDatabase : RoomDatabase() {
     abstract fun pendingChatDao(): PendingChatDao
 //    abstract fun pendingEmergencyMessageDao(): PendingEmergencyMessageDao
 //    abstract fun pendingDisasterReportDao(): PendingDisasterReportDao
-//    abstract fun earlyWarningDao(): EarlyWarningDao
+    abstract fun peringatanDiniDao(): PeringatanDiniDao
 
     companion object {
         @Volatile
@@ -52,12 +54,8 @@ abstract class TnksDatabase : RoomDatabase() {
                     TnksDatabase::class.java,
                     "tnks_safety.db"
                 )
-                    // Skema v6: pending_sos_chats (antrean pesan chat darurat offline).
-                    // Skema v4: checkpoint_logs + batteryLevel (persen baterai saat check-in).
-                    // Skema v3: checkpoint_logs + altitude/accuracy (titik posisi gk_tracking).
-                    // Cache lokal → fallbackToDestructiveMigration aman.
-                    // Skema v2: bookingId/pendakiId jadi String (UUID backend).
-                    // Cache lokal belum berisi data penting saat upgrade → cukup bangun ulang.
+                    // Versi skema naik (6 -> 7) tanpa migrasi, jadi Room membangun ulang DB.
+                    // Wajib ada, kalau tidak app crash. Data yang belum tersinkron ikut hilang.
                     .fallbackToDestructiveMigration()
                     .build().also { INSTANCE = it }
             }

@@ -32,9 +32,7 @@ import retrofit2.Retrofit
  */
 class PelacakanJejakTddTest {
 
-    // ============================================================
     // TDD-A01 — parsing QR checkpoint dengan format valid
-    // ============================================================
     @Test
     fun `TDD-A01 - parsing QR checkpoint format valid`() {
         val hasil = CheckpointQrParser.parse("TNKS_CHECKPOINT:4")
@@ -42,9 +40,7 @@ class PelacakanJejakTddTest {
         assertEquals(4, hasil?.postId)
     }
 
-    // ============================================================
     // TDD-A02 — parsing QR checkpoint dengan format tidak valid
-    // ============================================================
     @Test
     fun `TDD-A02 - parsing QR checkpoint format tidak valid`() {
         assertNull(CheckpointQrParser.parse("bukan-qr-checkpoint"))
@@ -52,9 +48,7 @@ class PelacakanJejakTddTest {
         assertNull(CheckpointQrParser.parse(null))
     }
 
-    // ============================================================
     // TDD-A03 — validasi QR check-in kosong
-    // ============================================================
     @Test
     fun `TDD-A03 - validasi QR kosong`() {
         val pesanSpasi = CheckpointQrCheckInValidator.errorMessage(qrCodeValue = "   ")
@@ -66,9 +60,7 @@ class PelacakanJejakTddTest {
         assertEquals("QR code tidak boleh kosong", pesanTidakAda)
     }
 
-    // ============================================================
     // TDD-A04 — validasi koordinat lokasi di luar rentang valid
-    // ============================================================
     @Test
     fun `TDD-A04 - validasi koordinat di luar rentang`() {
         val lat = CheckpointQrCheckInValidator.errorMessage(
@@ -86,9 +78,7 @@ class PelacakanJejakTddTest {
         assertEquals("Longitude tidak valid", lon)
     }
 
-    // ============================================================
     // TDD-A05 — pemetaan data post/progress ke tampilan checkpoint
-    // ============================================================
     @Test
     fun `TDD-A05 - pemetaan data post dan progress ke checkpoint`() {
         val posts = listOf(
@@ -120,9 +110,7 @@ class PelacakanJejakTddTest {
         assertEquals(listOf("Budi"), dariProgress.first { it.postId == 1 }.memberNames)
     }
 
-    // ============================================================
     // TDD-A06 — deteksi radius: pendaki berada DALAM radius pos
-    // ============================================================
     @Test
     fun `TDD-A06 - pendaki berada dalam radius pos`() {
         val status = GpsGateMapper.toGateState(
@@ -138,9 +126,7 @@ class PelacakanJejakTddTest {
         assertTrue(status is GpsGateState.DalamRadius)
     }
 
-    // ============================================================
     // TDD-A07 — deteksi radius: pendaki berada DI LUAR radius pos
-    // ============================================================
     @Test
     fun `TDD-A07 - pendaki berada di luar radius pos`() {
         val status = GpsGateMapper.toGateState(
@@ -156,9 +142,7 @@ class PelacakanJejakTddTest {
         assertTrue(status is GpsGateState.LuarRadius)
     }
 
-    // ============================================================
     // TDD-A08 — pencegahan duplikasi check-in pada pos yang sama
-    // ============================================================
     @Test
     fun `TDD-A08 - check-in ulang di pos yang sama ditolak`() = runBlocking {
         val dao = FakeCheckpointLogDao()
@@ -171,9 +155,7 @@ class PelacakanJejakTddTest {
         assertFalse(repository.hasCheckedIn("booking-1", "pendaki-1", 5))
     }
 
-    // ============================================================
     // TDD-A09 — pencatatan kehadiran anggota oleh ketua tim
-    // ============================================================
     @Test
     fun `TDD-A09 - kehadiran anggota menggabungkan status server dan penanda lokal`() {
         val hikers = listOf(
@@ -206,9 +188,7 @@ class PelacakanJejakTddTest {
         assertFalse(budi.pending)
     }
 
-    // ============================================================
     // TDD-A10 — pembatalan kehadiran anggota membersihkan catatan lokal
-    // ============================================================
     @Test
     fun `TDD-A10 - pembatalan kehadiran membersihkan catatan lokal`() = runBlocking {
         val dao = FakeCheckpointLogDao()

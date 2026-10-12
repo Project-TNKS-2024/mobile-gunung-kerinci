@@ -5,6 +5,8 @@ internal data class PeringatanDini(
     val type: String?,
     val title: String,
     val description: String,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
     val severity: String,
     val createdAt: String
 )
@@ -15,5 +17,7 @@ internal data class PeringatanDiniUiState(
     val errorMessage: String? = null,
     val isUpdatingLocation: Boolean = false,
     val lastLocationUpdate: String? = null,
-    val locationUpdateMessage: String? = null
+    val locationUpdateMessage: String? = null,
+    val lastUpdatedAt: String? = null,
+    val isStale: Boolean = false
 )

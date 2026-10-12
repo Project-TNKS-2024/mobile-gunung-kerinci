@@ -1,12 +1,9 @@
 package com.dicoding.gunungkerinci.Maps
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
-import android.location.Location
-import android.location.LocationManager
 import android.os.BatteryManager
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -20,7 +17,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.content.ContextCompat
-import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.dicoding.gunungkerinci.data.repository.ActiveHikeRepository 
@@ -35,6 +31,7 @@ import com.dicoding.gunungkerinci.data.repository.TrackingRepository
 import com.dicoding.gunungkerinci.data.local.TnksDatabase
 import com.dicoding.gunungkerinci.data.sync.SyncScheduler
 import com.dicoding.gunungkerinci.network.ApiConfig
+import com.dicoding.gunungkerinci.util.LokasiProvider
 import com.dicoding.gunungkerinci.pref.UserPreference
 import com.dicoding.gunungkerinci.ui.pelacakan_jejak.PelacakanJejakScreen
 import com.dicoding.gunungkerinci.ui.pelacakan_jejak.PelacakanJejakViewModel
@@ -49,14 +46,15 @@ class JejakFragment : Fragment() {
     // QR scanner launcher
     private val qrScanLauncher = registerForActivityResult(ScanContract()) { result ->
         val raw = result.contents ?: return@registerForActivityResult
-        val loc = getLastKnownLocation()
+        val loc = LokasiProvider.lastKnown(requireContext())
         if (loc == null) {
             // Sesuai aturan: check-in hanya sah bila GPS aktif
-            Toast.makeText(
-                requireContext(),
-                "Aktifkan GPS untuk check-in",
-                Toast.LENGTH_LONG
-            ).show()
+            val pesan = if (LokasiProvider.gpsAktif(requireContext())) {
+                "Sedang mencari sinyal GPS. Coba lagi sebentar."
+            } else {
+                "Aktifkan GPS untuk check-in"
+            }
+            Toast.makeText(requireContext(), pesan, Toast.LENGTH_LONG).show()
         } else {
             viewModel.onQrScanned(
                 rawValue = raw,
@@ -152,7 +150,7 @@ class JejakFragment : Fragment() {
                     onScanQrClick = { launchQrScanner() },
                     onGpsCheckInClick = { launchGpsCheckIn() },
                     onManualCheckInConfirm = { postId ->
-                        val loc = getLastKnownLocation()
+                        val loc = LokasiProvider.lastKnown(requireContext())
                         if (loc == null) {
                             viewModel.onLocationUnavailable()
                         } else {
@@ -220,7 +218,7 @@ class JejakFragment : Fragment() {
         ) == PackageManager.PERMISSION_GRANTED
 
         val action = {
-            val loc = getLastKnownLocation()
+            val loc = LokasiProvider.lastKnown(requireContext())
             if (loc == null) {
                 viewModel.onLocationUnavailable(silent = silent)
             } else {
@@ -262,13 +260,5 @@ class JejakFragment : Fragment() {
         val level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
         val scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
         return if (level < 0 || scale <= 0) null else level * 100 / scale
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun getLastKnownLocation(): Location? {
-        val lm = requireContext().getSystemService<LocationManager>() ?: return null
-        return listOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER)
-            .mapNotNull { runCatching { lm.getLastKnownLocation(it) }.getOrNull() }
-            .maxByOrNull { it.time }
     }
 }

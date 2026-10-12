@@ -4,8 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.location.Location
-import android.location.LocationManager
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -22,6 +20,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.content.ContextCompat
+import androidx.navigation.NavController
+import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
 import com.dicoding.gunungkerinci.data.local.TnksDatabase
 import com.dicoding.gunungkerinci.data.repository.DisasterReportRepository
@@ -31,6 +31,7 @@ import com.dicoding.gunungkerinci.data.sync.SyncScheduler
 import com.dicoding.gunungkerinci.databinding.ActivityMainBinding
 import com.dicoding.gunungkerinci.network.ApiConfig
 import com.dicoding.gunungkerinci.pref.UserPreference
+import com.dicoding.gunungkerinci.util.LokasiProvider
 import com.dicoding.gunungkerinci.ui.common.CustomBottomBar
 import com.dicoding.gunungkerinci.ui.common.NavTab
 import com.dicoding.gunungkerinci.ui.panic_button.DisasterReportSheet
@@ -114,10 +115,10 @@ class MainActivity : AppCompatActivity() {
                     onTabSelected = { tab ->
                         selectedTab = tab
                         when (tab) {
-                            NavTab.BERANDA -> navController.navigate(R.id.navigation_beranda)
-                            NavTab.TIKET -> navController.navigate(R.id.navigation_tiket)
-                            NavTab.CHECK_POINT -> navController.navigate(R.id.navigation_jejak)
-                            NavTab.AKUN -> navController.navigate(R.id.navigation_profile)
+                            NavTab.BERANDA -> navController.navigateToTab(R.id.navigation_beranda)
+                            NavTab.TIKET -> navController.navigateToTab(R.id.navigation_tiket)
+                            NavTab.CHECK_POINT -> navController.navigateToTab(R.id.navigation_jejak)
+                            NavTab.AKUN -> navController.navigateToTab(R.id.navigation_profile)
                             // SOS tidak bernavigasi — dibuka lewat bottom sheet (onSosClick).
                             NavTab.SOS -> Unit
                         }
@@ -171,7 +172,7 @@ class MainActivity : AppCompatActivity() {
                             disasterReportViewModel.clearMessages()
                         },
                         onSubmit = { potensi, deskripsi, lokasi, lampiran ->
-                            val loc = getLastKnownLocation()
+                            val loc = LokasiProvider.lastKnown(this@MainActivity)
                             disasterReportViewModel.submit(
                                 token = UserPreference(this@MainActivity).getToken().orEmpty(),
                                 potensiBencana = potensi,
@@ -210,15 +211,36 @@ class MainActivity : AppCompatActivity() {
                 putString("nama_user", intent.getStringExtra("nama_user") ?: "")
             }
             selectedTab = NavTab.AKUN
-            navController.navigate(R.id.navigation_profile, bundle)
+            navController.navigateToTab(R.id.navigation_profile, bundle)
         }
 
         when (intent.getStringExtra("open_fragment")) {
             "profile" -> {
                 selectedTab = NavTab.AKUN
-                navController.navigate(R.id.navigation_profile)
+                navController.navigateToTab(R.id.navigation_profile)
             }
         }
+    }
+
+    // ================= navigasi tab =================
+
+    /**
+     * Navigasi pola bottom-nav:
+     * - launchSingleTop: pakai instance yang sudah ada, jangan buat Fragment baru;
+     * - popUpTo(start): rapikan back stack (tidak menumpuk);
+     * - saveState/restoreState: simpan & pulihkan state tiap tab (Fragment + ViewModel),
+     *   supaya state seperti peringatan dini tidak hilang saat berpindah tab.
+     */
+    private fun NavController.navigateToTab(destinationId: Int, args: Bundle? = null) {
+        navigate(
+            destinationId,
+            args,
+            NavOptions.Builder()
+                .setLaunchSingleTop(true)
+                .setPopUpTo(graph.startDestinationId, inclusive = false, saveState = true)
+                .setRestoreState(true)
+                .build()
+        )
     }
 
     // ================= SOS panic button =================
@@ -242,27 +264,28 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // SOS: cari lokasi BARU dulu (batas 8 detik) supaya posisi darurat benar-benar akurat,
+    // bukan sekadar catatan lokasi lama yang mungkin sudah basi.
     private fun doSendSos(severity: String) {
-        val location = getLastKnownLocation()
-        if (location == null) {
-            Toast.makeText(this, "Lokasi tidak tersedia. Aktifkan GPS lalu coba lagi.", Toast.LENGTH_LONG).show()
+        if (!LokasiProvider.gpsAktif(this)) {
+            Toast.makeText(this, "GPS belum aktif. Nyalakan GPS lalu coba lagi.", Toast.LENGTH_LONG).show()
             return
         }
-        panicButtonViewModel.sendSos(
-            token = UserPreference(this).getToken().orEmpty(),
-            latitude = location.latitude,
-            longitude = location.longitude,
-            severity = severity,
-            message = null
-        )
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun getLastKnownLocation(): Location? {
-        val lm = getSystemService(LOCATION_SERVICE) as? LocationManager ?: return null
-        return listOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER)
-            .mapNotNull { runCatching { lm.getLastKnownLocation(it) }.getOrNull() }
-            .maxByOrNull { it.time }
+        Toast.makeText(this, "Mencari sinyal lokasi…", Toast.LENGTH_SHORT).show()
+        LokasiProvider.cariSekarang(this, timeoutMs = 8_000L) { lokasi ->
+            if (isFinishing || isDestroyed) return@cariSekarang
+            if (lokasi == null) {
+                Toast.makeText(this, "Sinyal lokasi belum dapat. Coba lagi sebentar.", Toast.LENGTH_LONG).show()
+                return@cariSekarang
+            }
+            panicButtonViewModel.sendSos(
+                token = UserPreference(this).getToken().orEmpty(),
+                latitude = lokasi.latitude,
+                longitude = lokasi.longitude,
+                severity = severity,
+                message = null
+            )
+        }
     }
 
     private fun openLink(link: String) {
@@ -295,10 +318,10 @@ class MainActivity : AppCompatActivity() {
 
                 if (isNewUser == "true") {
                     selectedTab = NavTab.AKUN
-                    navController.navigate(R.id.navigation_profile)
+                    navController.navigateToTab(R.id.navigation_profile)
                 } else {
                     selectedTab = NavTab.BERANDA
-                    navController.navigate(R.id.navigation_beranda)
+                    navController.navigateToTab(R.id.navigation_beranda)
                 }
             }
         }

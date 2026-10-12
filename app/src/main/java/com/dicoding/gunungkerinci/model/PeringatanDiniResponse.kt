@@ -15,8 +15,8 @@ data class PeringatanDiniDto(
     @SerializedName("type") val type: String?,
     @SerializedName("title") val title: String?,
     @SerializedName("description") val description: String?,
-    @SerializedName("severity") val severity: String?,
     @SerializedName("latitude") val latitude: Double?,
     @SerializedName("longitude") val longitude: Double?,
+    @SerializedName("severity") val severity: String?,
     @SerializedName("created_at") val createdAt: String?
 )

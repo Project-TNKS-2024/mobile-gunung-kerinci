@@ -63,6 +63,8 @@ internal fun PeringatanDiniOverlay(
                 isUpdatingLocation = uiState.isUpdatingLocation,
                 lastLocationUpdate = uiState.lastLocationUpdate,
                 locationUpdateMessage = uiState.locationUpdateMessage,
+                lastUpdatedAt = uiState.lastUpdatedAt,
+                isStale = uiState.isStale,
                 onUpdateLocation = onUpdateLocation,
                 onDismiss = onClosePopup
             )
@@ -109,6 +111,8 @@ private fun PeringatanDiniDialog(
     isUpdatingLocation: Boolean,
     lastLocationUpdate: String?,
     locationUpdateMessage: String?,
+    lastUpdatedAt: String?,
+    isStale: Boolean,
     onUpdateLocation: () -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -189,9 +193,23 @@ private fun PeringatanDiniDialog(
                         lineHeight = 20.sp
                     )
 
+                    if (lastUpdatedAt != null) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = if (isStale) {
+                                "Data peringatan terakhir: $lastUpdatedAt (belum tersinkron)"
+                            } else {
+                                "Diperbarui $lastUpdatedAt"
+                            },
+                            fontSize = 12.sp,
+                            color = if (isStale) Color(0xFFB26A00) else Color(0xFF8E8E8E),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    // Tombol pembaruan lokasi: kirim posisi
+                    // Tombol update lokasi
                     Row(
                         modifier = Modifier
                             .clickable(
@@ -230,7 +248,7 @@ private fun PeringatanDiniDialog(
                     if (isUpdatingLocation) {
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
-                            text = "Memperbarui lokasi…",
+                            text = "Mencari sinyal lokasi…",
                             fontSize = 12.sp,
                             color = Color(0xFF8E8E8E)
                         )
