@@ -77,7 +77,7 @@ internal object LocationDetailUiMapper {
 
         val (distanceText, estimateText) = if (distanceMeters != null) {
             val distString = if (distanceMeters >= 1000) {
-                String.format(java.util.Locale.US, "%.1f km", distanceMeters / 1000.0)
+                String.format(java.util.Locale("id", "ID"), "%.1f km", distanceMeters / 1000.0)
             } else {
                 "${distanceMeters.roundToInt()} m"
             }

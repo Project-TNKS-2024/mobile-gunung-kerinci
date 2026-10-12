@@ -729,28 +729,17 @@ private fun SummaryStat(label: String, value: String) {
 }
 
 @Composable
-private fun DaySelector(
-    days: List<JejakDayUi>,
-    onDaySelected: (Int) -> Unit = {}
-) {
+private fun DaySelector(days: List<JejakDayUi>) {
     if (days.isEmpty()) return
-    var selectedIndex by remember(days) {
-        mutableStateOf(days.indexOfFirst { it.selected }.coerceAtLeast(0))
-    }
 
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        days.forEachIndexed { index, hari ->
-            val isSelected = index == selectedIndex
+        days.forEach { hari ->
+            val isSelected = hari.selected
             Surface(
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable {
-                        selectedIndex = index
-                        onDaySelected(index)
-                    },
+                modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(12.dp),
                 color = if (isSelected) JejakBlue else JejakWhite,
                 border = BorderStroke(1.dp, if (isSelected) JejakBlue else JejakBorder)

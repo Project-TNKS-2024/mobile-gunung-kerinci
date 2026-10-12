@@ -99,26 +99,40 @@ internal object TicketUiMapper {
 
     /**
      * Daftar hari pendakian dari tanggal masuk s.d. keluar → chip "Hari 1 / Hari 2 / …".
-     * Hari pertama ditandai terpilih. Memakai [java.util.Calendar] agar tetap jalan di minSdk 24
+     * Hari yang cocok dengan tanggal hari ini yang ditandai. Kalau hari ini di luar
+     * rentang (tiket belum mulai atau sudah lewat), dipakai ujung rentang terdekat.
+     * Memakai [java.util.Calendar] agar tetap jalan di minSdk 24
      * (java.time baru tersedia API 26 tanpa desugaring).
      */
     fun toDays(tanggalMasuk: String?, tanggalKeluar: String?): List<JejakDayUi> {
         val mulai = toCalendar(tanggalMasuk) ?: return emptyList()
         val selesai = toCalendar(tanggalKeluar) ?: mulai
+        val hariIni = Calendar.getInstance()
         val hari = mutableListOf<JejakDayUi>()
         var kursor = mulai
         var nomor = 1
+        var hariIniKetemu = false
         while (!kursor.after(selesai) && nomor <= 30) {
+            val sekarang = samaTanggal(kursor, hariIni)
+            if (sekarang) hariIniKetemu = true
             hari += JejakDayUi(
                 title = "Hari $nomor",
                 date = "${kursor.get(Calendar.DAY_OF_MONTH)} ${NAMA_BULAN_SINGKAT[kursor.get(Calendar.MONTH)]}",
-                selected = nomor == 1
+                selected = sekarang
             )
             kursor = (kursor.clone() as Calendar).apply { add(Calendar.DAY_OF_MONTH, 1) }
             nomor++
         }
+        if (!hariIniKetemu && hari.isNotEmpty()) {
+            val idx = if (hariIni.before(mulai)) 0 else hari.lastIndex
+            hari[idx] = hari[idx].copy(selected = true)
+        }
         return hari
     }
+
+    private fun samaTanggal(a: Calendar, b: Calendar): Boolean =
+        a.get(Calendar.YEAR) == b.get(Calendar.YEAR) &&
+                a.get(Calendar.DAY_OF_YEAR) == b.get(Calendar.DAY_OF_YEAR)
 
     /** "2026-09-13" → "September 2026" (label periode di atas timeline). */
     fun toPeriodeLabel(tanggalMasuk: String?): String? {
