@@ -91,38 +91,68 @@ internal fun PelacakanJejakScreen(
     // sehingga tidak ada jalan untuk check-in dari luar radius.
     val nearbyPost = uiState.nearbyPost
     if (nearbyPost != null) {
-        AlertDialog(
-            onDismissRequest = onDismissGpsDialog,
-            // Layar ini tidak dibungkus MaterialTheme, jadi wadah dialog ikut tema bawaan
-            // (abu-abu). Setel eksplisit supaya putih seperti sisa layar Jejak.
-            containerColor = JejakWhite,
-            titleContentColor = JejakTextPrimary,
-            textContentColor = JejakTextBody,
-            title = { Text("Check-in GPS") },
-            text = {
-                Text(
-                    "Kamu berada dalam radius pos \"${nearbyPost.nama}\" " +
-                        "(${nearbyPost.distanceMeters.toInt()} m dari ${nearbyPost.radiusMeter} m radius).\n" +
-                        "Konfirmasi check-in sekarang?"
-                )
-            },
-            confirmButton = {
-                Button(
-                    onClick = { onManualCheckInConfirm(nearbyPost.id) },
-                    colors = ButtonDefaults.buttonColors(containerColor = JejakBlue)
-                ) {
-                    Text("Check-in", color = JejakWhite)
+        // GPS bisa mendeteksi pos lain daripada pos yang sedang dibuka (mis. pendaki masih
+        // di Shelter 1 tetapi membuka layar Pos 2). Check-in ke pos lain itu tidak ditawarkan.
+        val posDibuka = selectedCheckpoint
+        val posSesuai = posDibuka?.postId == null || posDibuka.postId == nearbyPost.id
+        // Warna dialog disetel eksplisit: layar ini tidak dibungkus MaterialTheme, jadi
+        // tanpa itu wadahnya ikut tema bawaan (abu-abu), bukan putih.
+        if (posSesuai) {
+            AlertDialog(
+                onDismissRequest = onDismissGpsDialog,
+                containerColor = JejakWhite,
+                titleContentColor = JejakTextPrimary,
+                textContentColor = JejakTextBody,
+                title = { Text("Check-in GPS") },
+                text = {
+                    Text(
+                        "Kamu berada dalam radius pos \"${nearbyPost.nama}\" " +
+                            "(${nearbyPost.distanceMeters.toInt()} m dari ${nearbyPost.radiusMeter} m radius).\n" +
+                            "Konfirmasi check-in sekarang?"
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = { onManualCheckInConfirm(nearbyPost.id) },
+                        colors = ButtonDefaults.buttonColors(containerColor = JejakBlue)
+                    ) {
+                        Text("Check-in", color = JejakWhite)
+                    }
+                },
+                dismissButton = {
+                    Button(
+                        onClick = onDismissGpsDialog,
+                        colors = ButtonDefaults.buttonColors(containerColor = JejakBorder)
+                    ) {
+                        Text("Batal", color = JejakTextPrimary)
+                    }
                 }
-            },
-            dismissButton = {
-                Button(
-                    onClick = onDismissGpsDialog,
-                    colors = ButtonDefaults.buttonColors(containerColor = JejakBorder)
-                ) {
-                    Text("Batal", color = JejakTextPrimary)
+            )
+        } else {
+            AlertDialog(
+                onDismissRequest = onDismissGpsDialog,
+                containerColor = JejakWhite,
+                titleContentColor = JejakTextPrimary,
+                textContentColor = JejakTextBody,
+                title = { Text("Bukan Pos Ini") },
+                text = {
+                    Text(
+                        "GPS mendeteksi kamu di pos \"${nearbyPost.nama}\" " +
+                            "(${nearbyPost.distanceMeters.toInt()} m), bukan di " +
+                            "\"${posDibuka?.name ?: "pos yang sedang dibuka"}\".\n" +
+                            "Check-in hanya bisa di pos tempat kamu berada sekarang."
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = onDismissGpsDialog,
+                        colors = ButtonDefaults.buttonColors(containerColor = JejakBlue)
+                    ) {
+                        Text("Mengerti", color = JejakWhite)
+                    }
                 }
-            }
-        )
+            )
+        }
     }
 
     Box(
@@ -156,6 +186,7 @@ internal fun PelacakanJejakScreen(
                     selectedCheckpoint?.postId,
                     uiState.localMemberMarks
                 ),
+                posId = selectedCheckpoint?.postId,
                 gpsGateState = uiState.gpsGateState,
                 isCheckingGps = uiState.isCheckingGps,
                 isMarkingMember = uiState.isMarkingMember,

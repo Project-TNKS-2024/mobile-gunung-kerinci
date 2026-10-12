@@ -54,6 +54,8 @@ import com.dicoding.gunungkerinci.R
 internal fun PelacakanJejakLocationDetailScreen(
     detail: LocationDetailUi = LocationDetailUi.Default,
     members: List<JejakMemberUi> = emptyList(),
+    /** Id pos yang sedang dibuka — dibandingkan dengan pos hasil deteksi GPS. */
+    posId: Int? = null,
     gpsGateState: GpsGateState = GpsGateState.Unknown,
     isCheckingGps: Boolean = false,
     /** true selagi permintaan kehadiran anggota diproses — toggle dinonaktifkan. */
@@ -168,6 +170,7 @@ internal fun PelacakanJejakLocationDetailScreen(
         GpsCheckInButton(
             gateState = gpsGateState,
             isChecking = isCheckingGps,
+            posId = posId,
             onClick = onGpsCheckInClick
         )
         Spacer(Modifier.height(32.dp))
@@ -186,18 +189,25 @@ internal fun PelacakanJejakLocationDetailScreen(
  * - [GpsGateState.GpsOff]      → "Aktifkan GPS & Cek Ulang"
  * - [GpsGateState.GagalCek]    → "Coba Cek Posisi Lagi" (server tidak terhubung)
  * - [GpsGateState.LuarRadius]  → "Cek Ulang Posisi" (tidak bisa absen)
- * - [GpsGateState.DalamRadius] → "Check-in Pos Ini" (aktif, hijau)
+ * - [GpsGateState.DalamRadius] → "Check-in Pos Ini" (aktif, hijau). Kalau pos yang
+ *   terdeteksi berbeda dari pos yang dibuka → "Belum Sampai Pos Ini"
  */
 @Composable
 private fun GpsCheckInButton(
     gateState: GpsGateState,
     isChecking: Boolean,
+    posId: Int?,
     onClick: () -> Unit
 ) {
-    val isReady = gateState is GpsGateState.DalamRadius
+    val dalamRadius = gateState as? GpsGateState.DalamRadius
+    // Deteksi GPS bisa menunjuk pos lain daripada pos yang sedang dibuka (mis. pendaki
+    // masih di Shelter 1 tetapi membuka layar Pos 2). Pos lain itu tidak boleh di-absen.
+    val posBeda = dalamRadius != null && posId != null && dalamRadius.postId != posId
+    val isReady = dalamRadius != null && !posBeda
 
     val label = when {
         isChecking -> "Memeriksa Posisi GPS..."
+        posBeda -> "Belum Sampai Pos Ini"
         isReady -> "Check-in Pos Ini"
         gateState is GpsGateState.LuarRadius -> "Cek Ulang Posisi"
         gateState is GpsGateState.GpsOff -> "Aktifkan GPS & Cek Ulang"
@@ -238,7 +248,12 @@ private fun GpsCheckInButton(
                 "Kamu ${gateState.distanceMeters.toInt()} m dari ${gateState.postName} " +
                         "(radius ${gateState.radiusMeter} m). Di luar radius, check-in tidak diizinkan."
             is GpsGateState.DalamRadius ->
-                "Kamu berada ${gateState.distanceMeters.toInt()} m dari ${gateState.postName}, siap check-in."
+                if (posBeda) {
+                    "GPS mendeteksi kamu ${gateState.distanceMeters.toInt()} m dari ${gateState.postName}, " +
+                            "bukan dari pos ini. Check-in hanya bisa di pos tempat kamu berada."
+                } else {
+                    "Kamu berada ${gateState.distanceMeters.toInt()} m dari ${gateState.postName}, siap check-in."
+                }
             is GpsGateState.GagalCek ->
                 "Cek posisi ke server gagal (butuh internet). Pakai Scan QR Check-in, atau coba lagi."
             GpsGateState.Unknown -> null
@@ -247,9 +262,10 @@ private fun GpsCheckInButton(
             Spacer(Modifier.height(8.dp))
             Text(
                 text = reason,
-                color = when (gateState) {
-                    is GpsGateState.DalamRadius -> JejakGreen
-                    is GpsGateState.LuarRadius -> JejakYellowDark
+                color = when {
+                    posBeda -> JejakYellowDark
+                    gateState is GpsGateState.DalamRadius -> JejakGreen
+                    gateState is GpsGateState.LuarRadius -> JejakYellowDark
                     else -> JejakTextSecondary
                 },
                 fontSize = 12.sp,

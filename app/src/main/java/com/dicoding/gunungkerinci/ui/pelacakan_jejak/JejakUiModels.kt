@@ -68,6 +68,8 @@ internal sealed interface GpsGateState {
 
     /** GPS aktif, tetapi pendaki di luar radius pos terdekat → check-in terkunci. */
     data class LuarRadius(
+        /** Id pos yang terdeteksi — dibandingkan dengan pos yang sedang dibuka. */
+        val postId: Int,
         val postName: String,
         val distanceMeters: Double,
         val radiusMeter: Int
@@ -75,6 +77,8 @@ internal sealed interface GpsGateState {
 
     /** GPS aktif + berada dalam radius pos terdekat → check-in boleh dilakukan. */
     data class DalamRadius(
+        /** Id pos yang terdeteksi — dibandingkan dengan pos yang sedang dibuka. */
+        val postId: Int,
         val postName: String,
         val distanceMeters: Double,
         val radiusMeter: Int
