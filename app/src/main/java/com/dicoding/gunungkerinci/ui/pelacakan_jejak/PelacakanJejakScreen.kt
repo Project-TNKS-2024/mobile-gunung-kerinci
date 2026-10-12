@@ -93,6 +93,11 @@ internal fun PelacakanJejakScreen(
     if (nearbyPost != null) {
         AlertDialog(
             onDismissRequest = onDismissGpsDialog,
+            // Layar ini tidak dibungkus MaterialTheme, jadi wadah dialog ikut tema bawaan
+            // (abu-abu). Setel eksplisit supaya putih seperti sisa layar Jejak.
+            containerColor = JejakWhite,
+            titleContentColor = JejakTextPrimary,
+            textContentColor = JejakTextBody,
             title = { Text("Check-in GPS") },
             text = {
                 Text(
