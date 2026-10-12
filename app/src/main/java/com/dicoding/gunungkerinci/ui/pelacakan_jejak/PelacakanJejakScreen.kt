@@ -1,5 +1,6 @@
 package com.dicoding.gunungkerinci.ui.pelacakan_jejak
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -77,6 +78,15 @@ internal fun PelacakanJejakScreen(
     var screenState by remember { mutableStateOf<JejakScreenState>(JejakScreenState.Ticket) }
     var selectedCheckpoint by remember { mutableStateOf<JejakCheckpointUi?>(null) }
     var showQrSheet by remember { mutableStateOf(false) }
+
+    // Tombol back HP mengikuti alur layar Jejak (detail pos → timeline → tiket), bukan
+    // langsung melompat ke Beranda lewat navigasi tab bawah.
+    BackHandler(enabled = screenState !is JejakScreenState.Ticket) {
+        screenState = when (screenState) {
+            JejakScreenState.LocationDetail -> JejakScreenState.Timeline
+            else -> JejakScreenState.Ticket
+        }
+    }
 
     // Auto-deteksi radius saat layar detail pos dibuka — pendaki langsung tahu
     // apakah dirinya boleh check-in tanpa harus menekan tombol cek dulu.
