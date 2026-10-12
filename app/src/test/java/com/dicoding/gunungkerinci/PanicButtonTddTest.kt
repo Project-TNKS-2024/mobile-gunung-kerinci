@@ -2,7 +2,10 @@ package com.dicoding.gunungkerinci
 
 import com.dicoding.gunungkerinci.data.local.sos.PendingChatDao
 import com.dicoding.gunungkerinci.data.local.sos.PendingChatEntity
+import com.dicoding.gunungkerinci.data.local.sos.PendingSosDao
+import com.dicoding.gunungkerinci.data.local.sos.PendingSosEntity
 import com.dicoding.gunungkerinci.data.repository.SosChatRepository
+import com.dicoding.gunungkerinci.data.repository.SosRepository
 import com.dicoding.gunungkerinci.data.sync.SosQueueRule
 import com.dicoding.gunungkerinci.network.ApiService
 import com.dicoding.gunungkerinci.ui.panic_button.DisasterReportValidator
@@ -19,7 +22,7 @@ import java.io.IOException
 /**
  * Test Case TDD — fitur Panic Button (Tabel 22).
  *
- * Satu method = satu baris Tabel 22 (TDD-C01–TDD-C08). Murni JVM:
+ * Satu method = satu baris Tabel 22 (TDD-C01–TDD-C09). Murni JVM:
  * tanpa emulator, tanpa mock, tanpa Robolectric.
  */
 class PanicButtonTddTest {
@@ -130,6 +133,79 @@ class PanicButtonTddTest {
         // Setelah berhasil terkirim, baris antrean dibersihkan.
         repository.deletePendingChat(localId = dao.firstLocalId())
         assertEquals(0, dao.pendingCount(sosId = 7))
+    }
+
+    // TDD-C09 — SOS di-queue saat offline (US-12)
+    @Test
+    fun `TDD-C09 - SOS disimpan ke antrean saat offline`() = runBlocking {
+        val dao = FakePendingSosDao()
+        val api = Retrofit.Builder().baseUrl("http://localhost/").build().create(ApiService::class.java)
+        val repository = SosRepository(api, pendingSosDao = dao)
+
+        val tersimpan = repository.savePendingSos(
+            latitude = -1.6975,
+            longitude = 101.2635,
+            severity = "HIGH",
+            message = null
+        )
+
+        assertTrue(tersimpan)
+        val baris = dao.isi().single()
+        // Backend hanya menerima huruf kecil (low/medium/high).
+        assertEquals("high", baris.severity)
+        assertEquals("PENDING", baris.syncStatus)
+        assertNull(baris.message)
+
+        // Tanpa database, penyimpanan gagal supaya pengguna diberi tahu.
+        val tanpaDao = SosRepository(api, pendingSosDao = null)
+        assertFalse(tanpaDao.savePendingSos(-1.6975, 101.2635, "high", null))
+    }
+
+    private class FakePendingSosDao : PendingSosDao {
+        private val antrean = mutableListOf<PendingSosEntity>()
+
+        fun isi(): List<PendingSosEntity> = antrean.toList()
+
+        override suspend fun upsert(sos: PendingSosEntity) {
+            antrean.removeAll { it.localId == sos.localId }
+            antrean += sos
+        }
+
+        override suspend fun getPendingSync(pending: String, failed: String) =
+            antrean.filter { it.syncStatus == pending || it.syncStatus == failed }
+
+        override suspend fun updateStatus(localId: String, status: String) {
+            ubah(localId) { it.copy(syncStatus = status) }
+        }
+
+        override suspend fun markSent(localId: String) {
+            ubah(localId) { it.copy(syncStatus = "SENT") }
+        }
+
+        override suspend fun deleteSent() {
+            antrean.removeAll { it.syncStatus == "SENT" }
+        }
+
+        override suspend fun markFailed(localId: String, status: String) {
+            ubah(localId) { it.copy(syncStatus = status, retryCount = it.retryCount + 1) }
+        }
+
+        override suspend fun markPermanentFailure(localId: String) {
+            ubah(localId) { it.copy(syncStatus = "REJECTED") }
+        }
+
+        override suspend fun resetStuckSyncing() {
+            for (i in antrean.indices) {
+                if (antrean[i].syncStatus == "SYNCING") {
+                    antrean[i] = antrean[i].copy(syncStatus = "PENDING")
+                }
+            }
+        }
+
+        private fun ubah(localId: String, baru: (PendingSosEntity) -> PendingSosEntity) {
+            val index = antrean.indexOfFirst { it.localId == localId }
+            if (index >= 0) antrean[index] = baru(antrean[index])
+        }
     }
 
     private class FakePendingChatDao : PendingChatDao {
