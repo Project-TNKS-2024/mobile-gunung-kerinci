@@ -132,6 +132,7 @@ class PanicButtonTddTest {
         assertEquals(0, dao.pendingCount(sosId = 7))
     }
 
+    /** C08 hanya memakai `upsert` dan `delete`, jadi sisanya dibuat kosong. */
     private class FakePendingChatDao : PendingChatDao {
         private val chats = mutableListOf<PendingChatEntity>()
 
@@ -143,19 +144,12 @@ class PanicButtonTddTest {
             chats += chat
         }
 
-        override suspend fun getPendingSync(pending: String, failed: String) =
-            chats.filter { it.syncStatus == pending || it.syncStatus == failed }
-
-        override suspend fun getPendingForSos(sosId: Int) =
-            chats.filter { it.sosId == sosId && it.syncStatus in listOf("PENDING", "FAILED") }
-
-        override suspend fun markFailed(localId: String) {
-            val index = chats.indexOfFirst { it.localId == localId }
-            if (index >= 0) chats[index] = chats[index].copy(retryCount = chats[index].retryCount + 1, syncStatus = "FAILED")
-        }
-
         override suspend fun delete(localId: String) {
             chats.removeAll { it.localId == localId }
         }
+
+        override suspend fun getPendingSync(pending: String, failed: String) = emptyList<PendingChatEntity>()
+        override suspend fun getPendingForSos(sosId: Int) = emptyList<PendingChatEntity>()
+        override suspend fun markFailed(localId: String) = Unit
     }
 }
