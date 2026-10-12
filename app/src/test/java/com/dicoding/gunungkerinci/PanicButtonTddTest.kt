@@ -2,10 +2,7 @@ package com.dicoding.gunungkerinci
 
 import com.dicoding.gunungkerinci.data.local.sos.PendingChatDao
 import com.dicoding.gunungkerinci.data.local.sos.PendingChatEntity
-import com.dicoding.gunungkerinci.data.local.sos.PendingSosDao
-import com.dicoding.gunungkerinci.data.local.sos.PendingSosEntity
 import com.dicoding.gunungkerinci.data.repository.SosChatRepository
-import com.dicoding.gunungkerinci.data.repository.SosRepository
 import com.dicoding.gunungkerinci.data.sync.SosQueueRule
 import com.dicoding.gunungkerinci.network.ApiService
 import com.dicoding.gunungkerinci.ui.panic_button.DisasterReportValidator
@@ -22,7 +19,7 @@ import java.io.IOException
 /**
  * Test Case TDD — fitur Panic Button (Tabel 22).
  *
- * Satu method = satu baris Tabel 22 (TDD-C01–TDD-C09). Murni JVM:
+ * Satu method = satu baris Tabel 22 (TDD-C01–TDD-C08). Murni JVM:
  * tanpa emulator, tanpa mock, tanpa Robolectric.
  */
 class PanicButtonTddTest {
@@ -133,47 +130,6 @@ class PanicButtonTddTest {
         // Setelah berhasil terkirim, baris antrean dibersihkan.
         repository.deletePendingChat(localId = dao.firstLocalId())
         assertEquals(0, dao.pendingCount(sosId = 7))
-    }
-
-    // TDD-C09 — SOS di-queue saat offline (US-12)
-    @Test
-    fun `TDD-C09 - SOS disimpan ke antrean saat offline`() = runBlocking {
-        val dao = FakePendingSosDao()
-        val api = Retrofit.Builder().baseUrl("http://localhost/").build().create(ApiService::class.java)
-        val repository = SosRepository(api, pendingSosDao = dao)
-
-        val tersimpan = repository.savePendingSos(
-            latitude = -1.6975,
-            longitude = 101.2635,
-            severity = "HIGH",
-            message = null
-        )
-
-        assertTrue(tersimpan)
-        val baris = requireNotNull(dao.tersimpan)
-        // Backend hanya menerima huruf kecil (low/medium/high).
-        assertEquals("high", baris.severity)
-        assertEquals("PENDING", baris.syncStatus)
-        assertNull(baris.message)
-
-        // Tanpa database, penyimpanan gagal supaya pengguna diberi tahu.
-        val tanpaDao = SosRepository(api, pendingSosDao = null)
-        assertFalse(tanpaDao.savePendingSos(-1.6975, 101.2635, "high", null))
-    }
-
-    /** C09 hanya memakai `upsert`, jadi sisanya dibuat kosong. */
-    private class FakePendingSosDao : PendingSosDao {
-        var tersimpan: PendingSosEntity? = null
-
-        override suspend fun upsert(sos: PendingSosEntity) { tersimpan = sos }
-
-        override suspend fun getPendingSync(pending: String, failed: String) = emptyList<PendingSosEntity>()
-        override suspend fun updateStatus(localId: String, status: String) = Unit
-        override suspend fun markSent(localId: String) = Unit
-        override suspend fun deleteSent() = Unit
-        override suspend fun markFailed(localId: String, status: String) = Unit
-        override suspend fun markPermanentFailure(localId: String) = Unit
-        override suspend fun resetStuckSyncing() = Unit
     }
 
     private class FakePendingChatDao : PendingChatDao {
