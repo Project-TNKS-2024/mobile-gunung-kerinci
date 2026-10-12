@@ -61,7 +61,7 @@ internal class SosChatViewModel(
                         it.copy(
                             isLoading = false,
                             isSosActive = false,
-                            errorMessage = error.message ?: "Gagal memuat status SOS"
+                            errorMessage = pesanJaringan(error, "Gagal memuat status SOS")
                         )
                     }
                 }
@@ -124,7 +124,7 @@ internal class SosChatViewModel(
             }
             .onFailure { error ->
                 _uiState.update {
-                    it.copy(isSending = false, isLoading = false, errorMessage = error.message ?: "Gagal memuat pesan")
+                    it.copy(isSending = false, isLoading = false, errorMessage = pesanJaringan(error, "Gagal memuat pesan"))
                 }
             }
     }
@@ -132,7 +132,7 @@ internal class SosChatViewModel(
     /** Simpan pesan ke antrean lokal supaya dikirim lagi saat jaringan tersedia. */
     private suspend fun antreJikaOffline(error: Throwable, sosId: Int, type: String, content: String?, imagePath: String?) {
         if (!SosQueueRule.simpanOffline(error)) {
-            _uiState.update { it.copy(isSending = false, errorMessage = error.message ?: "Gagal mengirim pesan") }
+            _uiState.update { it.copy(isSending = false, errorMessage = pesanJaringan(error, "Gagal mengirim pesan")) }
             return
         }
         val tersimpan = sosChatRepository.savePendingChat(sosId, type, content, imagePath)

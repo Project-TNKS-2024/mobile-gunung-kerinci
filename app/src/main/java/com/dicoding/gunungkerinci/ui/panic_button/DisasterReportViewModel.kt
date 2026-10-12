@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
-import java.io.IOException
 
 /** Laporan bencana: kirim laporan dan muat riwayatnya. */
 internal class DisasterReportViewModel(
@@ -65,11 +64,6 @@ internal class DisasterReportViewModel(
                 }
         }
     }
-
-    /** Pesan sistem seperti "unable to resolve host" diganti kalimat yang jelas. */
-    private fun pesanJaringan(error: Throwable, fallback: String): String =
-        if (error is IOException) "Tidak ada koneksi internet. Coba lagi saat jaringan tersedia."
-        else error.message ?: fallback
 
     fun clearMessages() {
         _uiState.update { it.copy(successMessage = null, errorMessage = null) }
