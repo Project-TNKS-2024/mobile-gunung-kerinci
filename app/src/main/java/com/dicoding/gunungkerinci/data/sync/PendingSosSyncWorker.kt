@@ -12,17 +12,8 @@ import com.dicoding.gunungkerinci.network.ApiService
 import com.dicoding.gunungkerinci.pref.UserPreference
 
 /**
- * Worker pengirim antrean SOS offline.
- *
- * Alur: pendaki menekan SOS tanpa sinyal → data disimpan ke Room (`pending_sos`,
- * status PENDING) → worker ini mengirimnya saat internet tersedia.
- * Tidak ada batas jumlah percobaan: antrean baru berhenti kalau terkirim
- * atau ditolak server.
- *
- * Klasifikasi hasil per item (aturan lengkap ada di [SosQueueRule]):
- * - sukses → SENT
- * - IOException / 401 / 408 / 429 / 5xx → FAILED, worker minta retry (backoff)
- * - sisanya (403 / 404 / 422 dan kode 4xx lain) → REJECTED, tidak dicoba lagi
+ * Kirim antrean SOS yang tersimpan saat offline.
+ * Tidak ada batas percobaan; aturan coba-ulang ada di [SosQueueRule].
  */
 class PendingSosSyncWorker(
     appContext: Context,
@@ -31,18 +22,15 @@ class PendingSosSyncWorker(
 
     override suspend fun doWork(): Result {
         val dao = TnksDatabase.getInstance(applicationContext).pendingSosDao()
-        // Reset baris SYNCING sisa worker yang mati di tengah kirim (A13).
+        // Sisa worker yang mati di tengah kirim.
         dao.resetStuckSyncing()
-        // Buang baris yang sudah terkirim dari sesi sebelumnya.
         dao.deleteSent()
-        // SOS tidak dibatasi jumlah percobaan: selama ada jaringan terus dicoba.
-        // Yang menghentikannya cuma berhasil terkirim atau ditolak server.
         val antrean = dao.getPendingSync()
         // Antrean kosong: tidak ada kerjaan, sudahi sebelum cek login.
         if (antrean.isEmpty()) return Result.success()
 
         val token = UserPreference(applicationContext).getToken().orEmpty()
-        if (token.isBlank()) return Result.retry() // belum login — coba lagi nanti
+        if (token.isBlank()) return Result.retry() // belum login, coba lagi nanti
 
         val api = ApiConfig.getApiService(applicationContext)
         var masihAdaSisa = false

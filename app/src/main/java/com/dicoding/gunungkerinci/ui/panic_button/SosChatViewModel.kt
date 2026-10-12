@@ -18,9 +18,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-/**
- * Chat SOS: cari SOS aktif → muat riwayat → kirim teks/gambar.
- */
+/** Chat darurat: cari SOS aktif, muat riwayat, kirim teks atau gambar. */
 internal class SosChatViewModel(
     private val sosChatRepository: SosChatRepository,
     private val sosRepository: SosRepository,
@@ -32,7 +30,7 @@ internal class SosChatViewModel(
 
     private var sosId: Int? = null
 
-    /** Titik masuk layar: cari SOS aktif lalu muat pesannya. */
+    /** Dipanggil saat layar dibuka: cari SOS aktif lalu muat pesannya. */
     fun start(token: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null, isSosActive = false) }
@@ -71,8 +69,7 @@ internal class SosChatViewModel(
     fun refresh(token: String) = start(token)
 
     fun sendText(token: String, text: String) {
-        // Chat hanya bisa dikirim setelah SOS aktif (backend mewajibkan id_sos).
-        // Jangan diam — beri tahu pengguna alasannya.
+        // Chat hanya bisa dikirim setelah SOS aktif, jadi beri tahu alasannya.
         val id = sosId
         if (id == null) {
             _uiState.update {
@@ -93,7 +90,7 @@ internal class SosChatViewModel(
     }
 
     fun sendImage(token: String, imageFile: File, caption: String? = null) {
-        // Sama seperti sendText: tanpa SOS aktif tidak ada tempat menempelkan pesan.
+        // Sama seperti sendText: butuh SOS aktif.
         val id = sosId
         if (id == null) {
             _uiState.update {
@@ -130,11 +127,7 @@ internal class SosChatViewModel(
             }
     }
 
-    /**
-     * Jalur offline US-12: pesan chat yang gagal karena sinyal disimpan ke Room
-     * (`pending_sos_chats`) lalu dikirim ulang otomatis oleh PendingChatSyncWorker.
-     * Hanya untuk SOS yang sudah aktif di server — sosId selalu valid.
-     */
+    /** Simpan pesan ke antrean lokal supaya dikirim lagi saat jaringan tersedia. */
     private suspend fun antreJikaOffline(error: Throwable, sosId: Int, type: String, content: String?, imagePath: String?) {
         if (!SosQueueRule.simpanOffline(error)) {
             _uiState.update { it.copy(isSending = false, errorMessage = error.message ?: "Gagal mengirim pesan") }

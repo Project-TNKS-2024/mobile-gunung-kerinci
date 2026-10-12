@@ -3,16 +3,14 @@ package com.dicoding.gunungkerinci.data.sync
 import java.io.IOException
 
 /**
- * Aturan antrean SOS offline (TDD C06/C07) — murni, tanpa Android.
- * Dipakai bersama oleh ViewModel (saat memutuskan menyimpan offline)
- * dan PendingSosSyncWorker (saat memutuskan mencoba lagi).
+ * Aturan antrean SOS offline, dipakai ViewModel dan PendingSosSyncWorker.
  */
 internal object SosQueueRule {
 
-    /** C06: error jaringan → simpan ke antrean lokal (nanti dikirim ulang). */
+    /** Error jaringan berarti pesan belum sampai, jadi disimpan ke antrean. */
     fun simpanOffline(error: Throwable): Boolean = error is IOException
 
-    /** C07: keputusan kirim ulang saat koneksi tersedia. */
+    /** Kode yang masih layak dicoba lagi saat jaringan tersedia. */
     fun harusKirimUlang(code: Int?, error: Throwable?): Boolean {
         if (error != null) return error is IOException
         if (code == null) return false

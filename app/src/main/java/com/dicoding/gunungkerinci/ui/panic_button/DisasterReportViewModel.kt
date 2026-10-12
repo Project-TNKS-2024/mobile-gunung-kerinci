@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
 
-/** Laporan potensi bencana: kirim + muat riwayat. */
+/** Laporan bencana: kirim laporan dan muat riwayatnya. */
 internal class DisasterReportViewModel(
     private val disasterReportRepository: DisasterReportRepository
 ) : ViewModel() {

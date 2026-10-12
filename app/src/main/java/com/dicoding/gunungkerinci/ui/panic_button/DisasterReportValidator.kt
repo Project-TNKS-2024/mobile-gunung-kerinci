@@ -1,9 +1,6 @@
 package com.dicoding.gunungkerinci.ui.panic_button
 
-/**
- * Validasi laporan potensi bencana (TDD C05) — murni, tanpa Android.
- * Aturan lampiran mengikuti backend: jpeg/png/jpg, maksimal 5 MB.
- */
+/** Validasi form laporan bencana. Lampiran mengikuti backend: jpeg/png/jpg, maksimal 5 MB. */
 internal object DisasterReportValidator {
 
     private val ALLOWED_MIME = setOf("image/jpeg", "image/jpg", "image/png")

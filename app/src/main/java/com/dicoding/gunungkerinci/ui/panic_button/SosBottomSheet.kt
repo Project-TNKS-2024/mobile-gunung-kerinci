@@ -39,10 +39,7 @@ private val PrimaryBlue = Color(0xFF0169BF)
 private val DangerRed = Color(0xFFCF372B)
 private val SoftBlue = Color(0xFFEAF2FF)
 
-/**
- * Bottom sheet "Bantuan Darurat" (dibuka dari tab SOS).
- * Kontak panggilan diambil dari GET /api/sos/call-options (tanpa nomor hardcode).
- */
+/** Bottom sheet "Bantuan Darurat" yang dibuka dari tab SOS. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun SosBottomSheet(

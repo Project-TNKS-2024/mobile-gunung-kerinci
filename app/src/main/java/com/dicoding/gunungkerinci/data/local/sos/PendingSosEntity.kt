@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.dicoding.gunungkerinci.data.local.sync.SyncStatus
 
-/** Antrean SOS lokal — dikirim ulang saat jaringan tersedia (US-12 / TDD C06-C07). */
+/** SOS yang menunggu dikirim ke server. */
 @Entity(tableName = "pending_sos")
 data class PendingSosEntity(
     @PrimaryKey val localId: String,

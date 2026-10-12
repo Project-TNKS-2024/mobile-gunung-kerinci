@@ -30,17 +30,11 @@ interface PendingSosDao {
     @Query("UPDATE pending_sos SET syncStatus = :status, retryCount = retryCount + 1 WHERE localId = :localId")
     suspend fun markFailed(localId: String, status: String = "FAILED")
 
-    /**
-     * Server menolak permanen — ubah statusnya supaya baris ini
-     * tidak ikut terambil oleh [getPendingSync].
-     */
+    /** Server menolak permanen, jadi baris ini tidak dicoba lagi. */
     @Query("UPDATE pending_sos SET syncStatus = 'REJECTED' WHERE localId = :localId")
     suspend fun markPermanentFailure(localId: String)
 
-    /**
-     * Reset baris yang tertinggal di status SYNCING (worker mati di tengah kirim)
-     * kembali ke PENDING agar SOS ikut dikirim ulang — lihat A13.
-     */
+    /** Baris SYNCING yang tertinggal dari worker yang mati dikembalikan ke PENDING. */
     @Query("UPDATE pending_sos SET syncStatus = 'PENDING' WHERE syncStatus = 'SYNCING'")
     suspend fun resetStuckSyncing()
 }
