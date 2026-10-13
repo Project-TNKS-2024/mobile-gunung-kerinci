@@ -59,6 +59,9 @@ internal data class PelacakanJejakUiState(
     // Apakah user ini ketua tim pada booking aktif. null = belum diketahui (identitas gagal
     // diambil) — dalam keadaan itu switch anggota dibiarkan aktif supaya ketua tidak terkunci.
     val isKetua: Boolean? = null,
+    // Id pendaki milik user yang login — dipakai untuk tahu apakah ketua sendiri sudah
+    // check-in di pos yang sedang dibuka.
+    val myPendakiId: String? = null,
     // Penandaan kehadiran anggota oleh ketua tim (US-05) — lewat POST /checkpoint/qr
     // dengan parameter pendaki_id.
     val isMarkingMember: Boolean = false,
@@ -94,6 +97,7 @@ internal class PelacakanJejakViewModel(
         completedPostIds.clear()
         currentGateId = 0
         currentBookingId = ""
+        currentPendakiId = ""
         _uiState.update {
             it.copy(
                 isLoadingPosts = false,
@@ -103,7 +107,8 @@ internal class PelacakanJejakViewModel(
                 isLoadingProgress = false,
                 progressText = null,
                 progressErrorMessage = null,
-                isKetua = null
+                isKetua = null,
+                myPendakiId = null
             )
         }
     }
@@ -147,7 +152,12 @@ internal class PelacakanJejakViewModel(
                         val ketua = if (hike.ketuaUserId != null && identitas.userId != null) {
                             hike.ketuaUserId == identitas.userId
                         } else null
-                        _uiState.update { it.copy(isKetua = ketua) }
+                        _uiState.update {
+                            it.copy(
+                                isKetua = ketua,
+                                myPendakiId = currentPendakiId.ifBlank { null }
+                            )
+                        }
                         loadPosts(token, hike.gateId, hike.bookingId)
                     }
                 }

@@ -186,30 +186,49 @@ internal fun PelacakanJejakScreen(
                 onRetryLoadPosts = onRetryLoadPosts
             )
 
-            JejakScreenState.LocationDetail -> PelacakanJejakLocationDetailScreen(
-                detail = LocationDetailUiMapper.fromCheckpoint(
-                    selectedCheckpoint,
-                    uiState.loadedPosts
-                ),
-                members = TrackingProgressUiMapper.toMembers(
-                    uiState.progressHikers,
-                    selectedCheckpoint?.postId,
-                    uiState.localMemberMarks
-                ),
-                posId = selectedCheckpoint?.postId,
-                bisaUbahKehadiran = uiState.isKetua != false,
-                gpsGateState = uiState.gpsGateState,
-                isCheckingGps = uiState.isCheckingGps,
-                isMarkingMember = uiState.isMarkingMember,
-                memberMarkMessage = uiState.memberMarkMessage,
-                memberMarkErrorMessage = uiState.memberMarkErrorMessage,
-                onBack = { screenState = JejakScreenState.Timeline },
-                onScanQrClick = onScanQrClick,
-                onGpsCheckInClick = onGpsCheckInClick,
-                onMemberToggle = { pendakiId, checked ->
-                    onMemberToggle(pendakiId, checked, selectedCheckpoint?.postId)
-                }
-            )
+            JejakScreenState.LocationDetail -> {
+                // Ketua hanya boleh menandai anggota kalau dirinya sudah terbukti ada di pos
+                // ini: sedang dalam radius, atau sudah check-in di pos ini.
+                val posDiBuka = selectedCheckpoint?.postId
+                val bisaUbahKehadiran = uiState.isKetua != false &&
+                    TrackingProgressUiMapper.ketuaAdaDiPosIni(
+                        postId = posDiBuka,
+                        myPendakiId = uiState.myPendakiId,
+                        hikers = uiState.progressHikers,
+                        gpsGateState = uiState.gpsGateState
+                    )
+                PelacakanJejakLocationDetailScreen(
+                    detail = LocationDetailUiMapper.fromCheckpoint(
+                        selectedCheckpoint,
+                        uiState.loadedPosts
+                    ),
+                    members = TrackingProgressUiMapper.toMembers(
+                        uiState.progressHikers,
+                        posDiBuka,
+                        uiState.localMemberMarks
+                    ),
+                    posId = posDiBuka,
+                    bisaUbahKehadiran = bisaUbahKehadiran,
+                    catatanKehadiran = when {
+                        uiState.isKetua == false ->
+                            "Hanya ketua tim yang dapat mengubah kehadiran anggota."
+                        !bisaUbahKehadiran ->
+                            "Check-in dulu di pos ini untuk mengubah kehadiran anggota."
+                        else -> null
+                    },
+                    gpsGateState = uiState.gpsGateState,
+                    isCheckingGps = uiState.isCheckingGps,
+                    isMarkingMember = uiState.isMarkingMember,
+                    memberMarkMessage = uiState.memberMarkMessage,
+                    memberMarkErrorMessage = uiState.memberMarkErrorMessage,
+                    onBack = { screenState = JejakScreenState.Timeline },
+                    onScanQrClick = onScanQrClick,
+                    onGpsCheckInClick = onGpsCheckInClick,
+                    onMemberToggle = { pendakiId, checked ->
+                        onMemberToggle(pendakiId, checked, posDiBuka)
+                    }
+                )
+            }
         }
 
 //        if (showQrSheet) {

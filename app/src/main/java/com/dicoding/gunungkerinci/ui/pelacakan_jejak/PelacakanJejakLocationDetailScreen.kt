@@ -56,8 +56,13 @@ internal fun PelacakanJejakLocationDetailScreen(
     members: List<JejakMemberUi> = emptyList(),
     /** Id pos yang sedang dibuka — dibandingkan dengan pos hasil deteksi GPS. */
     posId: Int? = null,
-    /** false untuk anggota biasa: switch kehadiran anggota dinonaktifkan (hanya ketua). */
+    /**
+     * true kalau ketua tim DAN dirinya sudah terbukti berada di pos ini.
+     * Kalau false, switch kehadiran anggota dinonaktifkan.
+     */
     bisaUbahKehadiran: Boolean = true,
+    /** Alasan switch dinonaktifkan, ditampilkan di bawah judul "Cek Anggota". */
+    catatanKehadiran: String? = null,
     gpsGateState: GpsGateState = GpsGateState.Unknown,
     isCheckingGps: Boolean = false,
     /** true selagi permintaan kehadiran anggota diproses — toggle dinonaktifkan. */
@@ -123,10 +128,10 @@ internal fun PelacakanJejakLocationDetailScreen(
             fontSize = 14.sp,
             lineHeight = 20.sp
         )
-        if (!bisaUbahKehadiran) {
+        if (catatanKehadiran != null) {
             Spacer(Modifier.height(6.dp))
             Text(
-                text = "Hanya ketua tim yang dapat mengubah kehadiran anggota.",
+                text = catatanKehadiran,
                 color = JejakTextSecondary,
                 fontSize = 13.sp,
                 lineHeight = 18.sp
