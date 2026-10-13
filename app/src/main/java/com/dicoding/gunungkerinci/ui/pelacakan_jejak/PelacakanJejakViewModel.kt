@@ -27,7 +27,6 @@ internal data class PelacakanJejakUiState(
     val isLoadingTickets: Boolean = false,
     val activeTicket: JejakTicketUi? = null,
     val finishedTickets: List<JejakTicketUi> = emptyList(),
-    val days: List<JejakDayUi> = emptyList(),
     val periodeLabel: String? = null,
     val isLoadingPosts: Boolean = false,
     val postCheckpoints: List<JejakCheckpointUi> = emptyList(),
@@ -129,10 +128,6 @@ internal class PelacakanJejakViewModel(
                             isLoadingTickets = false,
                             activeTicket = TicketUiMapper.toActiveTicket(bookings),
                             finishedTickets = TicketUiMapper.toFinishedTickets(bookings),
-                            days = TicketUiMapper.toDays(
-                                activeBooking?.tanggalMasuk,
-                                activeBooking?.tanggalKeluar
-                            ),
                             periodeLabel = TicketUiMapper.toPeriodeLabel(activeBooking?.tanggalMasuk)
                         )
                     }
@@ -600,10 +595,6 @@ internal class PelacakanJejakViewModel(
                     }
                 }
         }
-    }
-
-    fun clearMemberMarkMessage() {
-        _uiState.update { it.copy(memberMarkMessage = null, memberMarkErrorMessage = null) }
     }
 
     /**

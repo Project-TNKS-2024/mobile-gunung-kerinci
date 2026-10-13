@@ -27,12 +27,6 @@ internal data class JejakTicketUi(
 
 internal enum class TicketStatusType { Ongoing, WaitingPayment, Done }
 
-internal data class JejakDayUi(
-    val title: String,
-    val date: String,
-    val selected: Boolean
-)
-
 internal data class JejakCheckpointUi(
     val times: List<String>,
     val name: String,

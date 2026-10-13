@@ -3,7 +3,6 @@ package com.dicoding.gunungkerinci.ui.pelacakan_jejak
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -47,8 +46,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -77,7 +74,6 @@ internal fun PelacakanJejakScreen(
 ) {
     var screenState by remember { mutableStateOf<JejakScreenState>(JejakScreenState.Ticket) }
     var selectedCheckpoint by remember { mutableStateOf<JejakCheckpointUi?>(null) }
-    var showQrSheet by remember { mutableStateOf(false) }
 
     // Tombol back HP mengikuti alur layar Jejak (detail pos → timeline → tiket), bukan
     // langsung melompat ke Beranda lewat navigasi tab bawah.
@@ -230,10 +226,6 @@ internal fun PelacakanJejakScreen(
                 )
             }
         }
-
-//        if (showQrSheet) {
-//            PelacakanJejakQrScanSheet(onDismiss = { showQrSheet = false })
-//        }
     }
 }
 
@@ -667,9 +659,6 @@ internal fun PelacakanJejakTimelineContent(
                 )
             }
         }
-        if (uiState.days.isNotEmpty()) {
-            item { DaySelector(uiState.days) }
-        }
 
         when {
             uiState.noActiveHikeMessage != null -> {
@@ -744,7 +733,6 @@ private fun TimelineInfoCard(
 @Composable
 private fun HikingSummaryCard(uiState: PelacakanJejakUiState) {
     val jumlahAnggota = uiState.progressHikers.size
-    val hariAktif = uiState.days.firstOrNull { it.selected } ?: uiState.days.firstOrNull()
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -752,34 +740,16 @@ private fun HikingSummaryCard(uiState: PelacakanJejakUiState) {
         color = JejakBlue
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = uiState.activeTicket?.status ?: "Pendakian Aktif",
-                    color = JejakWhite,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.weight(1f)
-                )
-                hariAktif?.let { hari ->
-                    Surface(shape = RoundedCornerShape(8.dp), color = JejakYellow) {
-                        Text(
-                            text = "${hari.title}!",
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-                            color = JejakTextPrimary,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-            }
+            Text(
+                text = uiState.activeTicket?.status ?: "Pendakian Aktif",
+                color = JejakWhite,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            )
             Spacer(Modifier.height(10.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
                 SummaryStat("Anggota", if (jumlahAnggota > 0) "$jumlahAnggota Orang" else "-")
                 SummaryStat("Gate", uiState.activeTicket?.gateName ?: "-")
-                SummaryStat("Tanggal", hariAktif?.date ?: "-")
             }
         }
     }
@@ -791,44 +761,6 @@ private fun SummaryStat(label: String, value: String) {
         Text(label, color = JejakWhite.copy(alpha = 0.75f), fontSize = 11.sp)
         Spacer(Modifier.height(2.dp))
         Text(value, color = JejakWhite, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-    }
-}
-
-@Composable
-private fun DaySelector(days: List<JejakDayUi>) {
-    if (days.isEmpty()) return
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        days.forEach { hari ->
-            val isSelected = hari.selected
-            Surface(
-                modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(12.dp),
-                color = if (isSelected) JejakBlue else JejakWhite,
-                border = BorderStroke(1.dp, if (isSelected) JejakBlue else JejakBorder)
-            ) {
-                Column(
-                    modifier = Modifier.padding(vertical = 10.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = hari.title,
-                        color = if (isSelected) JejakWhite else JejakTextPrimary,
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(Modifier.height(2.dp))
-                    Text(
-                        text = hari.date,
-                        color = if (isSelected) JejakWhite.copy(alpha = 0.85f) else JejakTextSecondary,
-                        fontSize = 11.sp
-                    )
-                }
-            }
-        }
     }
 }
 

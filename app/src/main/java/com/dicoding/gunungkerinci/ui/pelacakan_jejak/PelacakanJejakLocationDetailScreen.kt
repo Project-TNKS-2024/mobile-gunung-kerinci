@@ -1,7 +1,6 @@
 package com.dicoding.gunungkerinci.ui.pelacakan_jejak
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -34,17 +32,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -369,21 +362,6 @@ private fun WelcomeCheckpointCard(
                 fontWeight = FontWeight.Bold
             )
         }
-    }
-}
-
-@Composable
-private fun HikerIllustration() {
-    Canvas(Modifier.size(116.dp)) {
-        drawCircle(Color(0xFFD9EEFF), radius = size.minDimension * .43f, center = center)
-        drawCircle(JejakYellow, radius = 9.dp.toPx(), center = Offset(size.width * .48f, size.height * .23f))
-        drawRoundRect(JejakWhite.copy(.9f), Offset(size.width * .14f, size.height * .2f), Size(25.dp.toPx(), 9.dp.toPx()), cornerRadius = androidx.compose.ui.geometry.CornerRadius(8.dp.toPx()))
-        drawCircle(Color(0xFF6B4B38), radius = 10.dp.toPx(), center = Offset(size.width * .53f, size.height * .38f))
-        drawRoundRect(JejakDarkBlue, Offset(size.width * .27f, size.height * .42f), Size(38.dp.toPx(), 45.dp.toPx()), cornerRadius = androidx.compose.ui.geometry.CornerRadius(16.dp.toPx()))
-        drawRoundRect(Color(0xFF324B61), Offset(size.width * .55f, size.height * .44f), Size(27.dp.toPx(), 38.dp.toPx()), cornerRadius = androidx.compose.ui.geometry.CornerRadius(12.dp.toPx()))
-        drawLine(Color(0xFF303030), Offset(size.width * .45f, size.height * .74f), Offset(size.width * .30f, size.height * .92f), 5.dp.toPx(), cap = StrokeCap.Round)
-        drawLine(Color(0xFF303030), Offset(size.width * .55f, size.height * .74f), Offset(size.width * .72f, size.height * .90f), 5.dp.toPx(), cap = StrokeCap.Round)
-        drawRoundRect(JejakWhite, Offset(size.width * .67f, size.height * .48f), Size(25.dp.toPx(), 18.dp.toPx()), cornerRadius = androidx.compose.ui.geometry.CornerRadius(3.dp.toPx()))
     }
 }
 
