@@ -2,20 +2,22 @@ package com.dicoding.gunungkerinci.Ticket.Pembayaran
 
 import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.dicoding.gunungkerinci.R
-import com.dicoding.gunungkerinci.Ticket.Barcode.BarcodeTiketActivity
 import com.dicoding.gunungkerinci.databinding.ActivityBuktiPembayaranBinding
 import android.util.Log
 import androidx.lifecycle.lifecycleScope
+import com.dicoding.gunungkerinci.MainActivity
 import com.dicoding.gunungkerinci.model.BookingDetailData
 import com.dicoding.gunungkerinci.network.ApiConfig
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
+import com.dicoding.gunungkerinci.Ticket.Barcode.BarcodeTiketActivity
 
 class BuktiPembayaranActivity : AppCompatActivity() {
 
@@ -45,6 +47,9 @@ class BuktiPembayaranActivity : AppCompatActivity() {
 
         ambilStatusPembayaran()
 
+        setupButtonLihatTiket()
+        ambilStatusPembayaran()
+
         // BUTTON BACK
         binding.buttonBack.setOnClickListener {
             onBackPressedDispatcher.onBackPressed()
@@ -52,14 +57,41 @@ class BuktiPembayaranActivity : AppCompatActivity() {
 
         // BUTTON BERANDA
         binding.btnBeranda.setOnClickListener {
-            //val intent = Intent(this, MainActivity::class.java)
-            val intent = Intent(this, BarcodeTiketActivity::class.java)
+            val intent = Intent(this, MainActivity::class.java)
             intent.putExtra("navigate_home", true)
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
             startActivity(intent)
             finish()
         }
 
+        binding.textUnduh.setOnClickListener {
+            val url = ApiConfig.getInvoiceUrl(bookingId)
+
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            startActivity(intent)
+        }
+
+    }
+
+    private fun setupButtonLihatTiket() {
+        binding.btnLihatTiket.setOnClickListener {
+            if (bookingId.isBlank()) {
+                Toast.makeText(
+                    this,
+                    "Booking ID tidak ditemukan",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
+
+            val intent = Intent(
+                this,
+                BarcodeTiketActivity::class.java
+            )
+
+            intent.putExtra("booking_id", bookingId)
+            startActivity(intent)
+        }
     }
 
     private fun ambilStatusPembayaran() {
@@ -173,6 +205,43 @@ class BuktiPembayaranActivity : AppCompatActivity() {
                     pembayaran.status
                 )
 
+                tampilkanRiwayatPembayaran(
+                    data.booking,
+                    pembayaran.status
+                )
+
+                binding.btnLihatBukti.setOnClickListener {
+
+                    if (pembayaran.status?.lowercase() == "success") {
+
+                        val buktiPembayaran =
+                            pembayaran.bukti_pembayaran
+
+                        if (buktiPembayaran.isNullOrBlank()) {
+
+                            Toast.makeText(
+                                this@BuktiPembayaranActivity,
+                                "Bukti pembayaran tidak ditemukan",
+                                Toast.LENGTH_SHORT
+                            ).show()
+
+                            return@setOnClickListener
+                        }
+
+                        bukaBuktiPembayaran(
+                            buktiPembayaran
+                        )
+
+                    } else {
+
+                        Toast.makeText(
+                            this@BuktiPembayaranActivity,
+                            "Bukti pembayaran belum disetujui",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+
             } catch (e: Exception) {
 
                 Log.e(
@@ -203,6 +272,9 @@ class BuktiPembayaranActivity : AppCompatActivity() {
 
                 binding.layoutApproved.visibility =
                     View.GONE
+
+                binding.btnLihatTiket.visibility =
+                    View.GONE
             }
 
             "success" -> {
@@ -218,6 +290,9 @@ class BuktiPembayaranActivity : AppCompatActivity() {
                 )
 
                 binding.layoutApproved.visibility =
+                    View.VISIBLE
+
+                binding.btnLihatTiket.visibility =
                     View.VISIBLE
 
                 Toast.makeText(
@@ -241,6 +316,9 @@ class BuktiPembayaranActivity : AppCompatActivity() {
 
                 binding.layoutApproved.visibility =
                     View.GONE
+
+                binding.btnLihatTiket.visibility =
+                    View.GONE
             }
 
             else -> {
@@ -253,7 +331,192 @@ class BuktiPembayaranActivity : AppCompatActivity() {
 
                 binding.layoutApproved.visibility =
                     View.GONE
+
+                binding.btnLihatTiket.visibility =
+                    View.GONE
             }
+        }
+    }
+
+    private fun tampilkanRiwayatPembayaran(
+        booking: BookingDetailData,
+        status: String?
+    ) {
+
+        try {
+
+            val dataStrukJson = booking.dataStruk
+
+            if (dataStrukJson.isNullOrBlank()) {
+                Log.e(
+                    "RIWAYAT_PEMBAYARAN",
+                    "dataStruk kosong"
+                )
+
+                binding.tvTanggal.text = "-"
+                binding.tvKet.text = "-"
+
+                return
+            }
+
+            val jsonObject =
+                org.json.JSONObject(dataStrukJson)
+
+            val pembayaranArray =
+                jsonObject.optJSONArray("pembayaran")
+
+            if (pembayaranArray == null ||
+                pembayaranArray.length() == 0
+            ) {
+
+                Log.e(
+                    "RIWAYAT_PEMBAYARAN",
+                    "Array pembayaran kosong"
+                )
+
+                binding.tvTanggal.text = "-"
+                binding.tvKet.text = "-"
+
+                return
+            }
+
+            // Ambil pembayaran terakhir
+            val pembayaranTerakhir =
+                pembayaranArray.getJSONObject(
+                    pembayaranArray.length() - 1
+                )
+
+            val createdAt =
+                pembayaranTerakhir.optString(
+                    "created_at",
+                    ""
+                )
+
+            val updatedAt =
+                pembayaranTerakhir.optString(
+                    "updated_at",
+                    ""
+                )
+
+            val keterangan =
+                pembayaranTerakhir.optString(
+                    "keterangan",
+                    ""
+                )
+
+            val statusPembayaran =
+                status
+                    ?.lowercase()
+                    .orEmpty()
+
+            /*
+             * Pending:
+             * gunakan waktu created_at
+             *
+             * Success / Failed:
+             * gunakan waktu updated_at
+             */
+            val tanggalYangDipakai =
+                when (statusPembayaran) {
+
+                    "pending" -> createdAt
+
+                    "success",
+                    "failed" -> updatedAt
+
+                    else -> createdAt
+                }
+
+            binding.tvTanggal.text =
+                formatTanggalPembayaran(
+                    tanggalYangDipakai
+                )
+
+            binding.tvKet.text =
+                if (keterangan.isNotBlank()) {
+                    keterangan
+                } else {
+                    "-"
+                }
+
+            Log.d(
+                "RIWAYAT_PEMBAYARAN",
+                "Status: $statusPembayaran"
+            )
+
+            Log.d(
+                "RIWAYAT_PEMBAYARAN",
+                "Created At: $createdAt"
+            )
+
+            Log.d(
+                "RIWAYAT_PEMBAYARAN",
+                "Updated At: $updatedAt"
+            )
+
+            Log.d(
+                "RIWAYAT_PEMBAYARAN",
+                "Tanggal ditampilkan: $tanggalYangDipakai"
+            )
+
+            Log.d(
+                "RIWAYAT_PEMBAYARAN",
+                "Keterangan: $keterangan"
+            )
+
+        } catch (e: Exception) {
+
+            Log.e(
+                "RIWAYAT_PEMBAYARAN",
+                "Gagal menampilkan riwayat pembayaran: ${e.message}",
+                e
+            )
+
+            binding.tvTanggal.text = "-"
+            binding.tvKet.text = "-"
+        }
+    }
+
+    private fun formatTanggalPembayaran(
+        tanggal: String?
+    ): String {
+
+        if (tanggal.isNullOrBlank()) {
+            return "-"
+        }
+
+        return try {
+
+            val inputFormat =
+                SimpleDateFormat(
+                    "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'",
+                    Locale.US
+                )
+
+            val outputFormat =
+                SimpleDateFormat(
+                    "dd/MM/yyyy",
+                    Locale("id", "ID")
+                )
+
+            val date =
+                inputFormat.parse(tanggal)
+
+            if (date != null) {
+                outputFormat.format(date)
+            } else {
+                tanggal
+            }
+
+        } catch (e: Exception) {
+
+            Log.e(
+                "FORMAT_TANGGAL",
+                "Gagal format tanggal: $tanggal",
+                e
+            )
+
+            tanggal
         }
     }
 
@@ -403,6 +666,47 @@ class BuktiPembayaranActivity : AppCompatActivity() {
         } catch (e: Exception) {
 
             tanggal
+        }
+    }
+
+    private fun bukaBuktiPembayaran(
+        pathBukti: String
+    ) {
+
+        try {
+
+            val baseUrl =
+                "http://192.168.137.51:8000/"
+
+            val url =
+                baseUrl + pathBukti
+
+            Log.d(
+                "BUKTI_PEMBAYARAN",
+                "URL bukti: $url"
+            )
+
+            val intent =
+                Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse(url)
+                )
+
+            startActivity(intent)
+
+        } catch (e: Exception) {
+
+            Log.e(
+                "BUKTI_PEMBAYARAN",
+                "Gagal membuka bukti pembayaran: ${e.message}",
+                e
+            )
+
+            Toast.makeText(
+                this,
+                "Tidak dapat membuka bukti pembayaran",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 }

@@ -202,6 +202,13 @@ class PembayaranActivity : AppCompatActivity() {
             kirimBuktiPembayaran()
         }
 
+        binding.textUnduh.setOnClickListener {
+            val url = ApiConfig.getInvoiceUrl(bookingId)
+
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            startActivity(intent)
+        }
+
     }
 
     private fun ambilDataPayment() {

@@ -7,6 +7,10 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.dicoding.gunungkerinci.R
+import android.graphics.Bitmap
+import android.graphics.Color
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.qrcode.QRCodeWriter
 
 class TiketIndividuAdapter(
     private val listIndividu: List<TiketModel>
@@ -38,7 +42,36 @@ class TiketIndividuAdapter(
         holder.tvGerbangKeluar.text = item.gerbangKeluar
         holder.tvTanggalMasuk.text = item.tanggalMasuk
         holder.tvTanggalKeluar.text = item.tanggalKeluar
-        holder.imgQr.setImageResource(item.qrImageRes)
+
+        try {
+            val bitMatrix = QRCodeWriter().encode(
+                item.qrContent,
+                BarcodeFormat.QR_CODE,
+                400,
+                400
+            )
+
+            val bitmap = Bitmap.createBitmap(
+                400,
+                400,
+                Bitmap.Config.RGB_565
+            )
+
+            for (x in 0 until 400) {
+                for (y in 0 until 400) {
+                    bitmap.setPixel(
+                        x,
+                        y,
+                        if (bitMatrix[x, y]) Color.BLACK else Color.WHITE
+                    )
+                }
+            }
+
+            holder.imgQr.setImageBitmap(bitmap)
+        } catch (e: Exception) {
+            holder.imgQr.setImageResource(R.drawable.qrcode)
+        }
+
         holder.tvKodePemesanan.text = item.kodePemesanan
     }
 

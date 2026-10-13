@@ -74,6 +74,8 @@ dependencies {
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
 
+    implementation("com.google.zxing:core:3.5.3")
+
     //Flexbox Layout
     implementation("com.google.android.flexbox:flexbox:3.0.0")
 

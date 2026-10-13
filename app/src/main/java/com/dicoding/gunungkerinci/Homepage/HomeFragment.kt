@@ -11,7 +11,6 @@ import com.dicoding.gunungkerinci.Homepage.Panduan.PanduanActivity
 import com.dicoding.gunungkerinci.Homepage.Pemberitahuan.PemberitahuanActivity
 import com.dicoding.gunungkerinci.Homepage.Sop.SopActivity
 import com.dicoding.gunungkerinci.Homepage.Wisata.WisataActivity
-import com.dicoding.gunungkerinci.R
 import com.dicoding.gunungkerinci.Ticket.PilihTiketActivity
 import com.dicoding.gunungkerinci.databinding.FragmentHomeBinding
 import android.util.Log
@@ -21,6 +20,11 @@ import com.dicoding.gunungkerinci.network.ApiConfig
 import android.os.Build
 import android.text.Html
 import com.dicoding.gunungkerinci.Homepage.Cuaca.CuacaActivity
+import com.dicoding.gunungkerinci.R
+import com.dicoding.gunungkerinci.model.BookingDetailData
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class HomeFragment : Fragment() {
 
@@ -36,6 +40,8 @@ class HomeFragment : Fragment() {
         setupMenu()
 
         getDestinasi()
+
+        getTiketAktif()
 
         return binding.root
     }
@@ -95,6 +101,247 @@ class HomeFragment : Fragment() {
                 Log.d("DESTINASI_API", e.message.toString())
             }
         }
+    }
+
+    private fun getTiketAktif() {
+
+        viewLifecycleOwner.lifecycleScope.launch {
+
+            try {
+
+                val response = ApiConfig
+                    .getApiService(requireContext())
+                    .getMyTiket()
+
+                Log.d(
+                    "HOME_TIKET",
+                    "HTTP Code: ${response.code()}"
+                )
+
+                if (!response.isSuccessful) {
+
+                    Log.e(
+                        "HOME_TIKET",
+                        "HTTP Error: ${response.code()}"
+                    )
+
+                    tampilkanTidakAdaTiket()
+                    return@launch
+                }
+
+                val body = response.body()
+
+                if (body?.success != true) {
+
+                    Log.e(
+                        "HOME_TIKET",
+                        "API gagal: ${body?.message}"
+                    )
+
+                    tampilkanTidakAdaTiket()
+                    return@launch
+                }
+
+                val semuaBooking = body.data ?: emptyList()
+
+                val hariIni = SimpleDateFormat(
+                    "yyyy-MM-dd",
+                    Locale.getDefault()
+                ).format(Date())
+
+                val tiketAktif = semuaBooking.firstOrNull { booking ->
+
+                    val statusPembayaran = booking.pembayaran
+                        ?.lastOrNull()
+                        ?.status
+                        ?.equals("success", ignoreCase = true) == true
+
+                    val tanggalAktif =
+                        hariIni >= booking.tanggal_masuk &&
+                                hariIni <= booking.tanggal_keluar
+
+                    statusPembayaran && tanggalAktif
+                }
+
+                if (tiketAktif != null) {
+
+                    Log.d(
+                        "HOME_TIKET",
+                        "Tiket aktif ditemukan: ${tiketAktif.id}"
+                    )
+
+                    tampilkanTiketAktif(tiketAktif)
+
+                } else {
+
+                    Log.d(
+                        "HOME_TIKET",
+                        "Tidak ada tiket aktif"
+                    )
+
+                    tampilkanTidakAdaTiket()
+                }
+
+            } catch (e: Exception) {
+
+                Log.e(
+                    "HOME_TIKET",
+                    "Exception mengambil tiket aktif",
+                    e
+                )
+
+                tampilkanTidakAdaTiket()
+            }
+        }
+    }
+
+    private fun tampilkanTiketAktif(
+        booking: BookingDetailData
+    ) {
+
+        binding.layoutBelumAda.removeAllViews()
+
+        binding.layoutBelumAda.background = null
+
+        val view = layoutInflater.inflate(
+            R.layout.item_tiketnow,
+            binding.layoutBelumAda,
+            false
+        )
+
+        val textPembelian =
+            view.findViewById<android.widget.TextView>(
+                R.id.textPembelian
+            )
+
+        val dateBeli =
+            view.findViewById<android.widget.TextView>(
+                R.id.dateBeli
+            )
+
+        val dateMasuk =
+            view.findViewById<android.widget.TextView>(
+                R.id.dateMasuk
+            )
+
+        val dateKeluar =
+            view.findViewById<android.widget.TextView>(
+                R.id.dateKeluar
+            )
+
+        val jumlahPendaki =
+            view.findViewById<android.widget.TextView>(
+                R.id.jmlhPendaki
+            )
+
+        val total =
+            view.findViewById<android.widget.TextView>(
+                R.id.Total
+            )
+
+        textPembelian.text = "Pembelian"
+
+        dateBeli.text =
+            formatTanggal(booking.tanggal_masuk)
+
+        dateMasuk.text =
+            formatTanggal(booking.tanggal_masuk)
+
+        dateKeluar.text =
+            formatTanggal(booking.tanggal_keluar)
+
+        jumlahPendaki.text =
+            booking.pendakis.size.toString()
+
+        total.text =
+            formatRupiah(booking.total_pembayaran)
+
+        binding.layoutBelumAda.addView(view)
+    }
+
+    private fun formatTanggal(
+        tanggal: String?
+    ): String {
+
+        if (tanggal.isNullOrBlank()) {
+            return "-"
+        }
+
+        return try {
+
+            val inputFormat =
+                SimpleDateFormat(
+                    "yyyy-MM-dd",
+                    Locale.getDefault()
+                )
+
+            val outputFormat =
+                SimpleDateFormat(
+                    "dd MMMM yyyy",
+                    Locale("id", "ID")
+                )
+
+            val date =
+                inputFormat.parse(tanggal)
+
+            outputFormat.format(date!!)
+
+        } catch (e: Exception) {
+
+            tanggal
+        }
+    }
+
+    private fun formatRupiah(
+        nominal: Int
+    ): String {
+
+        return java.text.NumberFormat
+            .getNumberInstance(Locale("id", "ID"))
+            .format(nominal)
+    }
+
+    private fun tampilkanTidakAdaTiket() {
+
+        binding.layoutBelumAda.removeAllViews()
+
+        binding.layoutBelumAda.background =
+            resources.getDrawable(
+                R.drawable.border_ticket,
+                null
+            )
+
+        val imageView = android.widget.ImageView(requireContext())
+
+        imageView.layoutParams =
+            android.widget.LinearLayout.LayoutParams(
+                150,
+                120
+            )
+
+        imageView.setImageResource(
+            R.drawable.not_ticket
+        )
+
+        val textView =
+            android.widget.TextView(requireContext())
+
+        textView.text =
+            "Anda belum memiliki tiket aktif"
+
+        textView.setTextColor(
+            resources.getColor(
+                R.color.grey,
+                null
+            )
+        )
+
+        textView.textSize = 14f
+        textView.textAlignment =
+            android.view.View.TEXT_ALIGNMENT_CENTER
+
+        binding.layoutBelumAda.addView(imageView)
+        binding.layoutBelumAda.addView(textView)
     }
 
     /*

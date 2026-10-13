@@ -25,6 +25,7 @@ import com.dicoding.gunungkerinci.model.ResetPasswordRequest
 import com.dicoding.gunungkerinci.model.DataFormulirResponse
 import com.dicoding.gunungkerinci.model.FinalisasiFormulirRequest
 import com.dicoding.gunungkerinci.model.FinalisasiFormulirResponse
+import com.dicoding.gunungkerinci.model.MyTiketResponse
 import com.dicoding.gunungkerinci.model.PaymentResponse
 import com.dicoding.gunungkerinci.model.SetujuiSNKRequest
 import com.dicoding.gunungkerinci.model.SetujuiSNKResponse
@@ -243,6 +244,10 @@ interface ApiService {
     suspend fun getBookingDetail(
         @Path("booking_id") bookingId: String
     ): Response<BookingDetailResponse>
+
+    @GET("api/mytiket")
+    @Headers("Accept: application/json")
+    suspend fun getMyTiket(): Response<MyTiketResponse>
 
     @GET("api/booking/{booking_id}/payment")
     @Headers(

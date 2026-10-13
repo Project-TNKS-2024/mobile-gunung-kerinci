@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@color/abumuda"
-    android:layout_marginBottom="10dp">
+    android:layout_marginBottom="10dp"
+    android:layout_marginStart="10dp"
+    android:layout_marginEnd="10dp"
+    app:cardCornerRadius="10dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/abumuda">
 
     <View
         android:id="@+id/lineAtas"
@@ -80,6 +87,7 @@
         android:layout_marginEnd="10dp"/>
 
     <ImageView
+        android:id="@+id/people"
         android:layout_width="25dp"
         android:layout_height="25dp"
         android:src="@drawable/pendaki"
@@ -171,7 +179,8 @@
         android:fontFamily="@font/plus_jakarta_sans_medium"
         android:textSize="14sp"
         android:textColor="@color/black2"
-        android:layout_marginTop="5dp"/>
+        android:layout_marginTop="5dp"
+        android:paddingBottom="10dp"/>
 
     <TextView
         android:id="@+id/textOrang"
@@ -184,7 +193,8 @@
         android:layout_marginStart="3dp"
         android:fontFamily="@font/plus_jakarta_sans_medium"
         android:textSize="14sp"
-        android:textColor="@color/black2"/>
+        android:textColor="@color/black2"
+        android:paddingBottom="10dp"/>
 
     <TextView
         android:id="@+id/Total"
@@ -197,7 +207,8 @@
         android:fontFamily="@font/plus_jakarta_sans_medium"
         android:textSize="14sp"
         android:textColor="@color/black2"
-        android:layout_marginTop="5dp"/>
+        android:layout_marginTop="5dp"
+        android:paddingBottom="10dp"/>
 
     <TextView
         android:id="@+id/textRupiah"
@@ -210,7 +221,8 @@
         android:layout_marginEnd="2dp"
         android:fontFamily="@font/plus_jakarta_sans_medium"
         android:textSize="14sp"
-        android:textColor="@color/black2"/>
+        android:textColor="@color/black2"
+        android:paddingBottom="10dp"/>
 
     <LinearLayout
         android:id="@+id/cardInfoTiket"
@@ -220,18 +232,22 @@
         android:gravity="center_vertical"
         android:background="@drawable/border_bgpastikan"
         android:padding="15dp"
-        android:layout_margin="10dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="80dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/lineBawah">
+        app:layout_constraintTop_toBottomOf="@id/people"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="20dp"
+        android:visibility="gone">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <androidx.appcompat.widget.LinearLayoutCompat
-                android:id="@+id/background"
+                android:id="@+id/backgroundInfoTiket"
                 android:layout_width="35dp"
                 android:layout_height="36dp"
                 app:layout_constraintTop_toTopOf="parent"
@@ -240,24 +256,26 @@
                 android:background="@drawable/border_pastikan"/>
 
             <ImageView
+                android:id="@+id/iconInfoTiket"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_perhatikan"
-                app:layout_constraintTop_toTopOf="@id/background"
-                app:layout_constraintBottom_toBottomOf="@id/background"
-                app:layout_constraintStart_toStartOf="@id/background"
-                app:layout_constraintEnd_toEndOf="@id/background"/>
+                app:layout_constraintTop_toTopOf="@id/backgroundInfoTiket"
+                app:layout_constraintBottom_toBottomOf="@id/backgroundInfoTiket"
+                app:layout_constraintStart_toStartOf="@id/backgroundInfoTiket"
+                app:layout_constraintEnd_toEndOf="@id/backgroundInfoTiket"/>
 
             <TextView
+                android:id="@+id/textInfoTiket"
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
-                android:text="Segera isi biodata Anda untuk mendapatkan ID Pendaki dan akses pembelian tiket"
+                android:text="Tanggal masuk sudah tidak tersedia, silahkan ubah pesanan Anda"
                 android:textColor="@color/black2"
                 android:textSize="14sp"
                 android:fontFamily="@font/plus_jakarta_sans"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@id/background"
+                app:layout_constraintStart_toEndOf="@id/backgroundInfoTiket"
                 android:layout_marginStart="13dp"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -271,8 +289,9 @@
         android:background="@color/pstlabu"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textOrang"
-        android:layout_marginTop="20dp"/>
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>

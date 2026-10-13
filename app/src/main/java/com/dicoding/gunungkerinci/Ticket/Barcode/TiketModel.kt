@@ -8,5 +8,5 @@ data class TiketModel(
     val tanggalMasuk: String,
     val tanggalKeluar: String,
     val kodePemesanan: String,
-    val qrImageRes: Int
+    val qrContent: String
 )

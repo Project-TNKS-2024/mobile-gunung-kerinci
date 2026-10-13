@@ -11,8 +11,11 @@ import java.util.concurrent.TimeUnit
 object ApiConfig {
 
     //private const val BASE_URL = "https://eticket-tnks.fst.unja.ac.id/"
-    private const val BASE_URL = "http://172.16.1.28:8000/"
+    private const val BASE_URL = "http://192.168.53.51:8000/"
 
+    fun getInvoiceUrl(bookingId: String): String {
+        return "${BASE_URL}mobile/booking/$bookingId/struk"
+    }
 
     fun getApiService(context: Context): ApiService {
         val logging = HttpLoggingInterceptor()

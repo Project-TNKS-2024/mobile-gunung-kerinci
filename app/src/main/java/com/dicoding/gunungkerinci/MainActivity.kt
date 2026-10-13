@@ -58,6 +58,12 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // KEMBALI KE BERANDA DARI HALAMAN LAIN
+        if (intent.getBooleanExtra("navigate_home", false)) {
+            navView.selectedItemId = R.id.navigation_beranda
+            navController.navigate(R.id.navigation_beranda)
+        }
+
         navView.setOnNavigationItemSelectedListener { menuItem ->
             when(menuItem.itemId){
                 R.id.navigation_beranda -> {
@@ -95,6 +101,12 @@ class MainActivity : AppCompatActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
         handleOAuthDeepLink(intent)
+
+        if (intent.getBooleanExtra("navigate_home", false)) {
+            val navController = findNavController(R.id.nav_host_fragment)
+            binding.bottomNavigationView.selectedItemId = R.id.navigation_beranda
+            navController.navigate(R.id.navigation_beranda)
+        }
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")

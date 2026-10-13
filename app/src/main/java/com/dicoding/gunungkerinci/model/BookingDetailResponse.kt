@@ -23,7 +23,8 @@ data class BookingDetailData(
     val gktiket: BookingDetailJenisTiket?,
     val pendakis: List<BookingDetailPendaki>,
     val destinasi: BookingDestination,
-    val pembayaran: List<PembayaranData>?
+    val pembayaran: List<PembayaranData>?,
+    val unique_code: String? = null
 
 )
 

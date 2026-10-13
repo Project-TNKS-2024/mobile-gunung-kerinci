@@ -136,34 +136,15 @@
 
             </TableLayout>
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/textUnduh"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="15dp">
-
-                <ImageView
-                    android:id="@+id/imageUnduh"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_down"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"/>
-
-                <TextView
-                    android:id="@+id/textUnduh"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Unduh Invoice Pembayaran"
-                    android:textSize="14sp"
-                    android:fontFamily="@font/plus_jakarta_sans_medium"
-                    android:textColor="@color/primary"
-                    app:layout_constraintTop_toTopOf="@id/imageUnduh"
-                    app:layout_constraintStart_toEndOf="@id/imageUnduh"
-                    app:layout_constraintBottom_toBottomOf="@id/imageUnduh"
-                    android:layout_marginStart="7dp"/>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                android:text="Lihat Invoice Pembayaran"
+                android:textSize="15sp"
+                android:fontFamily="@font/plus_jakarta_sans_semibold"
+                android:textColor="@color/primary"
+                android:layout_marginTop="7dp"/>
 
             <TextView
                 android:id="@+id/textLabelTotalPembayaran"
