@@ -496,16 +496,6 @@ private fun MemberCheckCard(
                     fontSize = 12.sp
                 )
             }
-            if (!checked) {
-                Spacer(Modifier.height(12.dp))
-                Surface(shape = RoundedCornerShape(12.dp), color = JejakWhite, border = BorderStroke(1.dp, JejakBorder), modifier = Modifier.fillMaxWidth().height(42.dp)) {
-                    Row(Modifier.padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(painterResource(R.drawable.ic_jejak_plus), contentDescription = null, tint = JejakTextSecondary, modifier = Modifier.size(20.dp))
-                        Spacer(Modifier.width(8.dp))
-                        Text("Tambahkan Catatan", color = JejakTextSecondary, fontSize = 13.sp)
-                    }
-                }
-            }
         }
     }
 }
