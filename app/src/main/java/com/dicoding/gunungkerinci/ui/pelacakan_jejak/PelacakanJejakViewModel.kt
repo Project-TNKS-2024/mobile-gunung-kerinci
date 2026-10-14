@@ -219,12 +219,8 @@ internal class PelacakanJejakViewModel(
                         .flatMap { hiker -> hiker.checkpoints.filter { it.completed }.map { it.postId } }
                         .distinct()
 
-                    val jumlahAnggota = progress.hikers.size
-                    // Cakupan POS, bukan jumlah catatan orang: pos yang di-check-in dua orang
-                    // dihitung sekali, supaya angkanya sesuai jumlah pos di jalur.
-                    val totalPos = progress.totalPosts
-                    val posSelesai = completedPostIds.size
-                    val persenPos = if (totalPos > 0) (posSelesai * 100) / totalPos else 0
+                    // Angka progres diambil apa adanya dari server: milik pendaki yang login.
+                    val progresDiri = progress.hikers.firstOrNull { it.pendakiId == currentPendakiId }
 
                     _uiState.update {
                         it.copy(
@@ -234,13 +230,9 @@ internal class PelacakanJejakViewModel(
                             } else {
                                 TrackingPostUiMapper.toCheckpointUi(loadedPosts, completedPostIds)
                             },
-                            progressText = if (jumlahAnggota > 1) {
-                                "$jumlahAnggota anggota · $posSelesai/$totalPos pos sudah check-in ($persenPos%)"
-                            } else {
-                                progress.hikers.firstOrNull()?.let { hp ->
-                                    "${hp.nama}: $posSelesai/$totalPos pos · $persenPos%"
-                                } ?: "Progress belum tersedia"
-                            },
+                            progressText = progresDiri?.let {
+                                "${it.completed}/${it.total} checkpoint selesai · ${it.percentage}%"
+                            } ?: "Progress belum tersedia",
                             progressHikers = progress.hikers,
                             progressErrorMessage = null
                         )
