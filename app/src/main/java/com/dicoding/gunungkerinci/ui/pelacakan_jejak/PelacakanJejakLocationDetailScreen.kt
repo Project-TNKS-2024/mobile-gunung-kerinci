@@ -145,7 +145,10 @@ internal fun PelacakanJejakLocationDetailScreen(
                     avatarColor = avatarColorFor(member.name),
                     checked = member.checked,
                     pending = member.pending,
-                    enabled = !isMarkingMember && bisaUbahKehadiran,
+                    // Catatan lokal yang belum terkirim selalu boleh dibatalkan, karena belum
+                    // ada apa pun di server. Aturan "harus di pos itu" tetap berlaku untuk
+                    // pencatatan kehadiran baru.
+                    enabled = !isMarkingMember && (bisaUbahKehadiran || member.pending),
                     onToggle = { checked -> onMemberToggle(member.pendakiId, checked) },
                 )
                 if (index != members.lastIndex) {

@@ -203,6 +203,11 @@ internal class PelacakanJejakViewModel(
     fun loadProgress(token: String = currentToken, bookingId: String = currentBookingId) {
         if (token.isBlank() || bookingId.isBlank()) return
         viewModelScope.launch {
+            // Buka lagi percobaan untuk catatan yang sebelumnya menyerah, supaya antrean
+            // tidak terkunci permanen. Dijadwalkan hanya kalau memang ada yang dibuka.
+            val dibuka = trackingRepository.resetRetriableFailures(bookingId)
+            if (dibuka > 0) syncScheduler?.scheduleCheckpointSync()
+
             _uiState.update { it.copy(isLoadingProgress = true, progressErrorMessage = null) }
             trackingProgressRepository.getProgress(token, bookingId)
                 .onSuccess { progress ->

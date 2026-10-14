@@ -193,6 +193,11 @@ internal fun PelacakanJejakScreen(
                         hikers = uiState.progressHikers,
                         gpsGateState = uiState.gpsGateState
                     )
+                // Ada catatan yang belum terkirim di pos ini? Itu masih boleh dibatalkan
+                // walaupun ketua belum berada di pos ini.
+                val adaCatatanBelumTerkirim = uiState.localMemberMarks.any {
+                    it.postId == posDiBuka && it.pending
+                }
                 PelacakanJejakLocationDetailScreen(
                     detail = LocationDetailUiMapper.fromCheckpoint(
                         selectedCheckpoint,
@@ -208,6 +213,8 @@ internal fun PelacakanJejakScreen(
                     catatanKehadiran = when {
                         uiState.isKetua == false ->
                             "Hanya ketua tim yang dapat mengubah kehadiran anggota."
+                        !bisaUbahKehadiran && adaCatatanBelumTerkirim ->
+                            "Catatan yang belum terkirim masih bisa dibatalkan. Untuk menandai kehadiran baru, check-in dulu di pos ini."
                         !bisaUbahKehadiran ->
                             "Check-in dulu di pos ini untuk mengubah kehadiran anggota."
                         else -> null
