@@ -108,7 +108,6 @@ internal object LocationDetailUiMapper {
             averageEstimateValue = estimateText,
             statusText = when (checkpoint.state) {
                 CheckpointState.Completed -> "Sudah check-in"
-                CheckpointState.Current -> "Posisi saat ini"
                 CheckpointState.Upcoming -> "Belum check-in"
             },
             checkpointDescription = checkpoint.description,

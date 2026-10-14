@@ -692,7 +692,6 @@ internal fun PelacakanJejakTimelineContent(
                         item = item,
                         isFirst = index == 0,
                         isLast = index == uiState.postCheckpoints.lastIndex,
-                        showCurrentBar = item.state == CheckpointState.Current && index > 0,
                         onClick = { onCheckpointClick(item) }
                     )
                 }
@@ -776,38 +775,9 @@ private fun TimelineRow(
     item: JejakCheckpointUi,
     isFirst: Boolean,
     isLast: Boolean,
-    showCurrentBar: Boolean,
     onClick: () -> Unit = {}
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        if (showCurrentBar) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 6.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Surface(
-                    shape = RoundedCornerShape(50),
-                    color = JejakTextStrong
-                ) {
-                    Text(
-                        text = "10.44",
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-                        color = JejakWhite,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(1.dp)
-                        .background(JejakTextPrimary)
-                )
-            }
-        }
-
         Row(modifier = Modifier.fillMaxWidth()) {
             Column(
                 modifier = Modifier
@@ -842,7 +812,6 @@ private fun CheckpointCard(
 ) {
     val borderColor = when (item.state) {
         CheckpointState.Completed -> JejakBorder
-        CheckpointState.Current -> JejakBlue
         CheckpointState.Upcoming -> JejakBorder
     }
     val bg = when (item.state) {
@@ -851,7 +820,6 @@ private fun CheckpointCard(
     }
     val titleColor = when (item.state) {
         CheckpointState.Upcoming -> JejakTextSecondary
-        CheckpointState.Current -> JejakBlue
         CheckpointState.Completed -> JejakTextPrimary
     }
     val descColor = JejakTextSecondary
@@ -904,7 +872,6 @@ private fun CheckpointCard(
 private fun StatusDot(state: CheckpointState) {
     val (bg, glyph, glyphColor) = when (state) {
         CheckpointState.Completed -> Triple(JejakGreen, "✓", JejakWhite)
-        CheckpointState.Current -> Triple(JejakBlue, "✓", JejakWhite)
         CheckpointState.Upcoming -> Triple(JejakGreyMid, "", JejakWhite)
     }
     Box(

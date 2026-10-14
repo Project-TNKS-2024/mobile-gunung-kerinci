@@ -41,7 +41,7 @@ internal data class JejakCheckpointUi(
     val checkedAtLabel: String? = null
 )
 
-internal enum class CheckpointState { Completed, Current, Upcoming }
+internal enum class CheckpointState { Completed, Upcoming }
 
 /**
  * Status gerbang (gate) check-in GPS — penegakan aturan keselamatan:
