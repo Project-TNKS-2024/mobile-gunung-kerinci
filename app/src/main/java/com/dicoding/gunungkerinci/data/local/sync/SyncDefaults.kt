@@ -8,4 +8,7 @@ internal object SyncDefaults {
 
     /** Jumlah percobaan sebelum satu item antrean menyerah. */
     const val MAX_RETRY = 5
+
+    /** Kunci input data WorkManager untuk menyaring antrean per booking. */
+    const val BOOKING_ID = "bookingId"
 }

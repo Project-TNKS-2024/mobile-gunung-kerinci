@@ -206,7 +206,7 @@ internal class PelacakanJejakViewModel(
             // Buka lagi percobaan untuk catatan yang sebelumnya menyerah, supaya antrean
             // tidak terkunci permanen. Dijadwalkan hanya kalau memang ada yang dibuka.
             val dibuka = trackingRepository.resetRetriableFailures(bookingId)
-            if (dibuka > 0) syncScheduler?.scheduleCheckpointSync()
+            if (dibuka > 0) syncScheduler?.scheduleCheckpointSync(bookingId)
 
             _uiState.update { it.copy(isLoadingProgress = true, progressErrorMessage = null) }
             trackingProgressRepository.getProgress(token, bookingId)
@@ -844,7 +844,7 @@ internal class PelacakanJejakViewModel(
         val tersimpan = runCatching { trackingRepository.saveCheckpointPending(log) }.isSuccess
 
         if (tersimpan) {
-            syncScheduler?.scheduleCheckpointSync()
+            syncScheduler?.scheduleCheckpointSync(currentBookingId)
             if (tandaiTimeline) {
                 // Optimistis: tampilkan pos ini sebagai selesai di timeline.
                 completedPostIds += postId

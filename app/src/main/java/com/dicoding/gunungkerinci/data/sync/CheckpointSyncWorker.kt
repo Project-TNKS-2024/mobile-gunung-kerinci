@@ -18,6 +18,7 @@ import com.dicoding.gunungkerinci.pref.UserPreference
 
 /**
  * Kirim antrean check-in yang tersimpan saat offline.
+ * Hanya baris milik booking pada input data yang ikut dikirim.
  * 409 dihitung berhasil (sudah check-in di pos itu), 403/404/422 berhenti,
  * sisanya dicoba lagi sampai [SyncDefaults.MAX_RETRY] kali.
  */
@@ -30,7 +31,11 @@ class CheckpointSyncWorker(
         val dao = TnksDatabase.getInstance(applicationContext).checkpointLogDao()
         // Sisa worker yang mati di tengah kirim.
         dao.resetStuckSyncing()
-        val antrean = dao.getPendingSync().filter { it.retryCount < SyncDefaults.MAX_RETRY }
+        val bookingId = inputData.getString(SyncDefaults.BOOKING_ID).orEmpty()
+        val antrean = dao.getPendingSync()
+            .filter { it.retryCount < SyncDefaults.MAX_RETRY }
+            // Saring per booking: antrean milik akun lain tidak boleh ikut terkirim.
+            .filter { bookingId.isBlank() || it.bookingId == bookingId }
         // Antrean kosong: tidak ada kerjaan, sudahi sebelum cek login.
         if (antrean.isEmpty()) return Result.success()
 
