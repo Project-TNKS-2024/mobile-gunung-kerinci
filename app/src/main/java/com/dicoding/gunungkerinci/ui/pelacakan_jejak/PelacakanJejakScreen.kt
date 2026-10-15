@@ -43,6 +43,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,11 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dicoding.gunungkerinci.R
 
-private sealed interface JejakScreenState {
-    data object Ticket : JejakScreenState
-    data object Timeline : JejakScreenState
-    data object LocationDetail : JejakScreenState
-}
+private enum class JejakScreenState { Ticket, Timeline, LocationDetail }
 
 @Composable
 internal fun PelacakanJejakScreen(
@@ -73,44 +70,103 @@ internal fun PelacakanJejakScreen(
     onGpsCheckInClick: () -> Unit = {},
     onManualCheckInConfirm: (postId: Int) -> Unit = {},
     onDismissGpsDialog: () -> Unit = {},
-    onLocationDetailOpened: () -> Unit = {},
+    onPrepareCheckIn: (Int) -> Unit = {},
+    onCheckInResultHandled: () -> Unit = {},
     /** Ketua tim menandai/membatalkan kehadiran anggota pada pos yang sedang dibuka. */
     onMemberToggle: (pendakiId: String, checked: Boolean, postId: Int?) -> Unit = { _, _, _ -> }
 ) {
-    var screenState by remember { mutableStateOf<JejakScreenState>(JejakScreenState.Ticket) }
-    var selectedCheckpoint by remember { mutableStateOf<JejakCheckpointUi?>(null) }
+    var screenState by rememberSaveable { mutableStateOf(JejakScreenState.Ticket) }
+    var selectedPostId by rememberSaveable { mutableStateOf<Int?>(null) }
+    val selectedCheckpoint = uiState.postCheckpoints.firstOrNull { it.postId == selectedPostId }
+    var showCheckInMethods by rememberSaveable { mutableStateOf(false) }
+    var checkingWithRadius by rememberSaveable { mutableStateOf(false) }
 
     // Tombol back HP mengikuti alur layar Jejak (detail pos → timeline → tiket), bukan
     // langsung melompat ke Beranda lewat navigasi tab bawah.
-    BackHandler(enabled = screenState !is JejakScreenState.Ticket) {
+    BackHandler(enabled = screenState != JejakScreenState.Ticket) {
+        checkingWithRadius = false
+        showCheckInMethods = false
+        onDismissGpsDialog()
         screenState = when (screenState) {
             JejakScreenState.LocationDetail -> JejakScreenState.Timeline
             else -> JejakScreenState.Ticket
         }
     }
 
-    // Auto-deteksi radius saat layar detail pos dibuka — pendaki langsung tahu
-    // apakah dirinya boleh check-in tanpa harus menekan tombol cek dulu.
-    LaunchedEffect(screenState) {
-        if (screenState is JejakScreenState.LocationDetail) {
-            onLocationDetailOpened()
+    LaunchedEffect(uiState.checkedInPostId) {
+        val checkedPostId = uiState.checkedInPostId ?: return@LaunchedEffect
+        if (checkedPostId == selectedPostId) {
+            checkingWithRadius = false
+            showCheckInMethods = false
+            screenState = JejakScreenState.LocationDetail
         }
+        onCheckInResultHandled()
+    }
+
+    if (showCheckInMethods && selectedCheckpoint != null) {
+        AlertDialog(
+            onDismissRequest = { showCheckInMethods = false },
+            containerColor = JejakWhite,
+            titleContentColor = JejakTextPrimary,
+            textContentColor = JejakTextBody,
+            title = { Text(selectedCheckpoint.name) },
+            text = { Text("Pilih metode check-in untuk pos ini.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showCheckInMethods = false
+                        onScanQrClick()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = JejakBlue)
+                ) { Text("Scan QR", color = JejakWhite) }
+            },
+            dismissButton = {
+                Button(
+                    onClick = {
+                        showCheckInMethods = false
+                        checkingWithRadius = true
+                        onGpsCheckInClick()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = JejakBlue)
+                ) { Text("Radius", color = JejakWhite) }
+            }
+        )
+    }
+
+    if ((checkingWithRadius && uiState.isCheckingGps) || uiState.isCheckingIn) {
+        AlertDialog(
+            onDismissRequest = {
+                checkingWithRadius = false
+                onDismissGpsDialog()
+            },
+            containerColor = JejakWhite,
+            title = { Text(if (uiState.isCheckingIn) "Mencatat Check-in" else "Memeriksa Radius", color = JejakTextPrimary) },
+            text = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = JejakBlue)
+                    Spacer(Modifier.width(12.dp))
+                    Text(if (uiState.isCheckingIn) "Mencatat kehadiran di ${selectedCheckpoint?.name.orEmpty()}."
+                        else "Memeriksa lokasi untuk ${selectedCheckpoint?.name.orEmpty()}.")
+                }
+            },
+            confirmButton = {}
+        )
     }
 
     // Dialog konfirmasi GPS check-in — HANYA muncul saat backend mendeteksi
     // within_radius = true. Di luar radius, dialog ini tidak pernah tampil,
     // sehingga tidak ada jalan untuk check-in dari luar radius.
     val nearbyPost = uiState.nearbyPost
-    if (nearbyPost != null) {
+    if (checkingWithRadius && nearbyPost != null) {
         // GPS bisa mendeteksi pos lain daripada pos yang sedang dibuka (mis. pendaki masih
         // di Shelter 1 tetapi membuka layar Pos 2). Check-in ke pos lain itu tidak ditawarkan.
         val posDibuka = selectedCheckpoint
-        val posSesuai = posDibuka?.postId == null || posDibuka.postId == nearbyPost.id
+        val posSesuai = posDibuka?.postId == nearbyPost.id
         // Warna dialog disetel eksplisit: layar ini tidak dibungkus MaterialTheme, jadi
         // tanpa itu wadahnya ikut tema bawaan (abu-abu), bukan putih.
         if (posSesuai) {
             AlertDialog(
-                onDismissRequest = onDismissGpsDialog,
+                onDismissRequest = { checkingWithRadius = false; onDismissGpsDialog() },
                 containerColor = JejakWhite,
                 titleContentColor = JejakTextPrimary,
                 textContentColor = JejakTextBody,
@@ -125,6 +181,7 @@ internal fun PelacakanJejakScreen(
                 confirmButton = {
                     Button(
                         onClick = { onManualCheckInConfirm(nearbyPost.id) },
+                        enabled = !uiState.isManualCheckingIn,
                         colors = ButtonDefaults.buttonColors(containerColor = JejakBlue)
                     ) {
                         Text("Check-in", color = JejakWhite)
@@ -132,7 +189,7 @@ internal fun PelacakanJejakScreen(
                 },
                 dismissButton = {
                     Button(
-                        onClick = onDismissGpsDialog,
+                        onClick = { checkingWithRadius = false; onDismissGpsDialog() },
                         colors = ButtonDefaults.buttonColors(containerColor = JejakBorder)
                     ) {
                         Text("Batal", color = JejakTextPrimary)
@@ -141,7 +198,7 @@ internal fun PelacakanJejakScreen(
             )
         } else {
             AlertDialog(
-                onDismissRequest = onDismissGpsDialog,
+                onDismissRequest = { checkingWithRadius = false; onDismissGpsDialog() },
                 containerColor = JejakWhite,
                 titleContentColor = JejakTextPrimary,
                 textContentColor = JejakTextBody,
@@ -156,7 +213,7 @@ internal fun PelacakanJejakScreen(
                 },
                 confirmButton = {
                     Button(
-                        onClick = onDismissGpsDialog,
+                        onClick = { checkingWithRadius = false; onDismissGpsDialog() },
                         colors = ButtonDefaults.buttonColors(containerColor = JejakBlue)
                     ) {
                         Text("Mengerti", color = JejakWhite)
@@ -181,8 +238,14 @@ internal fun PelacakanJejakScreen(
                 uiState = uiState,
                 onBack = { screenState = JejakScreenState.Ticket },
                 onCheckpointClick = { checkpoint ->
-                    selectedCheckpoint = checkpoint
-                    screenState = JejakScreenState.LocationDetail
+                    checkpoint.postId?.takeIf {
+                        !uiState.isCheckingIn && !uiState.isManualCheckingIn && !uiState.isCheckingGps
+                    }?.let { postId ->
+                        selectedPostId = postId
+                        checkingWithRadius = false
+                        onPrepareCheckIn(postId)
+                        showCheckInMethods = true
+                    }
                 },
                 onRetryLoadPosts = onRetryLoadPosts,
                 onDaySelected = onDaySelected
@@ -207,7 +270,6 @@ internal fun PelacakanJejakScreen(
                         posDiBuka,
                         uiState.localMemberMarks
                     ),
-                    posId = posDiBuka,
                     myPendakiId = uiState.myPendakiId,
                     bisaUbahKehadiran = bisaUbahKehadiran,
                     catatanKehadiran = when {
@@ -215,18 +277,13 @@ internal fun PelacakanJejakScreen(
                             "Hanya ketua tim yang dapat mengubah kehadiran anggota."
                         !bisaUbahKehadiran && adaCatatanBelumTerkirim ->
                             "Catatan yang belum terkirim masih bisa dibatalkan. Untuk menandai kehadiran baru, check-in dulu di pos ini."
-                        !bisaUbahKehadiran ->
-                            "Check-in dulu di pos ini untuk mengubah kehadiran anggota."
                         else -> null
                     },
-                    gpsGateState = uiState.gpsGateState,
-                    isCheckingGps = uiState.isCheckingGps,
                     isMarkingMember = uiState.isMarkingMember,
                     memberMarkMessage = uiState.memberMarkMessage,
                     memberMarkErrorMessage = uiState.memberMarkErrorMessage,
                     onBack = { screenState = JejakScreenState.Timeline },
-                    onScanQrClick = onScanQrClick,
-                    onGpsCheckInClick = onGpsCheckInClick,
+                    onContinueHike = { screenState = JejakScreenState.Timeline },
                     onMemberToggle = { pendakiId, checked ->
                         onMemberToggle(pendakiId, checked, posDiBuka)
                     }

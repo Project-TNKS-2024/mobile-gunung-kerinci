@@ -47,8 +47,6 @@ import com.dicoding.gunungkerinci.R
 internal fun PelacakanJejakLocationDetailScreen(
     detail: LocationDetailUi = LocationDetailUi.Default,
     members: List<JejakMemberUi> = emptyList(),
-    /** Id pos yang sedang dibuka — dibandingkan dengan pos hasil deteksi GPS. */
-    posId: Int? = null,
     myPendakiId: String? = null,
     /**
      * true kalau ketua tim DAN dirinya sudah terbukti berada di pos ini.
@@ -57,8 +55,6 @@ internal fun PelacakanJejakLocationDetailScreen(
     bisaUbahKehadiran: Boolean = false,
     /** Alasan switch dinonaktifkan, ditampilkan di bawah judul "Cek Anggota". */
     catatanKehadiran: String? = null,
-    gpsGateState: GpsGateState = GpsGateState.Unknown,
-    isCheckingGps: Boolean = false,
     /** true selagi permintaan kehadiran anggota diproses — toggle dinonaktifkan. */
     isMarkingMember: Boolean = false,
     /** Pesan berhasil penandaan kehadiran anggota. */
@@ -66,8 +62,7 @@ internal fun PelacakanJejakLocationDetailScreen(
     /** Pesan galat penandaan kehadiran anggota (mis. ditolak server karena bukan ketua). */
     memberMarkErrorMessage: String? = null,
     onBack: () -> Unit,
-    onScanQrClick: () -> Unit,
-    onGpsCheckInClick: () -> Unit = {},
+    onContinueHike: () -> Unit,
     /**
      * Ketua tim mengubah status kehadiran anggota pada pos ini.
      * Dipanggil dengan (pendakiId, checked). Server memverifikasi hak akses,
@@ -164,7 +159,7 @@ internal fun PelacakanJejakLocationDetailScreen(
         }
         Spacer(Modifier.height(18.dp))
         Button(
-            onClick = onScanQrClick,
+            onClick = onContinueHike,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
@@ -173,114 +168,9 @@ internal fun PelacakanJejakLocationDetailScreen(
         ) {
             Icon(painterResource(R.drawable.ic_jejak_arrow_right), contentDescription = null, tint = JejakWhite, modifier = Modifier.size(20.dp))
             Spacer(Modifier.width(8.dp))
-            Text("Scan QR Check-in", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+            Text("Lanjutkan Pendakian", fontWeight = FontWeight.Bold, fontSize = 15.sp)
         }
-        Spacer(Modifier.height(10.dp))
-        GpsCheckInButton(
-            gateState = gpsGateState,
-            isChecking = isCheckingGps,
-            posId = posId,
-            onClick = onGpsCheckInClick
-        )
         Spacer(Modifier.height(32.dp))
-    }
-}
-
-/**
- * Tombol check-in GPS dengan penegakan aturan keselamatan:
- * check-in hanya mungkin saat GPS hidup DAN pendaki berada di dalam radius pos.
- *
- * Aksi tombol selalu "deteksi posisi" (read-only). Absen sebenarnya baru terjadi
- * lewat dialog konfirmasi yang MUNCUL HANYA ketika within_radius = true — jadi di
- * luar radius pendaki tidak punya jalan untuk check-in.
- *
- * - [GpsGateState.Unknown]     → "Cek Posisi GPS"
- * - [GpsGateState.GpsOff]      → "Aktifkan GPS & Cek Ulang"
- * - [GpsGateState.GagalCek]    → "Coba Cek Posisi Lagi" (server tidak terhubung)
- * - [GpsGateState.LuarRadius]  → "Cek Ulang Posisi" (tidak bisa absen)
- * - [GpsGateState.DalamRadius] → "Check-in Pos Ini" (aktif, hijau). Kalau pos yang
- *   terdeteksi berbeda dari pos yang dibuka → "Belum Sampai Pos Ini"
- */
-@Composable
-private fun GpsCheckInButton(
-    gateState: GpsGateState,
-    isChecking: Boolean,
-    posId: Int?,
-    onClick: () -> Unit
-) {
-    val dalamRadius = gateState as? GpsGateState.DalamRadius
-    // Deteksi GPS bisa menunjuk pos lain daripada pos yang sedang dibuka (mis. pendaki
-    // masih di Shelter 1 tetapi membuka layar Pos 2). Pos lain itu tidak boleh di-absen.
-    val posBeda = dalamRadius != null && posId != null && dalamRadius.postId != posId
-    val isReady = dalamRadius != null && !posBeda
-
-    val label = when {
-        isChecking -> "Memeriksa Posisi GPS..."
-        posBeda -> "Belum Sampai Pos Ini"
-        isReady -> "Check-in Pos Ini"
-        gateState is GpsGateState.LuarRadius -> "Cek Ulang Posisi"
-        gateState is GpsGateState.GpsOff -> "Aktifkan GPS & Cek Ulang"
-        gateState is GpsGateState.GagalCek -> "Coba Cek Posisi Lagi"
-        else -> "Cek Posisi GPS"
-    }
-
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Button(
-            onClick = onClick,
-            enabled = !isChecking,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp),
-            shape = RoundedCornerShape(14.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (isReady) JejakGreen else JejakWhite,
-                contentColor = if (isReady) JejakWhite else JejakBlue,
-                disabledContainerColor = JejakBorder,
-                disabledContentColor = JejakTextSecondary
-            ),
-            border = if (isReady) null else BorderStroke(1.dp, JejakBlue)
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.ic_jejak_qr),
-                contentDescription = null,
-                tint = if (isReady) JejakWhite else JejakBlue,
-                modifier = Modifier.size(20.dp)
-            )
-            Spacer(Modifier.width(8.dp))
-            Text(label, fontWeight = FontWeight.Bold, fontSize = 15.sp)
-        }
-        // Alasan terkunci — ditampilkan di bawah tombol supaya pendaki tahu kenapa tidak bisa absen.
-        val reason = when (gateState) {
-            is GpsGateState.GpsOff ->
-                "GPS tidak aktif / izin lokasi ditolak. Check-in tidak bisa dilakukan sebelum GPS aktif."
-            is GpsGateState.LuarRadius ->
-                "Kamu ${gateState.distanceMeters.toInt()} m dari ${gateState.postName} " +
-                        "(radius ${gateState.radiusMeter} m). Di luar radius, check-in tidak diizinkan."
-            is GpsGateState.DalamRadius ->
-                if (posBeda) {
-                    "GPS mendeteksi kamu ${gateState.distanceMeters.toInt()} m dari ${gateState.postName}, " +
-                            "bukan dari pos ini. Check-in hanya bisa di pos tempat kamu berada."
-                } else {
-                    "Kamu berada ${gateState.distanceMeters.toInt()} m dari ${gateState.postName}, siap check-in."
-                }
-            is GpsGateState.GagalCek ->
-                "Cek posisi ke server gagal (butuh internet). Pakai Scan QR Check-in, atau coba lagi."
-            GpsGateState.Unknown -> null
-        }
-        if (reason != null) {
-            Spacer(Modifier.height(8.dp))
-            Text(
-                text = reason,
-                color = when {
-                    posBeda -> JejakYellowDark
-                    gateState is GpsGateState.DalamRadius -> JejakGreen
-                    gateState is GpsGateState.LuarRadius -> JejakYellowDark
-                    else -> JejakTextSecondary
-                },
-                fontSize = 12.sp,
-                lineHeight = 16.sp
-            )
-        }
     }
 }
 
@@ -541,6 +431,6 @@ private fun avatarColorFor(name: String): Color =
 private fun PreviewLocationDetail() {
     PelacakanJejakLocationDetailScreen(
         onBack = {},
-        onScanQrClick = {}
+        onContinueHike = {}
     )
 }

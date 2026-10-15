@@ -39,6 +39,8 @@ internal data class PelacakanJejakUiState(
     val isCheckingIn: Boolean = false,
     val qrScanMessage: String? = null,
     val qrScanErrorMessage: String? = null,
+    val expectedCheckInPostId: Int? = null,
+    val checkedInPostId: Int? = null,
     // GPS check state
     val isCheckingGps: Boolean = false,
     val nearbyPost: GpsNearestPost? = null,         // pos terdekat saat within_radius true
@@ -109,7 +111,9 @@ internal class PelacakanJejakViewModel(
                 progressErrorMessage = null,
                 isKetua = null,
                 myPendakiId = null,
-                memberMarkPostIds = emptyList()
+                memberMarkPostIds = emptyList(),
+                expectedCheckInPostId = null,
+                checkedInPostId = null
             )
         }
     }
@@ -193,7 +197,7 @@ internal class PelacakanJejakViewModel(
         currentGateId = gateId
         if (currentBookingId != bookingId) {
             completedPostIds.clear()
-            _uiState.update { it.copy(postCheckpoints = emptyList(), progressHikers = emptyList(), localMemberMarks = emptyList(), memberMarkPostIds = emptyList()) }
+            _uiState.update { it.copy(postCheckpoints = emptyList(), progressHikers = emptyList(), localMemberMarks = emptyList(), memberMarkPostIds = emptyList(), expectedCheckInPostId = null, checkedInPostId = null) }
         }
         currentBookingId = bookingId
         viewModelScope.launch {
@@ -276,6 +280,23 @@ internal class PelacakanJejakViewModel(
         }
     }
 
+    fun prepareCheckpointCheckIn(postId: Int) {
+        _uiState.update {
+            it.copy(
+                expectedCheckInPostId = postId,
+                checkedInPostId = null,
+                nearbyPost = null,
+                posTerdekatId = null,
+                gpsGateState = GpsGateState.Unknown,
+                gpsCheckErrorMessage = null
+            )
+        }
+    }
+
+    fun clearCheckInNavigation() {
+        _uiState.update { it.copy(checkedInPostId = null) }
+    }
+
     fun onQrScanned(
         rawValue: String?,
         latitude: Double? = null,
@@ -284,10 +305,19 @@ internal class PelacakanJejakViewModel(
         accuracy: Double? = null,
         batteryLevel: Int? = null
     ) {
+        if (_uiState.value.isCheckingIn) return
         val payload = CheckpointQrParser.parse(rawValue)
         if (payload == null) {
             _uiState.update {
                 it.copy(qrScanMessage = null, qrScanErrorMessage = "Format QR tidak dikenali")
+            }
+            return
+        }
+
+        val expectedPostId = _uiState.value.expectedCheckInPostId
+        if (expectedPostId != null && payload.postId != expectedPostId) {
+            _uiState.update {
+                it.copy(qrScanMessage = null, qrScanErrorMessage = "QR tidak sesuai dengan pos yang dipilih.")
             }
             return
         }
@@ -321,13 +351,15 @@ internal class PelacakanJejakViewModel(
 
             // Anti-duplikasi: kalau pos ini sudah pernah tercatat check-in (mis. sebelumnya
             // tersimpan di antrean offline), jangan kirim ulang.
-            if (currentBookingId.isNotBlank() && currentPendakiId.isNotBlank() &&
-                trackingRepository.hasCheckedIn(currentBookingId, currentPendakiId, payload.postId)
+            if (payload.postId in completedPostIds ||
+                (currentBookingId.isNotBlank() && currentPendakiId.isNotBlank() &&
+                    trackingRepository.hasCheckedIn(currentBookingId, currentPendakiId, payload.postId))
             ) {
                 _uiState.update {
                     it.copy(
                         isCheckingIn = false,
                         qrScanMessage = "Pos ini sudah tercatat check-in.",
+                        checkedInPostId = payload.postId,
                         qrScanErrorMessage = null
                     )
                 }
@@ -359,6 +391,7 @@ internal class PelacakanJejakViewModel(
                         it.copy(
                             isCheckingIn = false,
                             postCheckpoints = rebuildCheckpoints(),
+                            checkedInPostId = data.post.id,
                             progressText = "${data.progress.completed}/${data.progress.total} checkpoint selesai · ${data.progress.percentage}%",
                             qrScanMessage = "Check-in berhasil di ${data.post.nama} · Progress ${data.progress.percentage}%",
                             qrScanErrorMessage = null
@@ -386,6 +419,7 @@ internal class PelacakanJejakViewModel(
                                 qrScanMessage = if (tersimpan) {
                                     "Tidak ada sinyal, check-in ${payload.postId} disimpan & akan dikirim otomatis."
                                 } else null,
+                                checkedInPostId = if (tersimpan) payload.postId else null,
                                 qrScanErrorMessage = if (tersimpan) {
                                     null
                                 } else {
@@ -733,6 +767,16 @@ internal class PelacakanJejakViewModel(
         accuracy: Double? = null,
         batteryLevel: Int? = null
     ) {
+        if (_uiState.value.isManualCheckingIn) return
+        val expectedPostId = _uiState.value.expectedCheckInPostId
+        if (expectedPostId != null && postId != expectedPostId) {
+            _uiState.update { it.copy(manualCheckInErrorMessage = "Pos tidak sesuai dengan pilihan check-in.") }
+            return
+        }
+        if (postId in completedPostIds) {
+            _uiState.update { it.copy(nearbyPost = null, checkedInPostId = postId) }
+            return
+        }
         viewModelScope.launch {
             _uiState.update {
                 it.copy(
@@ -749,6 +793,7 @@ internal class PelacakanJejakViewModel(
                         it.copy(
                             isManualCheckingIn = false,
                             nearbyPost = null,
+                            checkedInPostId = data.post.id,
                             posTerdekatId = null,
                             postCheckpoints = rebuildCheckpoints(),
                             progressText = "${data.progress.completed}/${data.progress.total} checkpoint selesai · ${data.progress.percentage}%",
@@ -778,6 +823,7 @@ internal class PelacakanJejakViewModel(
                                 manualCheckInMessage = if (tersimpan) {
                                     "Tidak ada sinyal, check-in manual disimpan & akan dikirim otomatis."
                                 } else null,
+                                checkedInPostId = if (tersimpan) postId else null,
                                 manualCheckInErrorMessage = if (tersimpan) {
                                     null
                                 } else {
