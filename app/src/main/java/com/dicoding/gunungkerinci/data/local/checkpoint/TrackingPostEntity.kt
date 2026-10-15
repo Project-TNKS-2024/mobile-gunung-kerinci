@@ -1,5 +1,6 @@
 package com.dicoding.gunungkerinci.data.local.checkpoint
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -14,5 +15,9 @@ data class TrackingPostEntity(
     val altitude: Double?,
     val radiusMeter: Double,
     val qrCodeValue: String?,
-    val status: String
+    val status: String,
+    val estimatedTimeMinutes: Int? = null,
+    @ColumnInfo(defaultValue = "0") val infoIsDummy: Boolean = false,
+    val temperatureC: Double? = null,
+    val distanceToSummitM: Int? = null
 )

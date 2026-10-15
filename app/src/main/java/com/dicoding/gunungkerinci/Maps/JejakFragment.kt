@@ -147,6 +147,7 @@ class JejakFragment : Fragment() {
                 PelacakanJejakScreen(
                     uiState = uiState,
                     onRetryLoadPosts = { loadActiveHike() },
+                    onDaySelected = viewModel::selectDay,
                     onScanQrClick = { launchQrScanner() },
                     onGpsCheckInClick = { launchGpsCheckIn() },
                     onManualCheckInConfirm = { postId ->

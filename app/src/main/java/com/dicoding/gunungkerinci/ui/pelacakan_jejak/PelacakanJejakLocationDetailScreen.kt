@@ -49,11 +49,12 @@ internal fun PelacakanJejakLocationDetailScreen(
     members: List<JejakMemberUi> = emptyList(),
     /** Id pos yang sedang dibuka — dibandingkan dengan pos hasil deteksi GPS. */
     posId: Int? = null,
+    myPendakiId: String? = null,
     /**
      * true kalau ketua tim DAN dirinya sudah terbukti berada di pos ini.
      * Kalau false, switch kehadiran anggota dinonaktifkan.
      */
-    bisaUbahKehadiran: Boolean = true,
+    bisaUbahKehadiran: Boolean = false,
     /** Alasan switch dinonaktifkan, ditampilkan di bawah judul "Cek Anggota". */
     catatanKehadiran: String? = null,
     gpsGateState: GpsGateState = GpsGateState.Unknown,
@@ -90,9 +91,6 @@ internal fun PelacakanJejakLocationDetailScreen(
         Spacer(Modifier.height(8.dp))
         WelcomeCheckpointCard(
             positionLabel = detail.positionLabel,
-            postLabel = detail.postLabel,
-            placeName = detail.placeName,
-            statusText = detail.statusText
         )
         Spacer(Modifier.height(22.dp))
         SectionTitleLocal("Informasi Lokasi")
@@ -109,8 +107,8 @@ internal fun PelacakanJejakLocationDetailScreen(
             waterSourceStatus = detail.waterSourceStatus,
             campingStatus = detail.campingStatus,
             mountainStatus = detail.mountainStatus,
-            statusText = detail.statusText,
-            checkpointDescription = detail.checkpointDescription
+            temperatureText = detail.temperatureText,
+            distanceToSummitText = detail.distanceToSummitText
         )
         Spacer(Modifier.height(24.dp))
         SectionTitleLocal("Cek Anggota")
@@ -145,10 +143,8 @@ internal fun PelacakanJejakLocationDetailScreen(
                     avatarColor = avatarColorFor(member.name),
                     checked = member.checked,
                     pending = member.pending,
-                    // Catatan lokal yang belum terkirim selalu boleh dibatalkan, karena belum
-                    // ada apa pun di server. Aturan "harus di pos itu" tetap berlaku untuk
-                    // pencatatan kehadiran baru.
-                    enabled = !isMarkingMember && (bisaUbahKehadiran || member.pending),
+                    enabled = !isMarkingMember && member.pendakiId != myPendakiId &&
+                        (bisaUbahKehadiran || member.pending),
                     onToggle = { checked -> onMemberToggle(member.pendakiId, checked) },
                 )
                 if (index != members.lastIndex) {
@@ -319,14 +315,11 @@ private fun LocationTopBar(onBack: () -> Unit) {
 
 @Composable
 private fun WelcomeCheckpointCard(
-    positionLabel: String = "POS 3",
-    postLabel: String = "Pos 3:",
-    placeName: String = "Pondok Panorama",
-    statusText: String = "Posisi saat ini"
+    positionLabel: String
 ) {
     // Card sambutan: ilustrasi man_with_map + latar biru langit #559BD4, radius 8.
     // Teks 16.sp semua — "Selamat Datang!" #CCCCCC, "Saat ini anda berada di" #232323,
-    // "POS n" #0169BF.
+    // Nama pos dari data lokasi #0169BF.
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -406,18 +399,15 @@ private fun LocationInfoGrid(
     waterSourceStatus: String,
     campingStatus: String,
     mountainStatus: String,
-    statusText: String,
-    checkpointDescription: String
+    temperatureText: String,
+    distanceToSummitText: String
 ) {
-    // Audit 2026-09-16: label diperbaiki supaya cocok dengan nilainya.
-    // CATATAN: ikon dua kotak dikembalikan ke versi semula atas permintaan Satria
-    // (ic_temperature_16_filled & ic_sort_amount_up_alt) — jadi label baru + ikon lama.
     val items = listOf(
         Triple("Status Gunung", mountainStatus, R.drawable.ic_mount_fuji),
         Triple("Ketinggian", altitudeText, R.drawable.ic_mountain_location_top),
-        Triple("Status Check-in", statusText, R.drawable.ic_temperature_16_filled),
+        Triple("Suhu", temperatureText, R.drawable.ic_temperature_16_filled),
         Triple("Sumber Mata Air", waterSourceStatus, R.drawable.ic_water),
-        Triple("Checkpoint", checkpointDescription, R.drawable.ic_sort_amount_up_alt),
+        Triple("Jarak ke Puncak", distanceToSummitText, R.drawable.ic_sort_amount_up_alt),
         Triple("Berkemah", campingStatus, R.drawable.ic_camping),
     )
 

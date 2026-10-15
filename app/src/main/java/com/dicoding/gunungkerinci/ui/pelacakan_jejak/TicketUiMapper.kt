@@ -92,6 +92,35 @@ internal object TicketUiMapper {
 
     private fun shortId(id: String): String = id.take(8).uppercase(Locale.ROOT)
 
+    private val NAMA_BULAN_SINGKAT = listOf(
+        "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
+        "Jul", "Agu", "Sep", "Okt", "Nov", "Des"
+    )
+
+    /**
+     * Daftar hari pendakian dari tanggal masuk s.d. keluar → chip "Hari 1 / Hari 2 / …".
+     * Hari pertama ditandai terpilih. Memakai [java.util.Calendar] agar tetap jalan di minSdk 24
+     * (java.time baru tersedia API 26 tanpa desugaring).
+     */
+    fun toDays(tanggalMasuk: String?, tanggalKeluar: String?): List<JejakDayUi> {
+        val mulai = toCalendar(tanggalMasuk) ?: return emptyList()
+        val selesai = toCalendar(tanggalKeluar) ?: mulai
+        val hari = mutableListOf<JejakDayUi>()
+        var kursor = mulai
+        var nomor = 1
+        while (!kursor.after(selesai)) {
+            hari += JejakDayUi(
+                title = "Hari $nomor",
+                date = "${kursor.get(Calendar.DAY_OF_MONTH)} ${NAMA_BULAN_SINGKAT[kursor.get(Calendar.MONTH)]}",
+                selected = nomor == 1,
+                isoDate = String.format(Locale.US, "%04d-%02d-%02d", kursor.get(Calendar.YEAR), kursor.get(Calendar.MONTH) + 1, kursor.get(Calendar.DAY_OF_MONTH))
+            )
+            kursor = (kursor.clone() as Calendar).apply { add(Calendar.DAY_OF_MONTH, 1) }
+            nomor++
+        }
+        return hari
+    }
+
     /** "2026-09-13" → "September 2026" (label periode di atas timeline). */
     fun toPeriodeLabel(tanggalMasuk: String?): String? {
         val kalender = toCalendar(tanggalMasuk) ?: return null
@@ -104,7 +133,14 @@ internal object TicketUiMapper {
         val tahun = bagian[0].toIntOrNull() ?: return null
         val bulan = bagian[1].toIntOrNull() ?: return null
         val tanggal = bagian[2].toIntOrNull() ?: return null
-        return Calendar.getInstance().apply { set(tahun, bulan - 1, tanggal) }
+        return runCatching {
+            Calendar.getInstance(java.util.TimeZone.getTimeZone("Asia/Jakarta")).apply {
+                clear()
+                isLenient = false
+                set(tahun, bulan - 1, tanggal)
+                timeInMillis // Force strict validation.
+            }
+        }.getOrNull()
     }
 
     /** "2026-09-13" atau "2026-09-12T04:31:25.000000Z" → "13 September 2026". */

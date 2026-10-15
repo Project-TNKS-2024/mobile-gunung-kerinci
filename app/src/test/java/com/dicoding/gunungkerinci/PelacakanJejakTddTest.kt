@@ -91,7 +91,7 @@ class PelacakanJejakTddTest {
         // Urutan tampil mengikuti urutan pos, bukan urutan data dari server.
         assertEquals(listOf("Pos 1", "Pos 2", "Puncak Kerinci"), dariPost.map { it.name })
         assertEquals(
-            listOf(CheckpointState.Completed, CheckpointState.Upcoming, CheckpointState.Upcoming),
+            listOf(CheckpointState.Completed, CheckpointState.Current, CheckpointState.Upcoming),
             dariPost.map { it.state }
         )
 
@@ -106,7 +106,7 @@ class PelacakanJejakTddTest {
 
         // Urut naik walau input dari server acak, dan pos yang sudah check-in berstatus Completed.
         assertEquals(listOf(1, 2), dariProgress.map { it.postId })
-        assertEquals(listOf(CheckpointState.Completed, CheckpointState.Upcoming), dariProgress.map { it.state })
+        assertEquals(listOf(CheckpointState.Completed, CheckpointState.Current), dariProgress.map { it.state })
         assertEquals(listOf("Budi"), dariProgress.first { it.postId == 1 }.memberNames)
     }
 

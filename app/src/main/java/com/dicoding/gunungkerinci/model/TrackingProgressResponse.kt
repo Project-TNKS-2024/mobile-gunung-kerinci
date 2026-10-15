@@ -13,7 +13,9 @@ data class TrackingProgressData(
     @SerializedName("booking_id") val bookingId: String,
     @SerializedName("gate") val gate: String?,
     @SerializedName("total_posts") val totalPosts: Int,
-    @SerializedName("hikers") val hikers: List<TrackingProgressHiker>
+    @SerializedName("hikers") val hikers: List<TrackingProgressHiker>,
+    @SerializedName("member_mark_post_ids") val memberMarkPostIds: List<Int>? = null,
+    @SerializedName("current_pendaki_id") val currentPendakiId: String? = null
 )
 
 data class TrackingProgressHiker(
@@ -31,5 +33,8 @@ data class TrackingProgressCheckpoint(
     @SerializedName("urutan") val urutan: Int,
     @SerializedName("completed") val completed: Boolean,
     @SerializedName("checked_at") val checkedAt: String?,
-    @SerializedName("method") val method: String?
+    @SerializedName("method") val method: String?,
+    @SerializedName("estimated_arrival_at") val estimatedArrivalAt: String? = null,
+    @SerializedName("travel_minutes_from_previous") val travelMinutesFromPrevious: Int? = null,
+    @SerializedName("estimate_is_dummy") val estimateIsDummy: Boolean = false
 )

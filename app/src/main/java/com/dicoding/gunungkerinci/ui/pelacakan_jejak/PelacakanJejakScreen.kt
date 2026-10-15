@@ -21,6 +21,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.ui.semantics.Role
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -64,6 +68,7 @@ private sealed interface JejakScreenState {
 internal fun PelacakanJejakScreen(
     uiState: PelacakanJejakUiState = PelacakanJejakUiState(),
     onRetryLoadPosts: () -> Unit = {},
+    onDaySelected: (Int) -> Unit = {},
     onScanQrClick: () -> Unit = {},
     onGpsCheckInClick: () -> Unit = {},
     onManualCheckInConfirm: (postId: Int) -> Unit = {},
@@ -179,20 +184,14 @@ internal fun PelacakanJejakScreen(
                     selectedCheckpoint = checkpoint
                     screenState = JejakScreenState.LocationDetail
                 },
-                onRetryLoadPosts = onRetryLoadPosts
+                onRetryLoadPosts = onRetryLoadPosts,
+                onDaySelected = onDaySelected
             )
 
             JejakScreenState.LocationDetail -> {
-                // Ketua hanya boleh menandai anggota kalau dirinya sudah terbukti ada di pos
-                // ini: sedang dalam radius, atau sudah check-in di pos ini.
+                // Server only unlocks posts where the leader has checked in.
                 val posDiBuka = selectedCheckpoint?.postId
-                val bisaUbahKehadiran = uiState.isKetua != false &&
-                    TrackingProgressUiMapper.ketuaAdaDiPosIni(
-                        postId = posDiBuka,
-                        myPendakiId = uiState.myPendakiId,
-                        hikers = uiState.progressHikers,
-                        gpsGateState = uiState.gpsGateState
-                    )
+                val bisaUbahKehadiran = posDiBuka != null && posDiBuka in uiState.memberMarkPostIds
                 // Ada catatan yang belum terkirim di pos ini? Itu masih boleh dibatalkan
                 // walaupun ketua belum berada di pos ini.
                 val adaCatatanBelumTerkirim = uiState.localMemberMarks.any {
@@ -209,6 +208,7 @@ internal fun PelacakanJejakScreen(
                         uiState.localMemberMarks
                     ),
                     posId = posDiBuka,
+                    myPendakiId = uiState.myPendakiId,
                     bisaUbahKehadiran = bisaUbahKehadiran,
                     catatanKehadiran = when {
                         uiState.isKetua == false ->
@@ -631,8 +631,12 @@ internal fun PelacakanJejakTimelineContent(
     uiState: PelacakanJejakUiState,
     onBack: () -> Unit = {},
     onCheckpointClick: (JejakCheckpointUi) -> Unit = {},
-    onRetryLoadPosts: () -> Unit = {}
+    onRetryLoadPosts: () -> Unit = {},
+    onDaySelected: (Int) -> Unit = {}
 ) {
+    // Keep the entire route visible after check-in, even when actual/estimated
+    // dates differ from the selected ticket day.
+    val visibleCheckpoints = uiState.postCheckpoints
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -654,7 +658,8 @@ internal fun PelacakanJejakTimelineContent(
         } else if (uiState.progressErrorMessage != null) {
             item { TimelineInfoCard(text = uiState.progressErrorMessage) }
         }
-        val periode = uiState.periodeLabel
+        val periode = uiState.days.firstOrNull { it.selected }?.isoDate
+            ?.takeIf { it.isNotBlank() }?.let(TicketUiMapper::formatTanggal) ?: uiState.periodeLabel
         if (!periode.isNullOrBlank()) {
             item {
                 Text(
@@ -665,6 +670,9 @@ internal fun PelacakanJejakTimelineContent(
                     modifier = Modifier.padding(top = 6.dp)
                 )
             }
+        }
+        if (uiState.days.isNotEmpty()) {
+            item { DaySelector(uiState.days, onDaySelected) }
         }
 
         when {
@@ -687,11 +695,9 @@ internal fun PelacakanJejakTimelineContent(
                 item { TimelineInfoCard(text = "Data post belum tersedia") }
             }
             else -> {
-                itemsIndexed(uiState.postCheckpoints) { index, item ->
+                items(visibleCheckpoints, key = { item -> item.postId ?: item.name }) { item ->
                     TimelineRow(
                         item = item,
-                        isFirst = index == 0,
-                        isLast = index == uiState.postCheckpoints.lastIndex,
                         onClick = { onCheckpointClick(item) }
                     )
                 }
@@ -770,37 +776,64 @@ private fun SummaryStat(label: String, value: String) {
     }
 }
 
+/** Nama gate tidak disimpan di JejakTicketUi — pakai label masuk sebagai pengganti. */
+private fun gateNameFrom(ticket: JejakTicketUi): String = ticket.masukDate
+
+@Composable
+private fun DaySelector(
+    days: List<JejakDayUi>,
+    onDaySelected: (Int) -> Unit = {}
+) {
+    if (days.isEmpty()) return
+    LazyRow(
+        modifier = Modifier.fillMaxWidth().selectableGroup(),
+        horizontalArrangement = Arrangement.spacedBy(20.dp)
+    ) {
+        itemsIndexed(days, key = { _, day -> day.isoDate.ifBlank { day.title } }) { index, day ->
+            Column(
+                modifier = Modifier.width(96.dp)
+                    .selectable(selected = day.selected, role = Role.Tab, onClick = { onDaySelected(index) }),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp),
+                    color = if (day.selected) JejakWhite else JejakBackground
+                ) {
+                    Column(
+                        modifier = Modifier.padding(vertical = 16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(day.title, color = if (day.selected) JejakBlue else JejakTextSubtle,
+                            fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                        Spacer(Modifier.height(8.dp))
+                        Text(day.date, color = if (day.selected) JejakBlue else JejakTextSecondary,
+                            fontSize = 14.sp)
+                    }
+                }
+                Spacer(Modifier.height(8.dp))
+                Box(Modifier.fillMaxWidth().height(4.dp).clip(RoundedCornerShape(2.dp))
+                    .background(if (day.selected) JejakBlue else Color.Transparent))
+            }
+        }
+    }
+}
+
 @Composable
 private fun TimelineRow(
     item: JejakCheckpointUi,
-    isFirst: Boolean,
-    isLast: Boolean,
     onClick: () -> Unit = {}
 ) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Row(modifier = Modifier.fillMaxWidth()) {
-            Column(
-                modifier = Modifier
-                    .width(54.dp)
-                    .padding(top = 14.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp)
-            ) {
-                item.times.forEach { t ->
-                    Text(
-                        text = t,
-                        fontSize = 13.sp,
-                        color = JejakBlue,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-            }
-            Spacer(Modifier.width(8.dp))
-            CheckpointCard(
-                item = item,
-                modifier = Modifier.weight(1f),
-                onClick = onClick
-            )
-        }
+    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp)) {
+        Text(
+            text = item.times.firstOrNull() ?: "—",
+            modifier = Modifier.width(54.dp).padding(top = 14.dp),
+            fontSize = 16.sp,
+            color = JejakBlue,
+            fontWeight = FontWeight.Medium
+        )
+        Spacer(Modifier.width(8.dp))
+        CheckpointCard(item = item, modifier = Modifier.weight(1f), onClick = onClick)
     }
 }
 
@@ -810,19 +843,17 @@ private fun CheckpointCard(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null
 ) {
-    val borderColor = when (item.state) {
-        CheckpointState.Completed -> JejakBorder
-        CheckpointState.Upcoming -> JejakBorder
-    }
-    val bg = when (item.state) {
-        CheckpointState.Upcoming -> JejakBackground
-        else -> JejakWhite
-    }
+    val borderColor = JejakBorder
+    val bg = JejakWhite
     val titleColor = when (item.state) {
-        CheckpointState.Upcoming -> JejakTextSecondary
-        CheckpointState.Completed -> JejakTextPrimary
+        CheckpointState.Upcoming -> JejakGreyMid
+        CheckpointState.Current -> JejakBlue
+        CheckpointState.Completed -> JejakTextSubtle
     }
-    val descColor = JejakTextSecondary
+    val descColor = when (item.state) {
+        CheckpointState.Current -> JejakBlue
+        else -> JejakGreyMid
+    }
 
     Surface(
         modifier = modifier
@@ -839,28 +870,22 @@ private fun CheckpointCard(
         ) {
             StatusDot(state = item.state)
             Spacer(Modifier.width(10.dp))
-            // Satu pembungkus vertikal (sesuai Figma):
-            //   1. nama pos
-            //   2. "checkpoint pada {jam} wib"  (fallback: deskripsi metode check-in)
-            //   3. avatar anggota bertumpuk di ujung kanan
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = item.name,
                     color = titleColor,
-                    fontSize = 14.sp,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold
                 )
-                Spacer(Modifier.height(2.dp))
+                Spacer(Modifier.height(4.dp))
                 Text(
-                    text = item.checkedAtLabel ?: item.description,
+                    text = if (item.state == CheckpointState.Current) "Checkpoint selanjutnya"
+                        else item.checkedAtLabel ?: item.description,
                     color = descColor,
-                    fontSize = 11.sp
+                    fontSize = 14.sp
                 )
                 if (item.memberNames.isNotEmpty()) {
                     Spacer(Modifier.height(6.dp))
-                    // Mengikuti alur kolom (rata kiri, di bawah baris waktu).
-                    // Kalau Figma minta rata kanan: bungkus dengan
-                    // Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End).
                     MemberAvatarStack(item.memberNames)
                 }
             }
@@ -871,8 +896,9 @@ private fun CheckpointCard(
 @Composable
 private fun StatusDot(state: CheckpointState) {
     val (bg, glyph, glyphColor) = when (state) {
-        CheckpointState.Completed -> Triple(JejakGreen, "✓", JejakWhite)
-        CheckpointState.Upcoming -> Triple(JejakGreyMid, "", JejakWhite)
+        CheckpointState.Completed -> Triple(JejakDarkGreen, "✓", JejakWhite)
+        CheckpointState.Current -> Triple(JejakBlue, "✓", JejakWhite)
+        CheckpointState.Upcoming -> Triple(JejakGreyMid, "✓", JejakWhite)
     }
     Box(
         modifier = Modifier

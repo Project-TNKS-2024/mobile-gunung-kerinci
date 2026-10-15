@@ -118,7 +118,11 @@ class TrackingRepository(
             altitude = altitude?.toDouble(),
             radiusMeter = radiusMeter?.toDouble() ?: 0.0,
             qrCodeValue = null,
-            status = "active"
+            status = "active",
+            estimatedTimeMinutes = estimatedTimeMinutes,
+            infoIsDummy = infoIsDummy,
+            temperatureC = temperatureC,
+            distanceToSummitM = distanceToSummitM
         )
     }
 
@@ -130,7 +134,11 @@ class TrackingRepository(
             latitude = latitude.toString(),
             longitude = longitude.toString(),
             altitude = altitude?.toInt(),
-            radiusMeter = radiusMeter.toInt()
+            radiusMeter = radiusMeter.toInt(),
+            estimatedTimeMinutes = estimatedTimeMinutes,
+            infoIsDummy = infoIsDummy,
+            temperatureC = temperatureC,
+            distanceToSummitM = distanceToSummitM
         )
     }
 }

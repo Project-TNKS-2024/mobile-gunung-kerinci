@@ -16,5 +16,5 @@ package com.dicoding.gunungkerinci.network
  * - FALLBACK_TOKEN debug di repo itu TIDAK disalin ke sini — token tidak boleh hard-code di aplikasi.
  */
 object DebugNetworkConfig {
-    const val BASE_URL = "https://tnks.satriabahari.my.id/"
+    const val BASE_URL = "http://127.0.0.1:8000/"
 }

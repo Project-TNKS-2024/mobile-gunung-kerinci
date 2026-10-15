@@ -27,6 +27,7 @@ internal data class PelacakanJejakUiState(
     val isLoadingTickets: Boolean = false,
     val activeTicket: JejakTicketUi? = null,
     val finishedTickets: List<JejakTicketUi> = emptyList(),
+    val days: List<JejakDayUi> = emptyList(),
     val periodeLabel: String? = null,
     val isLoadingPosts: Boolean = false,
     val postCheckpoints: List<JejakCheckpointUi> = emptyList(),
@@ -55,8 +56,7 @@ internal data class PelacakanJejakUiState(
     val progressHikers: List<TrackingProgressHiker> = emptyList(),
     // Penanda lokal dari checkpoint_logs — overlay "menunggu kirim" untuk penandaan offline.
     val localMemberMarks: List<LocalMemberMark> = emptyList(),
-    // Apakah user ini ketua tim pada booking aktif. null = belum diketahui (identitas gagal
-    // diambil) — dalam keadaan itu switch anggota dibiarkan aktif supaya ketua tidak terkunci.
+    // Identitas ketua untuk keterangan UI; izin switch berasal dari progress server.
     val isKetua: Boolean? = null,
     // Id pendaki milik user yang login — dipakai untuk tahu apakah ketua sendiri sudah
     // check-in di pos yang sedang dibuka.
@@ -64,6 +64,7 @@ internal data class PelacakanJejakUiState(
     // Penandaan kehadiran anggota oleh ketua tim (US-05) — lewat POST /checkpoint/qr
     // dengan parameter pendaki_id.
     val isMarkingMember: Boolean = false,
+    val memberMarkPostIds: List<Int> = emptyList(),
     val memberMarkMessage: String? = null,
     val memberMarkErrorMessage: String? = null,
     // Daftar pos jalur (untuk hitung jarak antar-pos di layar Location Detail)
@@ -107,7 +108,8 @@ internal class PelacakanJejakViewModel(
                 progressText = null,
                 progressErrorMessage = null,
                 isKetua = null,
-                myPendakiId = null
+                myPendakiId = null,
+                memberMarkPostIds = emptyList()
             )
         }
     }
@@ -128,6 +130,16 @@ internal class PelacakanJejakViewModel(
                             isLoadingTickets = false,
                             activeTicket = TicketUiMapper.toActiveTicket(bookings),
                             finishedTickets = TicketUiMapper.toFinishedTickets(bookings),
+                            days = TicketUiMapper.toDays(
+                                activeBooking?.tanggalMasuk,
+                                activeBooking?.tanggalKeluar
+                            ).let { days ->
+                                val selectedDate = it.days.firstOrNull { day -> day.selected }?.isoDate
+                                val target = selectedDate?.takeIf { date -> days.any { day -> day.isoDate == date } }
+                                    ?: JejakTimelineMapper.today().takeIf { date -> days.any { day -> day.isoDate == date } }
+                                    ?: days.firstOrNull()?.isoDate
+                                days.map { day -> day.copy(selected = day.isoDate == target) }
+                            },
                             periodeLabel = TicketUiMapper.toPeriodeLabel(activeBooking?.tanggalMasuk)
                         )
                     }
@@ -168,9 +180,21 @@ internal class PelacakanJejakViewModel(
         }
     }
 
+    fun selectDay(index: Int) {
+        _uiState.update { state ->
+            if (index !in state.days.indices) state else state.copy(
+                days = state.days.mapIndexed { dayIndex, day -> day.copy(selected = dayIndex == index) }
+            )
+        }
+    }
+
     fun loadPosts(token: String, gateId: Int, bookingId: String = "") {
         currentToken = token
         currentGateId = gateId
+        if (currentBookingId != bookingId) {
+            completedPostIds.clear()
+            _uiState.update { it.copy(postCheckpoints = emptyList(), progressHikers = emptyList(), localMemberMarks = emptyList(), memberMarkPostIds = emptyList()) }
+        }
         currentBookingId = bookingId
         viewModelScope.launch {
             _uiState.update { it.copy(isLoadingPosts = true, postErrorMessage = null, noActiveHikeMessage = null) }
@@ -180,11 +204,12 @@ internal class PelacakanJejakViewModel(
                     _uiState.update {
                         it.copy(
                             isLoadingPosts = false,
-                            postCheckpoints = TrackingPostUiMapper.toCheckpointUi(posts, completedPostIds),
+                            postCheckpoints = rebuildCheckpoints(),
                             loadedPosts = posts,
                             postErrorMessage = null
                         )
                     }
+                    refreshLocalMemberMarks()
                     if (bookingId.isNotBlank()) {
                         loadProgress(token, bookingId)
                     }
@@ -208,16 +233,14 @@ internal class PelacakanJejakViewModel(
             val dibuka = trackingRepository.resetRetriableFailures(bookingId)
             if (dibuka > 0) syncScheduler?.scheduleCheckpointSync(bookingId)
 
-            _uiState.update { it.copy(isLoadingProgress = true, progressErrorMessage = null) }
+            _uiState.update { it.copy(isLoadingProgress = true, progressErrorMessage = null, memberMarkPostIds = emptyList()) }
             trackingProgressRepository.getProgress(token, bookingId)
                 .onSuccess { progress ->
-                    val checkpoints = progress.hikers.firstOrNull()?.checkpoints.orEmpty()
+                    progress.currentPendakiId?.takeIf { it.isNotBlank() }?.let { currentPendakiId = it }
+                    val myProgress = progress.hikers.firstOrNull { it.pendakiId == currentPendakiId }
+                    val checkpoints = myProgress?.checkpoints.orEmpty()
                     completedPostIds.clear()
-                    // Gabungan SEMUA anggota tim (bukan hanya pendaki pertama) supaya pos yang
-                    // sudah di-check-in anggota lain tidak salah tampil "Belum check-in".
-                    completedPostIds += progress.hikers
-                        .flatMap { hiker -> hiker.checkpoints.filter { it.completed }.map { it.postId } }
-                        .distinct()
+                    completedPostIds += checkpoints.filter { it.completed }.map { it.postId }
 
                     // Angka progres diambil apa adanya dari server: milik pendaki yang login.
                     val progresDiri = progress.hikers.firstOrNull { it.pendakiId == currentPendakiId }
@@ -234,6 +257,8 @@ internal class PelacakanJejakViewModel(
                                 "${it.completed}/${it.total} checkpoint selesai · ${it.percentage}%"
                             } ?: "Progress belum tersedia",
                             progressHikers = progress.hikers,
+                            memberMarkPostIds = progress.memberMarkPostIds.orEmpty(),
+                            myPendakiId = currentPendakiId.ifBlank { null },
                             progressErrorMessage = null
                         )
                     }
@@ -333,7 +358,7 @@ internal class PelacakanJejakViewModel(
                     _uiState.update {
                         it.copy(
                             isCheckingIn = false,
-                            postCheckpoints = TrackingPostUiMapper.toCheckpointUi(loadedPosts, completedPostIds),
+                            postCheckpoints = rebuildCheckpoints(),
                             progressText = "${data.progress.completed}/${data.progress.total} checkpoint selesai · ${data.progress.percentage}%",
                             qrScanMessage = "Check-in berhasil di ${data.post.nama} · Progress ${data.progress.percentage}%",
                             qrScanErrorMessage = null
@@ -401,6 +426,7 @@ internal class PelacakanJejakViewModel(
      * @param checked true = tandai hadir. false = batalkan (belum didukung backend).
      */
     fun tandaiKehadiranAnggota(pendakiId: String, checked: Boolean, postId: Int?) {
+        if (_uiState.value.isMarkingMember) return
         if (postId == null) {
             _uiState.update {
                 it.copy(memberMarkMessage = null, memberMarkErrorMessage = "Pos belum diketahui")
@@ -410,6 +436,24 @@ internal class PelacakanJejakViewModel(
         if (pendakiId.isBlank()) {
             _uiState.update {
                 it.copy(memberMarkMessage = null, memberMarkErrorMessage = "Anggota tidak dikenali")
+            }
+            return
+        }
+
+        val pendingCancellation = !checked && _uiState.value.localMemberMarks.any {
+            it.postId == postId && it.pendakiId == pendakiId && it.pending
+        }
+        if (pendakiId == currentPendakiId ||
+            (!pendingCancellation && postId !in _uiState.value.memberMarkPostIds)) {
+            _uiState.update {
+                it.copy(
+                    memberMarkMessage = null,
+                    memberMarkErrorMessage = if (pendakiId == currentPendakiId) {
+                        "Gunakan scan QR atau check-in GPS untuk kehadiran sendiri."
+                    } else {
+                        "Hanya ketua tim yang sudah check-in di pos ini yang dapat menandai anggota."
+                    }
+                )
             }
             return
         }
@@ -706,7 +750,7 @@ internal class PelacakanJejakViewModel(
                             isManualCheckingIn = false,
                             nearbyPost = null,
                             posTerdekatId = null,
-                            postCheckpoints = TrackingPostUiMapper.toCheckpointUi(loadedPosts, completedPostIds),
+                            postCheckpoints = rebuildCheckpoints(),
                             progressText = "${data.progress.completed}/${data.progress.total} checkpoint selesai · ${data.progress.percentage}%",
                             manualCheckInMessage = "Check-in manual berhasil di ${data.post.nama}" +
                                     if (data.isManualOverride) " (override, kamu jauh dari pos)" else "",
@@ -841,8 +885,9 @@ internal class PelacakanJejakViewModel(
                 // Optimistis: tampilkan pos ini sebagai selesai di timeline.
                 completedPostIds += postId
                 _uiState.update {
-                    it.copy(postCheckpoints = TrackingPostUiMapper.toCheckpointUi(loadedPosts, completedPostIds))
+                    it.copy(postCheckpoints = rebuildCheckpoints())
                 }
+                refreshLocalMemberMarks()
             } else {
                 // Penandaan anggota: segarkan overlay "menunggu kirim" di daftar anggota.
                 refreshLocalMemberMarks()
@@ -860,14 +905,48 @@ internal class PelacakanJejakViewModel(
             _uiState.update { it.copy(localMemberMarks = emptyList()) }
             return
         }
-        val marks = trackingRepository.getCheckpointLogs(currentBookingId).map { log ->
+        val logs = trackingRepository.getCheckpointLogs(currentBookingId)
+        val marks = logs.map { log ->
             LocalMemberMark(
                 postId = log.postId,
                 pendakiId = log.pendakiId,
                 pending = log.syncStatus != SyncStatus.SENT.name
             )
         }
-        _uiState.update { it.copy(localMemberMarks = marks) }
+        val ownLogs = logs.filter { it.pendakiId == currentPendakiId }.associateBy { it.postId }
+        _uiState.update { state ->
+            val withLocal = state.postCheckpoints.map { checkpoint ->
+                val log = ownLogs[checkpoint.postId]
+                if (log == null || checkpoint.state == CheckpointState.Completed && log.syncStatus == SyncStatus.SENT.name) {
+                    checkpoint
+                } else {
+                    completedPostIds += log.postId
+                    checkpoint.copy(
+                        state = CheckpointState.Completed,
+                        checkedAtLabel = "Checkpoint pada ${JejakTimelineMapper.timeAt(log.checkedAt)} WIB" +
+                            if (log.syncStatus != SyncStatus.SENT.name) " · Menunggu kirim" else "",
+                        timelineDate = JejakTimelineMapper.dateAt(log.checkedAt)
+                    )
+                }
+            }
+            state.copy(localMemberMarks = marks, postCheckpoints = JejakTimelineMapper.markNext(withLocal))
+        }
+    }
+
+    /** Keep server estimates and member data while a check-in refresh is pending. */
+    private fun rebuildCheckpoints(): List<JejakCheckpointUi> {
+        val previous = _uiState.value.postCheckpoints.associateBy { it.postId }
+        val items = TrackingPostUiMapper.toCheckpointUi(loadedPosts, completedPostIds).map { base ->
+            val existing = previous[base.postId] ?: return@map base
+            existing.copy(
+                state = base.state,
+                description = base.description,
+                checkedAtLabel = if (base.state == CheckpointState.Completed) {
+                    existing.checkedAtLabel ?: base.checkedAtLabel
+                } else null
+            )
+        }
+        return JejakTimelineMapper.markNext(items)
     }
 
     private fun adalahMasalahJaringan(error: Throwable): Boolean =

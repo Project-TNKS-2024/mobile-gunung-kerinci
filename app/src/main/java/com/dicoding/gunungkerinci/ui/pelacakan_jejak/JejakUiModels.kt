@@ -27,6 +27,13 @@ internal data class JejakTicketUi(
 
 internal enum class TicketStatusType { Ongoing, WaitingPayment, Done }
 
+internal data class JejakDayUi(
+    val title: String,
+    val date: String,
+    val selected: Boolean,
+    val isoDate: String = ""
+)
+
 internal data class JejakCheckpointUi(
     val times: List<String>,
     val name: String,
@@ -38,10 +45,12 @@ internal data class JejakCheckpointUi(
     /** Nama anggota yang sudah check-in di pos ini — dipakai avatar bertumpuk di timeline. */
     val memberNames: List<String> = emptyList(),
     /** Contoh: "checkpoint pada 10:30 wib". Null kalau pos belum di-check-in. */
-    val checkedAtLabel: String? = null
+    val checkedAtLabel: String? = null,
+    val timelineDate: String? = null,
+    val estimateIsDummy: Boolean = false
 )
 
-internal enum class CheckpointState { Completed, Upcoming }
+internal enum class CheckpointState { Completed, Current, Upcoming }
 
 /**
  * Status gerbang (gate) check-in GPS — penegakan aturan keselamatan:

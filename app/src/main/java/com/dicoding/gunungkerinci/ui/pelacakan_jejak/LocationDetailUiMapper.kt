@@ -20,13 +20,15 @@ internal data class LocationDetailUi(
     val checkpointDescription: String,
     val mountainStatus: String,
     val waterSourceStatus: String,
-    val campingStatus: String
+    val campingStatus: String,
+    val temperatureText: String = "—",
+    val distanceToSummitText: String = "—"
 ) {
     companion object {
         val Default = LocationDetailUi(
-            positionLabel = "POS 3",
-            postLabel = "Pos 3:",
-            placeName = "Pondok Panorama",
+            positionLabel = "Lokasi belum tersedia",
+            postLabel = "",
+            placeName = "Lokasi belum tersedia",
             altitudeText = "- Mdpl",
             distanceToNextLabel = "Jarak menuju pos selanjutnya",
             distanceToNextValue = "-",
@@ -99,7 +101,9 @@ internal object LocationDetailUiMapper {
         val altitudeFormatted = if (altitudeValue != null && altitudeValue > 0) "$altitudeValue Mdpl" else "- Mdpl"
 
         return LocationDetailUi(
-            positionLabel = if (postNumber > 0) "POS $postNumber" else checkpoint.name.uppercase(),
+            positionLabel = currentPost?.nama?.takeIf { it.isNotBlank() }
+                ?: checkpoint.name.takeIf { it.isNotBlank() }
+                ?: "Lokasi belum tersedia",
             postLabel = postLabel,
             placeName = placeName,
             altitudeText = altitudeFormatted,
@@ -108,12 +112,21 @@ internal object LocationDetailUiMapper {
             averageEstimateValue = estimateText,
             statusText = when (checkpoint.state) {
                 CheckpointState.Completed -> "Sudah check-in"
+                CheckpointState.Current -> "Checkpoint selanjutnya"
                 CheckpointState.Upcoming -> "Belum check-in"
             },
             checkpointDescription = checkpoint.description,
             mountainStatus = "Normal",
             waterSourceStatus = "Tersedia",
-            campingStatus = if (postNumber in listOf(1, 3, 4)) "Boleh" else "Tidak Direkomendasikan"
+            campingStatus = if (postNumber in listOf(1, 3, 4)) "Boleh" else "Tidak Direkomendasikan",
+            temperatureText = currentPost?.temperatureC?.takeIf { it.isFinite() }?.let {
+                String.format(java.util.Locale.forLanguageTag("id-ID"), "%.1f °C", it)
+            } ?: "—",
+            distanceToSummitText = currentPost?.distanceToSummitM?.takeIf { it >= 0 }?.let {
+                if (it >= 1000) {
+                    String.format(java.util.Locale.forLanguageTag("id-ID"), "%.1f km", it / 1000.0)
+                } else "$it m"
+            } ?: "—"
         )
     }
 

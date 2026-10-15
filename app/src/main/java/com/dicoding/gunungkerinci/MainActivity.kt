@@ -6,6 +6,10 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.os.Build
+import android.provider.Settings
+import com.dicoding.gunungkerinci.ui.peringatan_dini.WarningMonitoring
+import com.dicoding.gunungkerinci.ui.peringatan_dini.WarningNotifications
 import android.util.Log
 import android.view.View
 import android.widget.Toast
@@ -47,6 +51,64 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private var selectedTab by mutableStateOf(NavTab.BERANDA)
     private var pendingSosSeverity: String? = null
+    private val warningPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        if (granted) startWarningMonitoring() else Toast.makeText(
+            this, "Notifikasi bahaya belum aktif. Aktifkan melalui pengaturan notifikasi aplikasi.", Toast.LENGTH_LONG
+        ).show()
+    }
+
+    private fun startWarningMonitoring() {
+        if (!WarningMonitoring.start(this) && WarningMonitoring.enabled(this) &&
+            WarningNotifications.allowed(this) && !UserPreference(this).getToken().isNullOrBlank()) {
+            Toast.makeText(this, "Pemantauan belum bisa dimulai. Coba buka ulang aplikasi.", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun requestWarningPermission(automatic: Boolean = false) {
+        if (UserPreference(this).getToken().isNullOrBlank() || !WarningMonitoring.enabled(this)) return
+        WarningNotifications.createChannels(this)
+        val preferences = getSharedPreferences("warning_permission", MODE_PRIVATE)
+        if (Build.VERSION.SDK_INT >= 33 && ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            val requested = preferences.getBoolean("requested", false)
+            if (automatic && requested) return
+            if (requested && !shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
+                openWarningNotificationSettings()
+            } else {
+                preferences.edit().putBoolean("requested", true).apply()
+                warningPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        } else if (WarningNotifications.allowed(this)) startWarningMonitoring()
+        else if (!automatic) openWarningNotificationSettings()
+    }
+
+    private fun openWarningNotificationSettings() {
+        val settings = if (Build.VERSION.SDK_INT >= 26) Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+            .putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+        else Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName"))
+        startActivity(settings)
+    }
+
+    fun toggleWarningMonitoring() {
+        if (WarningMonitoring.running.value && WarningNotifications.allowed(this)) {
+            WarningMonitoring.disable(this)
+        } else {
+            WarningMonitoring.enable(this)
+            requestWarningPermission()
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (!WarningMonitoring.running.value) startWarningMonitoring()
+    }
+
+    private fun handleWarningIntent(intent: Intent) {
+        if (!intent.getBooleanExtra(WarningNotifications.OPEN_WARNING, false)) return
+        val nav = findNavController(R.id.nav_host_fragment)
+        if (nav.currentDestination?.id != R.id.navigation_beranda) nav.navigateToTab(R.id.navigation_beranda)
+        nav.getBackStackEntry(R.id.navigation_beranda).savedStateHandle[WarningNotifications.OPEN_WARNING] = true
+        intent.removeExtra(WarningNotifications.OPEN_WARNING)
+    }
 
     private val panicButtonViewModel: PanicButtonViewModel by viewModels {
         val api = ApiConfig.getApiService(applicationContext)
@@ -220,6 +282,8 @@ class MainActivity : AppCompatActivity() {
                 navController.navigateToTab(R.id.navigation_profile)
             }
         }
+        handleWarningIntent(intent)
+        requestWarningPermission(automatic = true)
     }
 
     // ================= navigasi tab =================
@@ -293,6 +357,8 @@ class MainActivity : AppCompatActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
         handleOAuthDeepLink(intent)
+        handleWarningIntent(intent)
+        requestWarningPermission(automatic = true)
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
@@ -309,6 +375,7 @@ class MainActivity : AppCompatActivity() {
             if (!token.isNullOrEmpty()) {
                 val pref = getSharedPreferences("auth", MODE_PRIVATE)
                 pref.edit().putString("token", token).apply()
+                UserPreference(this).saveToken(token)
 
                 val navController = findNavController(R.id.nav_host_fragment)
 

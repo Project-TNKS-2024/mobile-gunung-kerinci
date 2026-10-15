@@ -4,6 +4,8 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import com.dicoding.gunungkerinci.ui.peringatan_dini.WarningMonitoring
+import com.dicoding.gunungkerinci.ui.peringatan_dini.WarningNotifications
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -104,11 +106,14 @@ class HomeFragment : Fragment() {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 val uiState by peringatanDiniViewModel.uiState.collectAsState()
+                val alarmRinging by WarningMonitoring.ringing.collectAsState()
                 PeringatanDiniOverlay(
                     uiState = uiState,
                     onBubbleClick = peringatanDiniViewModel::openPopup,
                     onClosePopup = peringatanDiniViewModel::dismissPopup,
-                    onUpdateLocation = { onUpdateLocationClick() }
+                    onUpdateLocation = { onUpdateLocationClick() },
+                    alarmRinging = alarmRinging,
+                    onStopAlarm = { WarningMonitoring.stopAlarm(requireContext()) }
                 )
             }
         }
@@ -170,6 +175,13 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val warningHandle = findNavController().getBackStackEntry(R.id.navigation_beranda).savedStateHandle
+        warningHandle.getLiveData<Boolean>(WarningNotifications.OPEN_WARNING).observe(viewLifecycleOwner) { shouldOpen ->
+                if (shouldOpen == true) {
+                    peringatanDiniViewModel.openNotificationWarning(WarningMonitoring.alert.value)
+                    warningHandle[WarningNotifications.OPEN_WARNING] = false
+                }
+            }
         startWarningPolling()
     }
 

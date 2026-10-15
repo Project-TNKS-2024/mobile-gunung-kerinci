@@ -23,6 +23,7 @@ internal class PeringatanDiniViewModel(
 
     // id peringatan yang terakhir dibuka otomatis, biar popup tidak muncul berulang
     private var lastAutoShownWarningId: Int? = null
+    private var openWhenLoaded = false
 
     // Ambil peringatan aktif. Dipanggil saat layar tampil dan saat polling.
     // ownerKey = pemilik cache; "" berarti cache tidak dipakai.
@@ -34,6 +35,10 @@ internal class PeringatanDiniViewModel(
                 if (cached.isNotEmpty()) {
                     val at = DateTimeFormat.epochToWibHm(peringatanDiniRepository.cachedAt(ownerKey))
                     _uiState.value = PeringatanDiniReducer.fromCache(cached, at)
+                    if (openWhenLoaded) {
+                        _uiState.update { PeringatanDiniReducer.showPopup(it) }
+                        openWhenLoaded = false
+                    }
                 }
             }
 
@@ -49,9 +54,11 @@ internal class PeringatanDiniViewModel(
                     )
                     lastAutoShownWarningId = shownId
                     _uiState.value = state.copy(
+                        popupVisible = state.popupVisible || (openWhenLoaded && state.activeWarning != null),
                         lastUpdatedAt = DateTimeFormat.nowWibHm(),
                         isStale = false
                     )
+                    if (state.activeWarning != null) openWhenLoaded = false
 
                     if (state.activeWarning != null) {
                         fetchLastPosition(token)
@@ -128,7 +135,15 @@ internal class PeringatanDiniViewModel(
     }
 
     // Buka popup peringatan dini
+    fun openNotificationWarning(warning: PeringatanDini?) {
+        if (warning != null) {
+            _uiState.update { it.copy(activeWarning = warning, popupVisible = true) }
+            openWhenLoaded = false
+        } else openPopup()
+    }
+
     fun openPopup() {
+        openWhenLoaded = _uiState.value.activeWarning == null
         _uiState.update { PeringatanDiniReducer.showPopup(it) } 
     }
 }
