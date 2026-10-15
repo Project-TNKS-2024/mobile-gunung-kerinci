@@ -3,10 +3,11 @@ package com.dicoding.gunungkerinci
 import com.dicoding.gunungkerinci.data.local.sos.PendingChatDao
 import com.dicoding.gunungkerinci.data.local.sos.PendingChatEntity
 import com.dicoding.gunungkerinci.data.repository.SosChatRepository
+import com.dicoding.gunungkerinci.data.sync.SosQueueRule
 import com.dicoding.gunungkerinci.network.ApiService
 import com.dicoding.gunungkerinci.ui.panic_button.DisasterReportValidator
-import com.dicoding.gunungkerinci.ui.panic_button.SosQueueRule
 import com.dicoding.gunungkerinci.ui.panic_button.SosTriggerValidator
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -109,6 +110,8 @@ class PanicButtonTddTest {
     fun `TDD-C07 - data SOS dikirim ulang saat koneksi tersedia`() {
         assertTrue(SosQueueRule.harusKirimUlang(code = null, error = IOException("timeout")))
         assertTrue(SosQueueRule.harusKirimUlang(code = 500, error = null))
+        // 401 = token kedaluwarsa, masih bisa berhasil setelah pendaki login ulang.
+        assertTrue(SosQueueRule.harusKirimUlang(code = 401, error = null))
         assertFalse(SosQueueRule.harusKirimUlang(code = 403, error = null))
     }
 
@@ -130,6 +133,7 @@ class PanicButtonTddTest {
         assertEquals(0, dao.pendingCount(sosId = 7))
     }
 
+    /** C08 hanya memakai `upsert` dan `delete`, jadi sisanya dibuat kosong. */
     private class FakePendingChatDao : PendingChatDao {
         private val chats = mutableListOf<PendingChatEntity>()
 
@@ -141,19 +145,13 @@ class PanicButtonTddTest {
             chats += chat
         }
 
-        override suspend fun getPendingSync(pending: String, failed: String) =
-            chats.filter { it.syncStatus == pending || it.syncStatus == failed }
-
-        override suspend fun getPendingForSos(sosId: Int) =
-            chats.filter { it.sosId == sosId && it.syncStatus == "PENDING" }
-
-        override suspend fun markFailed(localId: String) {
-            val index = chats.indexOfFirst { it.localId == localId }
-            if (index >= 0) chats[index] = chats[index].copy(retryCount = chats[index].retryCount + 1, syncStatus = "FAILED")
-        }
-
         override suspend fun delete(localId: String) {
             chats.removeAll { it.localId == localId }
         }
+
+        override suspend fun getPendingSync(pending: String, failed: String) = emptyList<PendingChatEntity>()
+        override suspend fun getPendingForSos(sosId: Int) = emptyList<PendingChatEntity>()
+        override fun observePendingForSos(sosId: Int) = flowOf(emptyList<PendingChatEntity>())
+        override suspend fun markFailed(localId: String) = Unit
     }
 }

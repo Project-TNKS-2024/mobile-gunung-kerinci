@@ -264,18 +264,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // SOS: cari lokasi BARU dulu (batas 8 detik) supaya posisi darurat benar-benar akurat,
-    // bukan sekadar catatan lokasi lama yang mungkin sudah basi.
+    // SOS: cari lokasi BARU dulu (batas 8 detik). Kalau GPS mati atau sinyal tak dapat,
+    // cariSekarang() sendiri memakai catatan lokasi terakhir yang masih segar.
     private fun doSendSos(severity: String) {
-        if (!LokasiProvider.gpsAktif(this)) {
-            Toast.makeText(this, "GPS belum aktif. Nyalakan GPS lalu coba lagi.", Toast.LENGTH_LONG).show()
-            return
-        }
         Toast.makeText(this, "Mencari sinyal lokasi…", Toast.LENGTH_SHORT).show()
         LokasiProvider.cariSekarang(this, timeoutMs = 8_000L) { lokasi ->
             if (isFinishing || isDestroyed) return@cariSekarang
             if (lokasi == null) {
-                Toast.makeText(this, "Sinyal lokasi belum dapat. Coba lagi sebentar.", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "Lokasi belum tersedia. Nyalakan GPS lalu coba lagi.", Toast.LENGTH_LONG).show()
                 return@cariSekarang
             }
             panicButtonViewModel.sendSos(

@@ -8,13 +8,7 @@ import com.dicoding.gunungkerinci.model.SosTriggerRequest
 import com.dicoding.gunungkerinci.network.ApiService
 import java.util.UUID
 
-/**
- * SOS panic button: kirim sinyal darurat & cek status SOS aktif.
- *
- * Endpoint backend:
- * - POST /api/sos/trigger  (lat, lon, severity wajib; message opsional)
- * - GET  /api/sos/active   (data null bila tidak ada SOS aktif)
- */
+/** Kirim sinyal SOS dan cek SOS yang sedang aktif. */
 internal class SosRepository(
     private val api: ApiService,
     private val pendingSosDao: PendingSosDao? = null
@@ -32,7 +26,7 @@ internal class SosRepository(
             SosTriggerRequest(
                 latitude = latitude,
                 longitude = longitude,
-                // Backend hanya menerima huruf kecil (low/medium/high) — lihat A22.
+                // Backend hanya menerima huruf kecil (low/medium/high).
                 severity = severity.lowercase(),
                 message = message
             )
@@ -60,7 +54,7 @@ internal class SosRepository(
         }
     }
 
-    /** Simpan SOS ke antrean lokal saat tidak ada jaringan (US-12). */
+    /** Simpan SOS ke antrean lokal saat tidak ada jaringan. */
     suspend fun savePendingSos(
         latitude: Double,
         longitude: Double,
@@ -75,7 +69,6 @@ internal class SosRepository(
                     localId = UUID.randomUUID().toString(),
                     latitude = latitude,
                     longitude = longitude,
-                    // Simpan huruf kecil agar worker mengirim nilai yang valid (A22).
                     severity = severity.lowercase(),
                     message = message,
                     createdAt = createdAt

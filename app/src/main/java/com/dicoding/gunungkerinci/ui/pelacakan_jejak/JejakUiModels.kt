@@ -15,6 +15,8 @@ internal data class JejakTicketUi(
     val statusType: TicketStatusType,
     val masukDate: String,
     val keluarDate: String,
+    /** Nama gate masuk dari booking. Dipakai kartu ringkasan di timeline. */
+    val gateName: String? = null,
     val pendakiCount: String,
     val totalPayment: String,
     val bookingId: String? = null,
@@ -24,12 +26,6 @@ internal data class JejakTicketUi(
 )
 
 internal enum class TicketStatusType { Ongoing, WaitingPayment, Done }
-
-internal data class JejakDayUi(
-    val title: String,
-    val date: String,
-    val selected: Boolean
-)
 
 internal data class JejakCheckpointUi(
     val times: List<String>,
@@ -45,7 +41,7 @@ internal data class JejakCheckpointUi(
     val checkedAtLabel: String? = null
 )
 
-internal enum class CheckpointState { Completed, Current, Upcoming }
+internal enum class CheckpointState { Completed, Upcoming }
 
 /**
  * Status gerbang (gate) check-in GPS — penegakan aturan keselamatan:
@@ -61,8 +57,13 @@ internal sealed interface GpsGateState {
     /** GPS mati, izin ditolak, atau lokasi tidak tersedia → check-in terkunci. */
     data object GpsOff : GpsGateState
 
+    /** Server gagal dihubungi saat cek posisi (biasanya tidak ada jaringan). */
+    data object GagalCek : GpsGateState
+
     /** GPS aktif, tetapi pendaki di luar radius pos terdekat → check-in terkunci. */
     data class LuarRadius(
+        /** Id pos yang terdeteksi — dibandingkan dengan pos yang sedang dibuka. */
+        val postId: Int,
         val postName: String,
         val distanceMeters: Double,
         val radiusMeter: Int
@@ -70,6 +71,8 @@ internal sealed interface GpsGateState {
 
     /** GPS aktif + berada dalam radius pos terdekat → check-in boleh dilakukan. */
     data class DalamRadius(
+        /** Id pos yang terdeteksi — dibandingkan dengan pos yang sedang dibuka. */
+        val postId: Int,
         val postName: String,
         val distanceMeters: Double,
         val radiusMeter: Int

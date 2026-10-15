@@ -14,6 +14,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.dicoding.gunungkerinci.data.local.TnksDatabase
 import com.dicoding.gunungkerinci.data.repository.SosChatRepository
@@ -24,6 +25,10 @@ import com.dicoding.gunungkerinci.pref.UserPreference
 import com.dicoding.gunungkerinci.ui.panic_button.SosChatScreen
 import com.dicoding.gunungkerinci.ui.panic_button.SosChatViewModel
 import com.dicoding.gunungkerinci.ui.panic_button.SosChatViewModelFactory
+import com.dicoding.gunungkerinci.ui.panic_button.simpanGambarKecil
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 /** Layar chat darurat (dibuka dari sheet SOS → "Kirim Pesan"). */
@@ -77,17 +82,24 @@ class PesanDaruratFragment : Fragment() {
     private fun handlePickedImage(uri: Uri) {
         val resolver = requireContext().contentResolver
         val name = queryDisplayName(uri) ?: "sos_${System.currentTimeMillis()}.jpg"
-        val safeName = name.replace(Regex("[^A-Za-z0-9._-]"), "_")
+        // Hasil kompres selalu JPEG, jadi ekstensinya dipaksa .jpg.
+        val safeName = name.replace(Regex("[^A-Za-z0-9._-]"), "_").substringBeforeLast('.') + ".jpg"
         // File disimpan di filesDir (bukan cache) supaya awet sampai worker
         // offline mengirimkannya (US-12).
         val dir = File(requireContext().filesDir, "sos_pending").apply { mkdirs() }
         val file = File(dir, safeName)
 
-        runCatching {
-            resolver.openInputStream(uri)?.use { input -> file.outputStream().use { input.copyTo(it) } }
-        }.getOrNull() ?: return
-
-        viewModel.sendImage(currentToken, file, caption = null)
+        // Kecilkan dulu (maks 1600 px) supaya upload dan tampilnya ringan.
+        viewLifecycleOwner.lifecycleScope.launch {
+            val tersimpan = withContext(Dispatchers.IO) {
+                runCatching {
+                    resolver.openInputStream(uri)?.use { input ->
+                        file.outputStream().use { output -> simpanGambarKecil(input, output) }
+                    }
+                }.getOrNull() ?: false
+            }
+            if (tersimpan) viewModel.sendImage(currentToken, file, caption = null)
+        }
     }
 
     private fun queryDisplayName(uri: Uri): String? =

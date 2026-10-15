@@ -69,6 +69,26 @@ internal object TrackingProgressUiMapper {
         }
     }
 
+    /**
+     * Syarat switch kehadiran anggota boleh dipakai: ketua sudah terbukti berada di pos itu,
+     * yaitu sedang dalam radius pos tersebut atau sudah check-in di pos itu. Tanpa bukti itu,
+     * kehadiran tidak boleh dicatat dari jauh.
+     */
+    fun ketuaAdaDiPosIni(
+        postId: Int?,
+        myPendakiId: String?,
+        hikers: List<TrackingProgressHiker>,
+        gpsGateState: GpsGateState
+    ): Boolean {
+        if (postId == null) return false
+        // Sedang dalam radius pos yang sedang dibuka.
+        if (gpsGateState is GpsGateState.DalamRadius && gpsGateState.postId == postId) return true
+        // Atau sudah pernah check-in di pos itu.
+        if (myPendakiId.isNullOrBlank()) return false
+        val milikSaya = hikers.firstOrNull { it.pendakiId == myPendakiId } ?: return false
+        return milikSaya.checkpoints.any { it.postId == postId && it.completed }
+    }
+
     private fun buildDescription(checkpoint: TrackingProgressCheckpoint): String {
         val methodText = when (checkpoint.method) {
             "qr" -> "QR"

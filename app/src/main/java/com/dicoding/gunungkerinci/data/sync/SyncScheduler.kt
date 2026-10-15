@@ -6,13 +6,10 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import androidx.work.workDataOf
+import com.dicoding.gunungkerinci.data.local.sync.SyncDefaults
 
-/**
- * Penjadwal sinkronisasi antrean lokal → server.
- *
- * Dipakai saat check-in gagal karena jaringan (sinyal gunung putus): log disimpan
- * ke Room dengan status PENDING, lalu worker ini mengirimnya begitu ada internet.
- */
+/** Penjadwal pengiriman ulang antrean lokal saat internet tersedia. */
 internal class SyncScheduler(context: Context) {
 
     private val appContext = context.applicationContext
@@ -21,16 +18,17 @@ internal class SyncScheduler(context: Context) {
         .setRequiredNetworkType(NetworkType.CONNECTED)
         .build()
 
-    /** Kirim ulang semua check-in yang masih PENDING/FAILED. */
-    fun scheduleCheckpointSync() {
+    /** Kirim ulang check-in PENDING/FAILED milik satu booking. Booking kosong = semua. */
+    fun scheduleCheckpointSync(bookingId: String = "") {
         val request = OneTimeWorkRequestBuilder<CheckpointSyncWorker>()
             .setConstraints(constraints)
+            .setInputData(workDataOf(SyncDefaults.BOOKING_ID to bookingId))
             .build()
         WorkManager.getInstance(appContext)
             .enqueueUniqueWork(WORK_NAME_CHECKPOINT, ExistingWorkPolicy.APPEND_OR_REPLACE, request)
     }
 
-    /** Kirim ulang semua SOS yang tersimpan lokal (dikirim saat offline). */
+    /** Kirim ulang SOS yang tersimpan saat offline. */
     fun scheduleSosSync() {
         val request = OneTimeWorkRequestBuilder<PendingSosSyncWorker>()
             .setConstraints(constraints)
@@ -39,7 +37,7 @@ internal class SyncScheduler(context: Context) {
             .enqueueUniqueWork(WORK_NAME_SOS, ExistingWorkPolicy.APPEND_OR_REPLACE, request)
     }
 
-    /** Kirim ulang semua pesan chat darurat yang tersimpan lokal (US-12). */
+    /** Kirim ulang pesan chat darurat yang tersimpan saat offline. */
     fun scheduleChatSync() {
         val request = OneTimeWorkRequestBuilder<PendingChatSyncWorker>()
             .setConstraints(constraints)

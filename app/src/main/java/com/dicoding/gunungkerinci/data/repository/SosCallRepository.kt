@@ -3,7 +3,7 @@ package com.dicoding.gunungkerinci.data.repository
 import com.dicoding.gunungkerinci.model.SosCallOption
 import com.dicoding.gunungkerinci.network.ApiService
 
-/** Kontak darurat (tel/WA). Endpoint: GET /api/sos/call-options. */
+/** Kontak darurat untuk tombol panggilan. */
 internal class SosCallRepository(private val api: ApiService) {
 
     suspend fun getCallOptions(token: String): Result<List<SosCallOption>> = runCatching {

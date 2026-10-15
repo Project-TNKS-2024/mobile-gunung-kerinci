@@ -10,6 +10,8 @@ data class MyTiketResponse(
 )
 data class MyTiketItem(
     @SerializedName("id") val id: String,
+    /** Id user pemilik booking. Server menganggap pemilik booking sebagai ketua tim. */
+    @SerializedName("id_user") val idUser: Int? = null,
     @SerializedName("status_booking") val statusBooking: Int? = null,
     @SerializedName("tanggal_masuk") val tanggalMasuk: String? = null,
     @SerializedName("tanggal_keluar") val tanggalKeluar: String? = null,

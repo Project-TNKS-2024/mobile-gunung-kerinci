@@ -271,6 +271,7 @@ class PelacakanJejakTddTest {
         override suspend fun markFailed(localId: String, status: String) = error("tidak dipakai")
         override suspend fun markPermanentFailure(localId: String) = error("tidak dipakai")
         override suspend fun resetStuckSyncing() = error("tidak dipakai")
+        override suspend fun resetRetriableFailures(bookingId: String): Int = error("tidak dipakai")
 
         // Dipakai saat membatalkan kehadiran (toggle dimatikan).
         override suspend fun getServerId(bookingId: String, pendakiId: String, postId: Int): Int? =

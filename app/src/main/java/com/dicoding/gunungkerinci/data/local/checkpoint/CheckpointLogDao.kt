@@ -60,4 +60,12 @@ interface CheckpointLogDao {
      */
     @Query("UPDATE checkpoint_logs SET syncStatus = 'PENDING' WHERE syncStatus = 'SYNCING'")
     suspend fun resetStuckSyncing()
+
+    /**
+     * Buka percobaan baru untuk catatan yang sudah menyerah karena habis percobaan,
+     * supaya antrean tidak terkunci permanen. Yang ditolak permanen (retryCount 99)
+     * dibiarkan supaya tidak dicoba selamanya.
+     */
+    @Query("UPDATE checkpoint_logs SET syncStatus = 'PENDING', retryCount = 0 WHERE bookingId = :bookingId AND syncStatus = 'FAILED' AND retryCount < 99")
+    suspend fun resetRetriableFailures(bookingId: String): Int
 }

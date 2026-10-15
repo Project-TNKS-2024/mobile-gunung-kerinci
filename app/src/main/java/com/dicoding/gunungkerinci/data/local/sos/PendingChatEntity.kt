@@ -5,11 +5,8 @@ import androidx.room.PrimaryKey
 import com.dicoding.gunungkerinci.data.local.sync.SyncStatus
 
 /**
- * Antrean pesan chat darurat lokal — dikirim ulang saat jaringan tersedia
- * (US-12: "pesan darurat tersimpan secara lokal").
- *
- * Hanya diisi saat SOS sudah aktif di server (sosId valid) — chat tanpa induk
- * SOS tidak bisa dibuat (kontrak backend: gk_sos_chats.id_sos FK).
+ * Pesan chat darurat yang menunggu dikirim.
+ * Hanya dibuat saat SOS sudah aktif di server, karena backend butuh id_sos.
  */
 @Entity(tableName = "pending_sos_chats")
 data class PendingChatEntity(

@@ -77,7 +77,7 @@ internal object LocationDetailUiMapper {
 
         val (distanceText, estimateText) = if (distanceMeters != null) {
             val distString = if (distanceMeters >= 1000) {
-                String.format(java.util.Locale.US, "%.1f km", distanceMeters / 1000.0)
+                String.format(java.util.Locale("id", "ID"), "%.1f km", distanceMeters / 1000.0)
             } else {
                 "${distanceMeters.roundToInt()} m"
             }
@@ -108,7 +108,6 @@ internal object LocationDetailUiMapper {
             averageEstimateValue = estimateText,
             statusText = when (checkpoint.state) {
                 CheckpointState.Completed -> "Sudah check-in"
-                CheckpointState.Current -> "Posisi saat ini"
                 CheckpointState.Upcoming -> "Belum check-in"
             },
             checkpointDescription = checkpoint.description,

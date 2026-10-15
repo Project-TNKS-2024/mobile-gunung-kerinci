@@ -41,10 +41,7 @@ private val DangerRed = Color(0xFFCF372B)
 
 private data class SeverityOption(val value: String, val label: String)
 
-/**
- * Dialog konfirmasi kirim SOS + pilih tingkat bahaya.
- * Lokasi terakhir perangkat dikirim; gunakan hanya saat darurat.
- */
+/** Dialog konfirmasi kirim SOS dan pilih tingkat bahaya. */
 @Composable
 internal fun SosConfirmDialog(
     isSending: Boolean,
@@ -52,9 +49,9 @@ internal fun SosConfirmDialog(
     onConfirm: (severity: String) -> Unit
 ) {
     val options = listOf(
-        SeverityOption(SOS_SEVERITY_LOW, "Rendah — butuh bantuan ringan"),
-        SeverityOption(SOS_SEVERITY_MEDIUM, "Sedang — cedera / tersesat"),
-        SeverityOption(SOS_SEVERITY_HIGH, "Tinggi — mengancam jiwa")
+        SeverityOption(SOS_SEVERITY_LOW, "Rendah: butuh bantuan ringan"),
+        SeverityOption(SOS_SEVERITY_MEDIUM, "Sedang: cedera / tersesat"),
+        SeverityOption(SOS_SEVERITY_HIGH, "Tinggi: mengancam jiwa")
     )
     var selected by remember { mutableStateOf(SOS_SEVERITY_HIGH) }
 

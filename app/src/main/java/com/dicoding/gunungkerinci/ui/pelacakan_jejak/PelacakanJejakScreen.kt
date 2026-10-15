@@ -1,8 +1,8 @@
 package com.dicoding.gunungkerinci.ui.pelacakan_jejak
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -46,8 +46,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -76,7 +74,15 @@ internal fun PelacakanJejakScreen(
 ) {
     var screenState by remember { mutableStateOf<JejakScreenState>(JejakScreenState.Ticket) }
     var selectedCheckpoint by remember { mutableStateOf<JejakCheckpointUi?>(null) }
-    var showQrSheet by remember { mutableStateOf(false) }
+
+    // Tombol back HP mengikuti alur layar Jejak (detail pos → timeline → tiket), bukan
+    // langsung melompat ke Beranda lewat navigasi tab bawah.
+    BackHandler(enabled = screenState !is JejakScreenState.Ticket) {
+        screenState = when (screenState) {
+            JejakScreenState.LocationDetail -> JejakScreenState.Timeline
+            else -> JejakScreenState.Ticket
+        }
+    }
 
     // Auto-deteksi radius saat layar detail pos dibuka — pendaki langsung tahu
     // apakah dirinya boleh check-in tanpa harus menekan tombol cek dulu.
@@ -91,33 +97,68 @@ internal fun PelacakanJejakScreen(
     // sehingga tidak ada jalan untuk check-in dari luar radius.
     val nearbyPost = uiState.nearbyPost
     if (nearbyPost != null) {
-        AlertDialog(
-            onDismissRequest = onDismissGpsDialog,
-            title = { Text("Check-in GPS") },
-            text = {
-                Text(
-                    "Kamu berada dalam radius pos \"${nearbyPost.nama}\" " +
-                        "(${nearbyPost.distanceMeters.toInt()} m dari ${nearbyPost.radiusMeter} m radius).\n" +
-                        "Konfirmasi check-in sekarang?"
-                )
-            },
-            confirmButton = {
-                Button(
-                    onClick = { onManualCheckInConfirm(nearbyPost.id) },
-                    colors = ButtonDefaults.buttonColors(containerColor = JejakBlue)
-                ) {
-                    Text("Check-in", color = JejakWhite)
+        // GPS bisa mendeteksi pos lain daripada pos yang sedang dibuka (mis. pendaki masih
+        // di Shelter 1 tetapi membuka layar Pos 2). Check-in ke pos lain itu tidak ditawarkan.
+        val posDibuka = selectedCheckpoint
+        val posSesuai = posDibuka?.postId == null || posDibuka.postId == nearbyPost.id
+        // Warna dialog disetel eksplisit: layar ini tidak dibungkus MaterialTheme, jadi
+        // tanpa itu wadahnya ikut tema bawaan (abu-abu), bukan putih.
+        if (posSesuai) {
+            AlertDialog(
+                onDismissRequest = onDismissGpsDialog,
+                containerColor = JejakWhite,
+                titleContentColor = JejakTextPrimary,
+                textContentColor = JejakTextBody,
+                title = { Text("Check-in GPS") },
+                text = {
+                    Text(
+                        "Kamu berada dalam radius pos \"${nearbyPost.nama}\" " +
+                            "(${nearbyPost.distanceMeters.toInt()} m dari ${nearbyPost.radiusMeter} m radius).\n" +
+                            "Konfirmasi check-in sekarang?"
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = { onManualCheckInConfirm(nearbyPost.id) },
+                        colors = ButtonDefaults.buttonColors(containerColor = JejakBlue)
+                    ) {
+                        Text("Check-in", color = JejakWhite)
+                    }
+                },
+                dismissButton = {
+                    Button(
+                        onClick = onDismissGpsDialog,
+                        colors = ButtonDefaults.buttonColors(containerColor = JejakBorder)
+                    ) {
+                        Text("Batal", color = JejakTextPrimary)
+                    }
                 }
-            },
-            dismissButton = {
-                Button(
-                    onClick = onDismissGpsDialog,
-                    colors = ButtonDefaults.buttonColors(containerColor = JejakBorder)
-                ) {
-                    Text("Batal", color = JejakTextPrimary)
+            )
+        } else {
+            AlertDialog(
+                onDismissRequest = onDismissGpsDialog,
+                containerColor = JejakWhite,
+                titleContentColor = JejakTextPrimary,
+                textContentColor = JejakTextBody,
+                title = { Text("Bukan Pos Ini") },
+                text = {
+                    Text(
+                        "GPS mendeteksi kamu di pos \"${nearbyPost.nama}\" " +
+                            "(${nearbyPost.distanceMeters.toInt()} m), bukan di " +
+                            "\"${posDibuka?.name ?: "pos yang sedang dibuka"}\".\n" +
+                            "Check-in hanya bisa di pos tempat kamu berada sekarang."
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = onDismissGpsDialog,
+                        colors = ButtonDefaults.buttonColors(containerColor = JejakBlue)
+                    ) {
+                        Text("Mengerti", color = JejakWhite)
+                    }
                 }
-            }
-        )
+            )
+        }
     }
 
     Box(
@@ -141,33 +182,57 @@ internal fun PelacakanJejakScreen(
                 onRetryLoadPosts = onRetryLoadPosts
             )
 
-            JejakScreenState.LocationDetail -> PelacakanJejakLocationDetailScreen(
-                detail = LocationDetailUiMapper.fromCheckpoint(
-                    selectedCheckpoint,
-                    uiState.loadedPosts
-                ),
-                members = TrackingProgressUiMapper.toMembers(
-                    uiState.progressHikers,
-                    selectedCheckpoint?.postId,
-                    uiState.localMemberMarks
-                ),
-                gpsGateState = uiState.gpsGateState,
-                isCheckingGps = uiState.isCheckingGps,
-                isMarkingMember = uiState.isMarkingMember,
-                memberMarkMessage = uiState.memberMarkMessage,
-                memberMarkErrorMessage = uiState.memberMarkErrorMessage,
-                onBack = { screenState = JejakScreenState.Timeline },
-                onScanQrClick = onScanQrClick,
-                onGpsCheckInClick = onGpsCheckInClick,
-                onMemberToggle = { pendakiId, checked ->
-                    onMemberToggle(pendakiId, checked, selectedCheckpoint?.postId)
+            JejakScreenState.LocationDetail -> {
+                // Ketua hanya boleh menandai anggota kalau dirinya sudah terbukti ada di pos
+                // ini: sedang dalam radius, atau sudah check-in di pos ini.
+                val posDiBuka = selectedCheckpoint?.postId
+                val bisaUbahKehadiran = uiState.isKetua != false &&
+                    TrackingProgressUiMapper.ketuaAdaDiPosIni(
+                        postId = posDiBuka,
+                        myPendakiId = uiState.myPendakiId,
+                        hikers = uiState.progressHikers,
+                        gpsGateState = uiState.gpsGateState
+                    )
+                // Ada catatan yang belum terkirim di pos ini? Itu masih boleh dibatalkan
+                // walaupun ketua belum berada di pos ini.
+                val adaCatatanBelumTerkirim = uiState.localMemberMarks.any {
+                    it.postId == posDiBuka && it.pending
                 }
-            )
+                PelacakanJejakLocationDetailScreen(
+                    detail = LocationDetailUiMapper.fromCheckpoint(
+                        selectedCheckpoint,
+                        uiState.loadedPosts
+                    ),
+                    members = TrackingProgressUiMapper.toMembers(
+                        uiState.progressHikers,
+                        posDiBuka,
+                        uiState.localMemberMarks
+                    ),
+                    posId = posDiBuka,
+                    bisaUbahKehadiran = bisaUbahKehadiran,
+                    catatanKehadiran = when {
+                        uiState.isKetua == false ->
+                            "Hanya ketua tim yang dapat mengubah kehadiran anggota."
+                        !bisaUbahKehadiran && adaCatatanBelumTerkirim ->
+                            "Catatan yang belum terkirim masih bisa dibatalkan. Untuk menandai kehadiran baru, check-in dulu di pos ini."
+                        !bisaUbahKehadiran ->
+                            "Check-in dulu di pos ini untuk mengubah kehadiran anggota."
+                        else -> null
+                    },
+                    gpsGateState = uiState.gpsGateState,
+                    isCheckingGps = uiState.isCheckingGps,
+                    isMarkingMember = uiState.isMarkingMember,
+                    memberMarkMessage = uiState.memberMarkMessage,
+                    memberMarkErrorMessage = uiState.memberMarkErrorMessage,
+                    onBack = { screenState = JejakScreenState.Timeline },
+                    onScanQrClick = onScanQrClick,
+                    onGpsCheckInClick = onGpsCheckInClick,
+                    onMemberToggle = { pendakiId, checked ->
+                        onMemberToggle(pendakiId, checked, posDiBuka)
+                    }
+                )
+            }
         }
-
-//        if (showQrSheet) {
-//            PelacakanJejakQrScanSheet(onDismiss = { showQrSheet = false })
-//        }
     }
 }
 
@@ -601,9 +666,6 @@ internal fun PelacakanJejakTimelineContent(
                 )
             }
         }
-        if (uiState.days.isNotEmpty()) {
-            item { DaySelector(uiState.days) }
-        }
 
         when {
             uiState.noActiveHikeMessage != null -> {
@@ -630,7 +692,6 @@ internal fun PelacakanJejakTimelineContent(
                         item = item,
                         isFirst = index == 0,
                         isLast = index == uiState.postCheckpoints.lastIndex,
-                        showCurrentBar = item.state == CheckpointState.Current && index > 0,
                         onClick = { onCheckpointClick(item) }
                     )
                 }
@@ -678,7 +739,6 @@ private fun TimelineInfoCard(
 @Composable
 private fun HikingSummaryCard(uiState: PelacakanJejakUiState) {
     val jumlahAnggota = uiState.progressHikers.size
-    val hariAktif = uiState.days.firstOrNull { it.selected } ?: uiState.days.firstOrNull()
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -686,34 +746,16 @@ private fun HikingSummaryCard(uiState: PelacakanJejakUiState) {
         color = JejakBlue
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = uiState.activeTicket?.status ?: "Pendakian Aktif",
-                    color = JejakWhite,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.weight(1f)
-                )
-                hariAktif?.let { hari ->
-                    Surface(shape = RoundedCornerShape(8.dp), color = JejakYellow) {
-                        Text(
-                            text = "${hari.title}!",
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-                            color = JejakTextPrimary,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-            }
+            Text(
+                text = uiState.activeTicket?.status ?: "Pendakian Aktif",
+                color = JejakWhite,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            )
             Spacer(Modifier.height(10.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
                 SummaryStat("Anggota", if (jumlahAnggota > 0) "$jumlahAnggota Orang" else "-")
-                SummaryStat("Gate", uiState.activeTicket?.let { gateNameFrom(it) } ?: "-")
-                SummaryStat("Tanggal", hariAktif?.date ?: "-")
+                SummaryStat("Gate", uiState.activeTicket?.gateName ?: "-")
             }
         }
     }
@@ -728,95 +770,14 @@ private fun SummaryStat(label: String, value: String) {
     }
 }
 
-/** Nama gate tidak disimpan di JejakTicketUi — pakai label masuk sebagai pengganti. */
-private fun gateNameFrom(ticket: JejakTicketUi): String = ticket.masukDate
-
-@Composable
-private fun DaySelector(
-    days: List<JejakDayUi>,
-    onDaySelected: (Int) -> Unit = {}
-) {
-    if (days.isEmpty()) return
-    var selectedIndex by remember(days) {
-        mutableStateOf(days.indexOfFirst { it.selected }.coerceAtLeast(0))
-    }
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        days.forEachIndexed { index, hari ->
-            val isSelected = index == selectedIndex
-            Surface(
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable {
-                        selectedIndex = index
-                        onDaySelected(index)
-                    },
-                shape = RoundedCornerShape(12.dp),
-                color = if (isSelected) JejakBlue else JejakWhite,
-                border = BorderStroke(1.dp, if (isSelected) JejakBlue else JejakBorder)
-            ) {
-                Column(
-                    modifier = Modifier.padding(vertical = 10.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = hari.title,
-                        color = if (isSelected) JejakWhite else JejakTextPrimary,
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(Modifier.height(2.dp))
-                    Text(
-                        text = hari.date,
-                        color = if (isSelected) JejakWhite.copy(alpha = 0.85f) else JejakTextSecondary,
-                        fontSize = 11.sp
-                    )
-                }
-            }
-        }
-    }
-}
-
 @Composable
 private fun TimelineRow(
     item: JejakCheckpointUi,
     isFirst: Boolean,
     isLast: Boolean,
-    showCurrentBar: Boolean,
     onClick: () -> Unit = {}
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        if (showCurrentBar) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 6.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Surface(
-                    shape = RoundedCornerShape(50),
-                    color = JejakTextStrong
-                ) {
-                    Text(
-                        text = "10.44",
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-                        color = JejakWhite,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(1.dp)
-                        .background(JejakTextPrimary)
-                )
-            }
-        }
-
         Row(modifier = Modifier.fillMaxWidth()) {
             Column(
                 modifier = Modifier
@@ -851,7 +812,6 @@ private fun CheckpointCard(
 ) {
     val borderColor = when (item.state) {
         CheckpointState.Completed -> JejakBorder
-        CheckpointState.Current -> JejakBlue
         CheckpointState.Upcoming -> JejakBorder
     }
     val bg = when (item.state) {
@@ -860,7 +820,6 @@ private fun CheckpointCard(
     }
     val titleColor = when (item.state) {
         CheckpointState.Upcoming -> JejakTextSecondary
-        CheckpointState.Current -> JejakBlue
         CheckpointState.Completed -> JejakTextPrimary
     }
     val descColor = JejakTextSecondary
@@ -913,7 +872,6 @@ private fun CheckpointCard(
 private fun StatusDot(state: CheckpointState) {
     val (bg, glyph, glyphColor) = when (state) {
         CheckpointState.Completed -> Triple(JejakGreen, "✓", JejakWhite)
-        CheckpointState.Current -> Triple(JejakBlue, "✓", JejakWhite)
         CheckpointState.Upcoming -> Triple(JejakGreyMid, "", JejakWhite)
     }
     Box(

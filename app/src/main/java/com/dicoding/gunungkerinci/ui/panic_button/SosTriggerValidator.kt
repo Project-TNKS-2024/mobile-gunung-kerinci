@@ -1,10 +1,8 @@
 package com.dicoding.gunungkerinci.ui.panic_button
 
 /**
- * Validasi pemicu SOS (TDD C01–C04) — murni, tanpa Android.
- *
- * @param wajibPesan true untuk jalur "kirim pesan darurat" (pesan wajib diisi);
- *   panic murni boleh tanpa pesan (backend `message` opsional).
+ * Validasi pemicu SOS.
+ * @param wajibPesan true untuk jalur kirim pesan darurat.
  */
 internal object SosTriggerValidator {
 

@@ -6,7 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.dicoding.gunungkerinci.data.local.sos.PendingChatEntity
 import com.dicoding.gunungkerinci.data.repository.SosChatRepository
 import com.dicoding.gunungkerinci.data.repository.SosRepository
+import com.dicoding.gunungkerinci.data.sync.SosQueueRule
 import com.dicoding.gunungkerinci.data.sync.SyncScheduler
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,9 +19,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-/**
- * Chat SOS: cari SOS aktif → muat riwayat → kirim teks/gambar.
- */
+/** Chat darurat: cari SOS aktif, muat riwayat, kirim teks atau gambar. */
 internal class SosChatViewModel(
     private val sosChatRepository: SosChatRepository,
     private val sosRepository: SosRepository,
@@ -30,8 +30,9 @@ internal class SosChatViewModel(
     val uiState: StateFlow<SosChatUiState> = _uiState.asStateFlow()
 
     private var sosId: Int? = null
+    private var ikutiJob: Job? = null
 
-    /** Titik masuk layar: cari SOS aktif lalu muat pesannya. */
+    /** Dipanggil saat layar dibuka: cari SOS aktif lalu muat pesannya. */
     fun start(token: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null, isSosActive = false) }
@@ -52,7 +53,7 @@ internal class SosChatViewModel(
                         sosId = active.id
                         _uiState.update { it.copy(isSosActive = true) }
                         loadMessages(token, active.id)
-                        muatAntreanLokal(active.id)
+                        ikutiAntrean(token, active.id)
                     }
                 }
                 .onFailure { error ->
@@ -60,7 +61,7 @@ internal class SosChatViewModel(
                         it.copy(
                             isLoading = false,
                             isSosActive = false,
-                            errorMessage = error.message ?: "Gagal memuat status SOS"
+                            errorMessage = pesanJaringan(error, "Gagal memuat status SOS")
                         )
                     }
                 }
@@ -70,8 +71,7 @@ internal class SosChatViewModel(
     fun refresh(token: String) = start(token)
 
     fun sendText(token: String, text: String) {
-        // Chat hanya bisa dikirim setelah SOS aktif (backend mewajibkan id_sos).
-        // Jangan diam — beri tahu pengguna alasannya.
+        // Chat hanya bisa dikirim setelah SOS aktif, jadi beri tahu alasannya.
         val id = sosId
         if (id == null) {
             _uiState.update {
@@ -92,7 +92,7 @@ internal class SosChatViewModel(
     }
 
     fun sendImage(token: String, imageFile: File, caption: String? = null) {
-        // Sama seperti sendText: tanpa SOS aktif tidak ada tempat menempelkan pesan.
+        // Sama seperti sendText: butuh SOS aktif.
         val id = sosId
         if (id == null) {
             _uiState.update {
@@ -124,34 +124,41 @@ internal class SosChatViewModel(
             }
             .onFailure { error ->
                 _uiState.update {
-                    it.copy(isSending = false, isLoading = false, errorMessage = error.message ?: "Gagal memuat pesan")
+                    it.copy(isSending = false, isLoading = false, errorMessage = pesanJaringan(error, "Gagal memuat pesan"))
                 }
             }
     }
 
-    /**
-     * Jalur offline US-12: pesan chat yang gagal karena sinyal disimpan ke Room
-     * (`pending_sos_chats`) lalu dikirim ulang otomatis oleh PendingChatSyncWorker.
-     * Hanya untuk SOS yang sudah aktif di server — sosId selalu valid.
-     */
+    /** Simpan pesan ke antrean lokal supaya dikirim lagi saat jaringan tersedia. */
     private suspend fun antreJikaOffline(error: Throwable, sosId: Int, type: String, content: String?, imagePath: String?) {
         if (!SosQueueRule.simpanOffline(error)) {
-            _uiState.update { it.copy(isSending = false, errorMessage = error.message ?: "Gagal mengirim pesan") }
+            _uiState.update { it.copy(isSending = false, errorMessage = pesanJaringan(error, "Gagal mengirim pesan")) }
             return
         }
         val tersimpan = sosChatRepository.savePendingChat(sosId, type, content, imagePath)
         if (tersimpan) {
             syncScheduler?.scheduleChatSync()
-            muatAntreanLokal(sosId)
-            _uiState.update { it.copy(isSending = false, queuedInfo = "Tidak ada sinyal — pesan disimpan & akan dikirim otomatis.") }
+            _uiState.update { it.copy(isSending = false, queuedInfo = "Tidak ada sinyal, pesan disimpan & akan dikirim otomatis.") }
         } else {
             _uiState.update { it.copy(isSending = false, errorMessage = "Gagal menyimpan pesan") }
         }
     }
 
-    private suspend fun muatAntreanLokal(sosId: Int) {
-        val antrean = sosChatRepository.getPendingChats(sosId)
-        _uiState.update { it.copy(queuedMessages = antrean.map { entity -> entity.toQueuedUi() }) }
+    /** Ikuti isi antrean lokal, supaya layar ikut berubah begitu worker selesai mengirim. */
+    private fun ikutiAntrean(token: String, sosId: Int) {
+        ikutiJob?.cancel()
+        ikutiJob = viewModelScope.launch {
+            var sebelumnya = 0
+            sosChatRepository.observePendingChats(sosId).collect { antrean ->
+                _uiState.update { it.copy(queuedMessages = antrean.map { entity -> entity.toQueuedUi() }) }
+                if (antrean.size < sebelumnya) {
+                    // Ada pesan yang terkirim: buang notifikasi lama lalu muat riwayat terbaru.
+                    _uiState.update { it.copy(queuedInfo = null) }
+                    loadMessages(token, sosId)
+                }
+                sebelumnya = antrean.size
+            }
+        }
     }
 
     private fun PendingChatEntity.toQueuedUi(): QueuedChatUi = QueuedChatUi(

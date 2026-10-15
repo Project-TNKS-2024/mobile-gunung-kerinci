@@ -27,7 +27,6 @@ internal data class PelacakanJejakUiState(
     val isLoadingTickets: Boolean = false,
     val activeTicket: JejakTicketUi? = null,
     val finishedTickets: List<JejakTicketUi> = emptyList(),
-    val days: List<JejakDayUi> = emptyList(),
     val periodeLabel: String? = null,
     val isLoadingPosts: Boolean = false,
     val postCheckpoints: List<JejakCheckpointUi> = emptyList(),
@@ -56,6 +55,12 @@ internal data class PelacakanJejakUiState(
     val progressHikers: List<TrackingProgressHiker> = emptyList(),
     // Penanda lokal dari checkpoint_logs — overlay "menunggu kirim" untuk penandaan offline.
     val localMemberMarks: List<LocalMemberMark> = emptyList(),
+    // Apakah user ini ketua tim pada booking aktif. null = belum diketahui (identitas gagal
+    // diambil) — dalam keadaan itu switch anggota dibiarkan aktif supaya ketua tidak terkunci.
+    val isKetua: Boolean? = null,
+    // Id pendaki milik user yang login — dipakai untuk tahu apakah ketua sendiri sudah
+    // check-in di pos yang sedang dibuka.
+    val myPendakiId: String? = null,
     // Penandaan kehadiran anggota oleh ketua tim (US-05) — lewat POST /checkpoint/qr
     // dengan parameter pendaki_id.
     val isMarkingMember: Boolean = false,
@@ -91,6 +96,7 @@ internal class PelacakanJejakViewModel(
         completedPostIds.clear()
         currentGateId = 0
         currentBookingId = ""
+        currentPendakiId = ""
         _uiState.update {
             it.copy(
                 isLoadingPosts = false,
@@ -99,7 +105,9 @@ internal class PelacakanJejakViewModel(
                 noActiveHikeMessage = "Belum ada pendakian aktif. Check-in tiket dulu untuk memakai Pelacakan Jejak.",
                 isLoadingProgress = false,
                 progressText = null,
-                progressErrorMessage = null
+                progressErrorMessage = null,
+                isKetua = null,
+                myPendakiId = null
             )
         }
     }
@@ -120,10 +128,6 @@ internal class PelacakanJejakViewModel(
                             isLoadingTickets = false,
                             activeTicket = TicketUiMapper.toActiveTicket(bookings),
                             finishedTickets = TicketUiMapper.toFinishedTickets(bookings),
-                            days = TicketUiMapper.toDays(
-                                activeBooking?.tanggalMasuk,
-                                activeBooking?.tanggalKeluar
-                            ),
                             periodeLabel = TicketUiMapper.toPeriodeLabel(activeBooking?.tanggalMasuk)
                         )
                     }
@@ -133,11 +137,22 @@ internal class PelacakanJejakViewModel(
                     } else {
                         // Pilih anggota rombongan yang benar-benar user yang login (A16),
                         // bukan asal anggota pertama.
-                        val myPendakiIds = activeHikeRepository.getMyPendakiIds(token)
+                        val identitas = activeHikeRepository.getMyIdentity(token)
                         currentPendakiId = ActiveHikeRepository.pilihPendakiSaya(
                             hike.pendakiIds,
-                            myPendakiIds
+                            identitas.pendakiIds
                         )
+                        // Pemilik booking = ketua tim (aturan server). Dipakai untuk
+                        // menonaktifkan switch kehadiran anggota bagi yang bukan ketua.
+                        val ketua = if (hike.ketuaUserId != null && identitas.userId != null) {
+                            hike.ketuaUserId == identitas.userId
+                        } else null
+                        _uiState.update {
+                            it.copy(
+                                isKetua = ketua,
+                                myPendakiId = currentPendakiId.ifBlank { null }
+                            )
+                        }
                         loadPosts(token, hike.gateId, hike.bookingId)
                     }
                 }
@@ -188,6 +203,11 @@ internal class PelacakanJejakViewModel(
     fun loadProgress(token: String = currentToken, bookingId: String = currentBookingId) {
         if (token.isBlank() || bookingId.isBlank()) return
         viewModelScope.launch {
+            // Buka lagi percobaan untuk catatan yang sebelumnya menyerah, supaya antrean
+            // tidak terkunci permanen. Dijadwalkan hanya kalau memang ada yang dibuka.
+            val dibuka = trackingRepository.resetRetriableFailures(bookingId)
+            if (dibuka > 0) syncScheduler?.scheduleCheckpointSync(bookingId)
+
             _uiState.update { it.copy(isLoadingProgress = true, progressErrorMessage = null) }
             trackingProgressRepository.getProgress(token, bookingId)
                 .onSuccess { progress ->
@@ -199,12 +219,8 @@ internal class PelacakanJejakViewModel(
                         .flatMap { hiker -> hiker.checkpoints.filter { it.completed }.map { it.postId } }
                         .distinct()
 
-                    val jumlahAnggota = progress.hikers.size
-                    val totalSelesai = progress.hikers.sumOf { it.completed }
-                    val totalCheckpoint = progress.hikers.sumOf { it.total }
-                    val persenTim = if (totalCheckpoint > 0) {
-                        (totalSelesai * 100) / totalCheckpoint
-                    } else 0
+                    // Angka progres diambil apa adanya dari server: milik pendaki yang login.
+                    val progresDiri = progress.hikers.firstOrNull { it.pendakiId == currentPendakiId }
 
                     _uiState.update {
                         it.copy(
@@ -214,13 +230,9 @@ internal class PelacakanJejakViewModel(
                             } else {
                                 TrackingPostUiMapper.toCheckpointUi(loadedPosts, completedPostIds)
                             },
-                            progressText = if (jumlahAnggota > 1) {
-                                "$jumlahAnggota anggota · $totalSelesai/$totalCheckpoint checkpoint tim ($persenTim%)"
-                            } else {
-                                progress.hikers.firstOrNull()?.let { hp ->
-                                    "${hp.nama}: ${hp.completed}/${hp.total} checkpoint · ${hp.percentage}%"
-                                } ?: "Progress belum tersedia"
-                            },
+                            progressText = progresDiri?.let {
+                                "${it.completed}/${it.total} checkpoint selesai · ${it.percentage}%"
+                            } ?: "Progress belum tersedia",
                             progressHikers = progress.hikers,
                             progressErrorMessage = null
                         )
@@ -347,7 +359,7 @@ internal class PelacakanJejakViewModel(
                             it.copy(
                                 isCheckingIn = false,
                                 qrScanMessage = if (tersimpan) {
-                                    "Tidak ada sinyal — check-in ${payload.postId} disimpan & akan dikirim otomatis."
+                                    "Tidak ada sinyal, check-in ${payload.postId} disimpan & akan dikirim otomatis."
                                 } else null,
                                 qrScanErrorMessage = if (tersimpan) {
                                     null
@@ -560,7 +572,7 @@ internal class PelacakanJejakViewModel(
                             it.copy(
                                 isMarkingMember = false,
                                 memberMarkMessage = if (tersimpan) {
-                                    "Tidak ada sinyal — kehadiran ${namaAnggota ?: "anggota"} disimpan & akan dikirim otomatis."
+                                    "Tidak ada sinyal, kehadiran ${namaAnggota ?: "anggota"} disimpan & akan dikirim otomatis."
                                 } else null,
                                 memberMarkErrorMessage = if (tersimpan) {
                                     null
@@ -580,10 +592,6 @@ internal class PelacakanJejakViewModel(
                     }
                 }
         }
-    }
-
-    fun clearMemberMarkMessage() {
-        _uiState.update { it.copy(memberMarkMessage = null, memberMarkErrorMessage = null) }
     }
 
     /**
@@ -633,14 +641,18 @@ internal class PelacakanJejakViewModel(
                     }
                 }
                 .onFailure { error ->
+                    // Server yang menghitung jarak, jadi tanpa internet cek posisi memang gagal.
+                    // Statusnya dibedakan dari GpsOff supaya tidak dituduh GPS-nya mati.
                     _uiState.update {
                         it.copy(
                             isCheckingGps = false,
                             nearbyPost = null,
                             posTerdekatId = null,
-                            gpsGateState = GpsGateState.GpsOff,
+                            gpsGateState = GpsGateState.GagalCek,
                             gpsCheckErrorMessage = if (silent) null
-                            else error.message ?: "Gagal cek posisi GPS"
+                            else if (adalahMasalahJaringan(error)) {
+                                "Tidak ada jaringan. Cek posisi butuh internet, pakai Scan QR atau coba lagi."
+                            } else error.message ?: "Gagal cek posisi GPS"
                         )
                     }
                 }
@@ -697,7 +709,7 @@ internal class PelacakanJejakViewModel(
                             postCheckpoints = TrackingPostUiMapper.toCheckpointUi(loadedPosts, completedPostIds),
                             progressText = "${data.progress.completed}/${data.progress.total} checkpoint selesai · ${data.progress.percentage}%",
                             manualCheckInMessage = "Check-in manual berhasil di ${data.post.nama}" +
-                                    if (data.isManualOverride) " (override — kamu jauh dari pos)" else "",
+                                    if (data.isManualOverride) " (override, kamu jauh dari pos)" else "",
                             manualCheckInErrorMessage = null
                         )
                     }
@@ -720,7 +732,7 @@ internal class PelacakanJejakViewModel(
                                 nearbyPost = null,
                                 posTerdekatId = null,
                                 manualCheckInMessage = if (tersimpan) {
-                                    "Tidak ada sinyal — check-in manual disimpan & akan dikirim otomatis."
+                                    "Tidak ada sinyal, check-in manual disimpan & akan dikirim otomatis."
                                 } else null,
                                 manualCheckInErrorMessage = if (tersimpan) {
                                     null
@@ -824,7 +836,7 @@ internal class PelacakanJejakViewModel(
         val tersimpan = runCatching { trackingRepository.saveCheckpointPending(log) }.isSuccess
 
         if (tersimpan) {
-            syncScheduler?.scheduleCheckpointSync()
+            syncScheduler?.scheduleCheckpointSync(currentBookingId)
             if (tandaiTimeline) {
                 // Optimistis: tampilkan pos ini sebagai selesai di timeline.
                 completedPostIds += postId

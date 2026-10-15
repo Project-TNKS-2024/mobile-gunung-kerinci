@@ -6,6 +6,8 @@ import com.dicoding.gunungkerinci.model.SosMessagesData
 import com.dicoding.gunungkerinci.model.SosSendMessageResponse
 import com.dicoding.gunungkerinci.model.SosSentMessage
 import com.dicoding.gunungkerinci.network.ApiService
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -14,10 +16,7 @@ import retrofit2.Response
 import java.io.File
 import java.util.UUID
 
-/**
- * Chat SOS (multipart): kirim teks/gambar & ambil riwayat pesan.
- * Endpoint: POST/GET /api/sos/chat/{sos_id}/...
- */
+/** Chat darurat: kirim teks atau gambar dan muat riwayatnya. */
 internal class SosChatRepository(
     private val api: ApiService,
     private val pendingChatDao: PendingChatDao? = null
@@ -60,11 +59,7 @@ internal class SosChatRepository(
         }
     }
 
-    /**
-     * Antrean lokal pesan chat saat offline (US-12): pesan disimpan ke Room
-     * (`pending_sos_chats`) dan dikirim ulang oleh PendingChatSyncWorker saat
-     * jaringan tersedia. Hanya dipakai saat SOS sudah aktif di server (sosId valid).
-     */
+    /** Simpan pesan ke antrean lokal supaya dicoba lagi saat jaringan tersedia. */
     suspend fun savePendingChat(sosId: Int, type: String, content: String?, imagePath: String?): Boolean {
         val dao = pendingChatDao ?: return false
         return runCatching {
@@ -82,14 +77,15 @@ internal class SosChatRepository(
         }.getOrDefault(false)
     }
 
-    suspend fun getPendingChats(sosId: Int): List<PendingChatEntity> =
-        pendingChatDao?.getPendingForSos(sosId) ?: emptyList()
+    /** Antrean pesan satu SOS, ikut berubah sendiri saat isinya berubah. */
+    fun observePendingChats(sosId: Int): Flow<List<PendingChatEntity>> =
+        pendingChatDao?.observePendingForSos(sosId) ?: flowOf(emptyList())
 
     suspend fun deletePendingChat(localId: String) {
         pendingChatDao?.delete(localId)
     }
 
-    /** Kirim gambar langsung dari file (dipakai ViewModel & worker). */
+    /** Kirim gambar dari file, dipakai ViewModel dan worker. */
     suspend fun sendImageFile(token: String, sosId: Int, file: File, caption: String? = null): Result<SosSentMessage> = runCatching {
         val mime = if (file.name.lowercase().endsWith(".png")) "image/png" else "image/jpeg"
         val part = MultipartBody.Part.createFormData(

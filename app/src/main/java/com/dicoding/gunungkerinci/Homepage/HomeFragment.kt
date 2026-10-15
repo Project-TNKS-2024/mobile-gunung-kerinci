@@ -306,7 +306,7 @@ class HomeFragment : Fragment() {
 
     /**
      * Kartu cuaca + jumlah pendaki dari `GET /api/beranda`.
-     * `cuaca` bisa null (WeatherAPI di backend gagal) -> kolom diisi "—".
+     * `cuaca` bisa null (WeatherAPI di backend gagal) -> kolom diisi "-".
      */
     private fun setupBeranda() {
         val token = UserPreference(requireContext()).getToken().orEmpty()
@@ -325,9 +325,9 @@ class HomeFragment : Fragment() {
                 val current = cuaca?.current
                 val condition = current?.condition
 
-                binding.suhu.text = current?.tempC?.let { "${it.toInt()}°c" } ?: "—"
-                binding.ketSuhu.text = condition?.text ?: "—"
-                binding.ketKota.text = cuaca?.location?.name ?: "—"
+                binding.suhu.text = current?.tempC?.let { "${it.toInt()}°c" } ?: "-"
+                binding.ketSuhu.text = condition?.text ?: "-"
+                binding.ketKota.text = cuaca?.location?.name ?: "-"
 
                 condition?.icon?.let { icon ->
                     Glide.with(this@HomeFragment)
@@ -339,9 +339,9 @@ class HomeFragment : Fragment() {
                 binding.pendakiNow.text = (data?.totalMendaki ?: 0).toString()
                 binding.JmlpendakiNow.text = (data?.totalPendaki ?: 0).toString()
             } catch (e: Exception) {
-                binding.suhu.text = "—"
-                binding.ketSuhu.text = "—"
-                binding.ketKota.text = "—"
+                binding.suhu.text = "-"
+                binding.ketSuhu.text = "-"
+                binding.ketKota.text = "-"
                 Log.d("BERANDA_API", e.message.toString())
             } finally {
                 binding.loadingCuaca.isVisible = false

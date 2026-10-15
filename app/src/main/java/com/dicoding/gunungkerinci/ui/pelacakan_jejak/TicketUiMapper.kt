@@ -62,6 +62,7 @@ internal object TicketUiMapper {
             statusType = TicketStatusType.Ongoing,
             masukDate = formatTanggal(booking.tanggalMasuk),
             keluarDate = formatTanggal(booking.tanggalKeluar),
+            gateName = booking.gateMasuk?.nama,
             pendakiCount = formatPendaki(booking),
             totalPayment = formatRupiah(booking.totalPembayaran),
             bookingId = "ID Pemesanan: ${shortId(booking.id)}",
@@ -90,34 +91,6 @@ internal object TicketUiMapper {
         }
 
     private fun shortId(id: String): String = id.take(8).uppercase(Locale.ROOT)
-
-    private val NAMA_BULAN_SINGKAT = listOf(
-        "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
-        "Jul", "Agu", "Sep", "Okt", "Nov", "Des"
-    )
-
-    /**
-     * Daftar hari pendakian dari tanggal masuk s.d. keluar → chip "Hari 1 / Hari 2 / …".
-     * Hari pertama ditandai terpilih. Memakai [java.util.Calendar] agar tetap jalan di minSdk 24
-     * (java.time baru tersedia API 26 tanpa desugaring).
-     */
-    fun toDays(tanggalMasuk: String?, tanggalKeluar: String?): List<JejakDayUi> {
-        val mulai = toCalendar(tanggalMasuk) ?: return emptyList()
-        val selesai = toCalendar(tanggalKeluar) ?: mulai
-        val hari = mutableListOf<JejakDayUi>()
-        var kursor = mulai
-        var nomor = 1
-        while (!kursor.after(selesai) && nomor <= 30) {
-            hari += JejakDayUi(
-                title = "Hari $nomor",
-                date = "${kursor.get(Calendar.DAY_OF_MONTH)} ${NAMA_BULAN_SINGKAT[kursor.get(Calendar.MONTH)]}",
-                selected = nomor == 1
-            )
-            kursor = (kursor.clone() as Calendar).apply { add(Calendar.DAY_OF_MONTH, 1) }
-            nomor++
-        }
-        return hari
-    }
 
     /** "2026-09-13" → "September 2026" (label periode di atas timeline). */
     fun toPeriodeLabel(tanggalMasuk: String?): String? {

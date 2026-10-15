@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
 
-/** Laporan potensi bencana: kirim + muat riwayat. */
+/** Laporan bencana: kirim laporan dan muat riwayatnya. */
 internal class DisasterReportViewModel(
     private val disasterReportRepository: DisasterReportRepository
 ) : ViewModel() {
@@ -46,7 +46,7 @@ internal class DisasterReportViewModel(
                 }
                 .onFailure { error ->
                     _uiState.update {
-                        it.copy(isSending = false, errorMessage = error.message ?: "Gagal mengirim laporan")
+                        it.copy(isSending = false, errorMessage = pesanJaringan(error, "Gagal mengirim laporan"))
                     }
                 }
         }
@@ -59,7 +59,7 @@ internal class DisasterReportViewModel(
                 .onSuccess { list -> _uiState.update { it.copy(isLoadingReports = false, reports = list) } }
                 .onFailure { error ->
                     _uiState.update {
-                        it.copy(isLoadingReports = false, errorMessage = error.message ?: "Gagal memuat laporan")
+                        it.copy(isLoadingReports = false, errorMessage = pesanJaringan(error, "Gagal memuat laporan"))
                     }
                 }
         }

@@ -225,7 +225,8 @@ class JejakFragment : Fragment() {
                 viewModel.checkNearbyPostGps(
                     latitude = loc.latitude,
                     longitude = loc.longitude,
-                    accuracy = loc.accuracy.toDouble(),
+                    // Sebagian HP tidak melaporkan akurasi; jangan kirim 0.0 seolah sempurna.
+                    accuracy = if (loc.hasAccuracy()) loc.accuracy.toDouble() else null,
                     silent = silent
                 )
             }

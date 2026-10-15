@@ -25,12 +25,12 @@ internal data class SosChatUiState(
     val queuedInfo: String? = null,
     val isLoading: Boolean = false,
     val isSending: Boolean = false,
-    /** True bila server punya SOS aktif — chat hanya bisa dikirim saat ini true. */
+    /** Chat hanya bisa dikirim kalau server punya SOS aktif. */
     val isSosActive: Boolean = false,
     val errorMessage: String? = null
 )
 
-/** Pesan chat yang menunggu dikirim (antrean offline) — tampil sebagai bubble pending. */
+/** Pesan chat yang menunggu dikirim, tampil sebagai bubble pending. */
 internal data class QueuedChatUi(
     val localId: String,
     val content: String?,

@@ -7,10 +7,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 
-/**
- * Laporan potensi bencana (multipart) + riwayat laporan milik pendaki.
- * Endpoint: POST /api/sos/disaster-report, GET /api/sos/disaster-reports.
- */
+/** Kirim laporan bencana dan muat riwayat laporan pendaki. */
 internal class DisasterReportRepository(private val api: ApiService) {
 
     suspend fun submit(

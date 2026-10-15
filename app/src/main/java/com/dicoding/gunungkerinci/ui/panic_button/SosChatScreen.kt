@@ -57,7 +57,7 @@ private val SoftBlue = Color(0xFFEAF2FF)
 private val ScreenBackground = Color(0xFFF6F8FC)
 private val DangerRed = Color(0xFFE53935)
 
-/** Layar chat SOS: daftar pesan + input teks/gambar. */
+/** Layar chat darurat: daftar pesan dan input teks atau gambar. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun SosChatScreen(
@@ -154,7 +154,7 @@ private fun LoadingState() {
 private fun EmptyState(errorMessage: String?, onRefreshClick: () -> Unit) {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            // Error tetap tampil walau chat kosong — sebelumnya tertutup kartu "Belum ada pesan".
+            // Tampilkan error walau chat kosong supaya tidak tertutup kartu "Belum ada pesan".
             errorMessage?.let { ErrorBanner(it) }
             Surface(shape = RoundedCornerShape(20.dp), color = Color.White, tonalElevation = 2.dp) {
                 Column(
@@ -322,7 +322,7 @@ private fun String.toAbsoluteApiUrl(): String {
     return if (value.startsWith('/')) "$baseUrl$value" else "$baseUrl/$value"
 }
 
-/** Bubble pesan lokal yang menunggu dikirim (antrean offline, US-12). */
+/** Bubble pesan lokal yang menunggu dikirim. */
 @Composable
 private fun QueuedBubble(queued: QueuedChatUi) {
     Row(

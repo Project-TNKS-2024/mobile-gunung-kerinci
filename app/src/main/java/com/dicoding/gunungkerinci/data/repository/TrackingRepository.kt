@@ -99,6 +99,14 @@ class TrackingRepository(
         return checkpointLogDao?.getLastCheckpoint(bookingId)
     }
 
+    /**
+     * Buka percobaan baru untuk catatan yang sebelumnya menyerah. Mengembalikan jumlah
+     * baris yang dibuka, supaya pemanggil hanya menjadwalkan sinkron bila memang perlu.
+     */
+    suspend fun resetRetriableFailures(bookingId: String): Int {
+        return checkpointLogDao?.resetRetriableFailures(bookingId) ?: 0
+    }
+
     private fun TrackingPost.toEntity(gateId: Int): TrackingPostEntity {
         return TrackingPostEntity(
             id = id,

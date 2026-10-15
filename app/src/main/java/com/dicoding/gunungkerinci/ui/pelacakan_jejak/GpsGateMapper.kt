@@ -16,12 +16,14 @@ internal object GpsGateMapper {
     fun toGateState(nearest: GpsNearestPost): GpsGateState =
         if (nearest.withinRadius) {
             GpsGateState.DalamRadius(
+                postId = nearest.id,
                 postName = nearest.nama,
                 distanceMeters = nearest.distanceMeters,
                 radiusMeter = nearest.radiusMeter
             )
         } else {
             GpsGateState.LuarRadius(
+                postId = nearest.id,
                 postName = nearest.nama,
                 distanceMeters = nearest.distanceMeters,
                 radiusMeter = nearest.radiusMeter

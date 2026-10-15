@@ -1,7 +1,6 @@
 package com.dicoding.gunungkerinci.ui.pelacakan_jejak
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -34,17 +32,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -54,6 +47,15 @@ import com.dicoding.gunungkerinci.R
 internal fun PelacakanJejakLocationDetailScreen(
     detail: LocationDetailUi = LocationDetailUi.Default,
     members: List<JejakMemberUi> = emptyList(),
+    /** Id pos yang sedang dibuka — dibandingkan dengan pos hasil deteksi GPS. */
+    posId: Int? = null,
+    /**
+     * true kalau ketua tim DAN dirinya sudah terbukti berada di pos ini.
+     * Kalau false, switch kehadiran anggota dinonaktifkan.
+     */
+    bisaUbahKehadiran: Boolean = true,
+    /** Alasan switch dinonaktifkan, ditampilkan di bawah judul "Cek Anggota". */
+    catatanKehadiran: String? = null,
     gpsGateState: GpsGateState = GpsGateState.Unknown,
     isCheckingGps: Boolean = false,
     /** true selagi permintaan kehadiran anggota diproses — toggle dinonaktifkan. */
@@ -119,6 +121,15 @@ internal fun PelacakanJejakLocationDetailScreen(
             fontSize = 14.sp,
             lineHeight = 20.sp
         )
+        if (catatanKehadiran != null) {
+            Spacer(Modifier.height(6.dp))
+            Text(
+                text = catatanKehadiran,
+                color = JejakTextSecondary,
+                fontSize = 13.sp,
+                lineHeight = 18.sp
+            )
+        }
         Spacer(Modifier.height(14.dp))
         if (members.isEmpty()) {
             Text(
@@ -134,7 +145,10 @@ internal fun PelacakanJejakLocationDetailScreen(
                     avatarColor = avatarColorFor(member.name),
                     checked = member.checked,
                     pending = member.pending,
-                    enabled = !isMarkingMember,
+                    // Catatan lokal yang belum terkirim selalu boleh dibatalkan, karena belum
+                    // ada apa pun di server. Aturan "harus di pos itu" tetap berlaku untuk
+                    // pencatatan kehadiran baru.
+                    enabled = !isMarkingMember && (bisaUbahKehadiran || member.pending),
                     onToggle = { checked -> onMemberToggle(member.pendakiId, checked) },
                 )
                 if (index != members.lastIndex) {
@@ -168,6 +182,7 @@ internal fun PelacakanJejakLocationDetailScreen(
         GpsCheckInButton(
             gateState = gpsGateState,
             isChecking = isCheckingGps,
+            posId = posId,
             onClick = onGpsCheckInClick
         )
         Spacer(Modifier.height(32.dp))
@@ -184,22 +199,31 @@ internal fun PelacakanJejakLocationDetailScreen(
  *
  * - [GpsGateState.Unknown]     → "Cek Posisi GPS"
  * - [GpsGateState.GpsOff]      → "Aktifkan GPS & Cek Ulang"
+ * - [GpsGateState.GagalCek]    → "Coba Cek Posisi Lagi" (server tidak terhubung)
  * - [GpsGateState.LuarRadius]  → "Cek Ulang Posisi" (tidak bisa absen)
- * - [GpsGateState.DalamRadius] → "Check-in Pos Ini" (aktif, hijau)
+ * - [GpsGateState.DalamRadius] → "Check-in Pos Ini" (aktif, hijau). Kalau pos yang
+ *   terdeteksi berbeda dari pos yang dibuka → "Belum Sampai Pos Ini"
  */
 @Composable
 private fun GpsCheckInButton(
     gateState: GpsGateState,
     isChecking: Boolean,
+    posId: Int?,
     onClick: () -> Unit
 ) {
-    val isReady = gateState is GpsGateState.DalamRadius
+    val dalamRadius = gateState as? GpsGateState.DalamRadius
+    // Deteksi GPS bisa menunjuk pos lain daripada pos yang sedang dibuka (mis. pendaki
+    // masih di Shelter 1 tetapi membuka layar Pos 2). Pos lain itu tidak boleh di-absen.
+    val posBeda = dalamRadius != null && posId != null && dalamRadius.postId != posId
+    val isReady = dalamRadius != null && !posBeda
 
     val label = when {
         isChecking -> "Memeriksa Posisi GPS..."
+        posBeda -> "Belum Sampai Pos Ini"
         isReady -> "Check-in Pos Ini"
         gateState is GpsGateState.LuarRadius -> "Cek Ulang Posisi"
         gateState is GpsGateState.GpsOff -> "Aktifkan GPS & Cek Ulang"
+        gateState is GpsGateState.GagalCek -> "Coba Cek Posisi Lagi"
         else -> "Cek Posisi GPS"
     }
 
@@ -236,16 +260,24 @@ private fun GpsCheckInButton(
                 "Kamu ${gateState.distanceMeters.toInt()} m dari ${gateState.postName} " +
                         "(radius ${gateState.radiusMeter} m). Di luar radius, check-in tidak diizinkan."
             is GpsGateState.DalamRadius ->
-                "Kamu berada ${gateState.distanceMeters.toInt()} m dari ${gateState.postName} — siap check-in."
+                if (posBeda) {
+                    "GPS mendeteksi kamu ${gateState.distanceMeters.toInt()} m dari ${gateState.postName}, " +
+                            "bukan dari pos ini. Check-in hanya bisa di pos tempat kamu berada."
+                } else {
+                    "Kamu berada ${gateState.distanceMeters.toInt()} m dari ${gateState.postName}, siap check-in."
+                }
+            is GpsGateState.GagalCek ->
+                "Cek posisi ke server gagal (butuh internet). Pakai Scan QR Check-in, atau coba lagi."
             GpsGateState.Unknown -> null
         }
         if (reason != null) {
             Spacer(Modifier.height(8.dp))
             Text(
                 text = reason,
-                color = when (gateState) {
-                    is GpsGateState.DalamRadius -> JejakGreen
-                    is GpsGateState.LuarRadius -> JejakYellowDark
+                color = when {
+                    posBeda -> JejakYellowDark
+                    gateState is GpsGateState.DalamRadius -> JejakGreen
+                    gateState is GpsGateState.LuarRadius -> JejakYellowDark
                     else -> JejakTextSecondary
                 },
                 fontSize = 12.sp,
@@ -333,21 +365,6 @@ private fun WelcomeCheckpointCard(
                 fontWeight = FontWeight.Bold
             )
         }
-    }
-}
-
-@Composable
-private fun HikerIllustration() {
-    Canvas(Modifier.size(116.dp)) {
-        drawCircle(Color(0xFFD9EEFF), radius = size.minDimension * .43f, center = center)
-        drawCircle(JejakYellow, radius = 9.dp.toPx(), center = Offset(size.width * .48f, size.height * .23f))
-        drawRoundRect(JejakWhite.copy(.9f), Offset(size.width * .14f, size.height * .2f), Size(25.dp.toPx(), 9.dp.toPx()), cornerRadius = androidx.compose.ui.geometry.CornerRadius(8.dp.toPx()))
-        drawCircle(Color(0xFF6B4B38), radius = 10.dp.toPx(), center = Offset(size.width * .53f, size.height * .38f))
-        drawRoundRect(JejakDarkBlue, Offset(size.width * .27f, size.height * .42f), Size(38.dp.toPx(), 45.dp.toPx()), cornerRadius = androidx.compose.ui.geometry.CornerRadius(16.dp.toPx()))
-        drawRoundRect(Color(0xFF324B61), Offset(size.width * .55f, size.height * .44f), Size(27.dp.toPx(), 38.dp.toPx()), cornerRadius = androidx.compose.ui.geometry.CornerRadius(12.dp.toPx()))
-        drawLine(Color(0xFF303030), Offset(size.width * .45f, size.height * .74f), Offset(size.width * .30f, size.height * .92f), 5.dp.toPx(), cap = StrokeCap.Round)
-        drawLine(Color(0xFF303030), Offset(size.width * .55f, size.height * .74f), Offset(size.width * .72f, size.height * .90f), 5.dp.toPx(), cap = StrokeCap.Round)
-        drawRoundRect(JejakWhite, Offset(size.width * .67f, size.height * .48f), Size(25.dp.toPx(), 18.dp.toPx()), cornerRadius = androidx.compose.ui.geometry.CornerRadius(3.dp.toPx()))
     }
 }
 
@@ -481,16 +498,6 @@ private fun MemberCheckCard(
                     color = Color(0xFFB26A00),
                     fontSize = 12.sp
                 )
-            }
-            if (!checked) {
-                Spacer(Modifier.height(12.dp))
-                Surface(shape = RoundedCornerShape(12.dp), color = JejakWhite, border = BorderStroke(1.dp, JejakBorder), modifier = Modifier.fillMaxWidth().height(42.dp)) {
-                    Row(Modifier.padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(painterResource(R.drawable.ic_jejak_plus), contentDescription = null, tint = JejakTextSecondary, modifier = Modifier.size(20.dp))
-                        Spacer(Modifier.width(8.dp))
-                        Text("Tambahkan Catatan", color = JejakTextSecondary, fontSize = 13.sp)
-                    }
-                }
             }
         }
     }

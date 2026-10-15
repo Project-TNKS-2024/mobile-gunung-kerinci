@@ -43,10 +43,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 private val PrimaryBlue = Color(0xFF0169BF)
 private val ErrorRed = Color(0xFFF84233)
 
-/**
- * Form laporan potensi bencana (dalam bottom sheet).
- * Validasi memakai DisasterReportValidator; pengiriman lewat DisasterReportViewModel.
- */
+/** Form laporan bencana di dalam bottom sheet. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun DisasterReportSheet(
