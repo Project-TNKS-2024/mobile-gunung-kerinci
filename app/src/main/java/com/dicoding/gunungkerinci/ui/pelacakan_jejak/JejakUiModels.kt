@@ -94,7 +94,8 @@ internal data class JejakMemberUi(
     val name: String,
     val checked: Boolean,
     /** True bila kehadiran baru dicatat lokal (antrean offline) dan belum sampai server. */
-    val pending: Boolean = false
+    val pending: Boolean = false,
+    val isLeader: Boolean = false
 )
 
 /**

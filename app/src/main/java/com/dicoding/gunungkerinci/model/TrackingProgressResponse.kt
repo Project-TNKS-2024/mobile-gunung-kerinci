@@ -24,7 +24,8 @@ data class TrackingProgressHiker(
     @SerializedName("completed") val completed: Int,
     @SerializedName("total") val total: Int,
     @SerializedName("percentage") val percentage: Int,
-    @SerializedName("checkpoints") val checkpoints: List<TrackingProgressCheckpoint>
+    @SerializedName("checkpoints") val checkpoints: List<TrackingProgressCheckpoint>,
+    @SerializedName("is_leader") val isLeader: Boolean = false
 )
 
 data class TrackingProgressCheckpoint(

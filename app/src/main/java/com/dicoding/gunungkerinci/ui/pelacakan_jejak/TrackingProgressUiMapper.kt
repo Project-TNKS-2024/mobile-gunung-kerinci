@@ -63,7 +63,8 @@ internal object TrackingProgressUiMapper {
                 name = hiker.nama,
                 checked = serverChecked || localMark != null,
                 // Hanya "menunggu kirim" kalau catatan lokal ada TAPI server belum mencatatnya.
-                pending = localMark?.pending == true && !serverChecked
+                pending = localMark?.pending == true && !serverChecked,
+                isLeader = hiker.isLeader
             )
         }
     }

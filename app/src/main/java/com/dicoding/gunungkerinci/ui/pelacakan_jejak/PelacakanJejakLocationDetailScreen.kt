@@ -140,6 +140,7 @@ internal fun PelacakanJejakLocationDetailScreen(
             members.forEachIndexed { index, member ->
                 MemberCheckCard(
                     name = member.name,
+                    isLeader = member.isLeader,
                     avatarColor = avatarColorFor(member.name),
                     checked = member.checked,
                     pending = member.pending,
@@ -461,6 +462,7 @@ private fun InfoGridItem(label: String, value: String, iconRes: Int, modifier: M
 @Composable
 private fun MemberCheckCard(
     name: String,
+    isLeader: Boolean,
     avatarColor: Color,
     checked: Boolean,
     pending: Boolean,
@@ -478,7 +480,13 @@ private fun MemberCheckCard(
                     Text(name.firstOrNull()?.toString() ?: "?", color = JejakWhite, fontWeight = FontWeight.Bold, fontSize = 20.sp)
                 }
                 Spacer(Modifier.width(12.dp))
-                Text(name, color = JejakTextPrimary, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(name, color = JejakTextPrimary, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                    if (isLeader) {
+                        Spacer(Modifier.height(3.dp))
+                        Text("Ketua Pendaki", color = JejakBlue, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                    }
+                }
                 MemberToggle(checked = checked, enabled = enabled, onCheckedChange = onToggle)
             }
             if (pending) {
