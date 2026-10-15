@@ -244,7 +244,12 @@ internal fun PelacakanJejakScreen(
                         selectedPostId = postId
                         checkingWithRadius = false
                         onPrepareCheckIn(postId)
-                        showCheckInMethods = true
+                        if (checkpoint.state == CheckpointState.Completed) {
+                            showCheckInMethods = false
+                            screenState = JejakScreenState.LocationDetail
+                        } else {
+                            showCheckInMethods = true
+                        }
                     }
                 },
                 onRetryLoadPosts = onRetryLoadPosts,
