@@ -158,6 +158,46 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <!-- Aksi rincian biaya tambahan: tetap tampil walau banner lunas hilang -->
+            <LinearLayout
+                android:id="@+id/layoutBiayaRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@color/softyellow"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:layout_marginBottom="12dp"
+                android:visibility="gone"
+                android:clickable="true">
+
+                <TextView
+                    android:id="@+id/tvBiayaStatus"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Biaya tambahan"
+                    android:textColor="#8A6100"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/plus_jakarta_sans_semibold"/>
+
+                <TextView
+                    android:id="@+id/tvBiayaAction"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minWidth="48dp"
+                    android:minHeight="48dp"
+                    android:gravity="center"
+                    android:text="Lihat rincian"
+                    android:textColor="@color/primary"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/plus_jakarta_sans_semibold"/>
+
+            </LinearLayout>
+
             <FrameLayout
                 android:id="@+id/layoutTim"
                 android:layout_width="match_parent"

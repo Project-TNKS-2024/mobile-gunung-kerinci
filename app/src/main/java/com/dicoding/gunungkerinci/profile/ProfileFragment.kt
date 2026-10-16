@@ -12,6 +12,9 @@ import com.dicoding.gunungkerinci.Login.LoginActivity
 import com.dicoding.gunungkerinci.R
 import com.dicoding.gunungkerinci.databinding.FragmentProfileBinding
 import com.dicoding.gunungkerinci.network.ApiConfig
+import com.dicoding.gunungkerinci.notif.TicketNotifDedup
+import com.dicoding.gunungkerinci.notif.TicketNotifications
+import com.dicoding.gunungkerinci.notif.TicketReminderScheduler
 import com.dicoding.gunungkerinci.pref.UserPreference
 import kotlinx.coroutines.launch
 
@@ -229,6 +232,12 @@ class ProfileFragment : Fragment() {
             .clear()
             .apply()
         UserPreference(requireContext()).clearToken()
+
+        // Hentikan pemeriksaan notifikasi tiket dan bersihkan notifikasi aktif.
+        // Penanda dedup dipertahankan agar login ulang tidak membanjiri pesan lama.
+        TicketReminderScheduler.cancel(requireContext())
+        TicketNotifications.cancelShown(requireContext())
+        TicketNotifDedup.clearActiveOverdue(requireContext())
     }
 
     private fun goToLogin() {

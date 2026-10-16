@@ -21,7 +21,8 @@ data class MyTiketItem(
     @SerializedName("created_at") val createdAt: String? = null,
     @SerializedName("gate_masuk") val gateMasuk: MyTiketGate? = null,
     @SerializedName("gate_keluar") val gateKeluar: MyTiketGate? = null,
-    @SerializedName("pendakis") val pendakis: List<MyTiketPendaki>? = null
+    @SerializedName("pendakis") val pendakis: List<MyTiketPendaki>? = null,
+    @SerializedName("overstay") val overstay: OverstaySummary? = null
 )
 data class MyTiketGate(
     @SerializedName("id") val id: Int,

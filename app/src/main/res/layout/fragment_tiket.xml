@@ -95,12 +95,65 @@
         android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp"/>
 
+    <!-- Loading -->
+    <ProgressBar
+        android:id="@+id/progressLoading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/viewDivider"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="40dp"/>
+
+    <!-- Error -->
+    <LinearLayout
+        android:id="@+id/layoutError"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/viewDivider"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="40dp">
+
+        <TextView
+            android:id="@+id/tvError"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Gagal memuat tiket"
+            android:textColor="@color/grey"
+            android:textSize="14sp"
+            android:fontFamily="@font/plus_jakarta_sans_medium"
+            android:textAlignment="center"/>
+
+        <TextView
+            android:id="@+id/btnRetry"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:minWidth="120dp"
+            android:gravity="center"
+            android:text="Coba lagi"
+            android:textColor="@color/primary"
+            android:textSize="16sp"
+            android:fontFamily="@font/plus_jakarta_sans_semibold"
+            android:layout_marginTop="16dp"/>
+
+    </LinearLayout>
+
+    <!-- Empty -->
     <LinearLayout
         android:id="@+id/layoutBelumAda"
         android:layout_width="match_parent"
         android:layout_height="350dp"
         android:gravity="center"
         android:orientation="vertical"
+        android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/viewDivider"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -116,6 +169,7 @@
             android:src="@drawable/not_ticket"/>
 
         <TextView
+            android:id="@+id/tvEmptyText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Anda belum membuat pesanan\nPesan Tiket Anda Sekarang!"
@@ -131,6 +185,7 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:background="@drawable/border_blue2"
+        android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/layoutBelumAda"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -159,16 +214,20 @@
     </FrameLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvLaporan"
+        android:id="@+id/rvTiket"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/viewDivider"
-        android:layout_marginTop="20dp"
-        tools:listitem="@layout/item_tiket"
-        android:visibility="gone"/>
+        android:layout_marginTop="12dp"
+        android:clipToPadding="false"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="16dp"
+        tools:listitem="@layout/item_tiket_saya"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/floatingButton"

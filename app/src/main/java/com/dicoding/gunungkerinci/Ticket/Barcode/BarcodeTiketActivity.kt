@@ -31,6 +31,9 @@ class BarcodeTiketActivity : AppCompatActivity() {
     private var startPositionIndividu = 0
     private var bookingId = ""
 
+    /** Respons detail tiket terakhir yang berhasil diambil (dipakai panel biaya). */
+    internal var currentData: TiketData? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityBarcodeTiketBinding.inflate(layoutInflater)
@@ -45,7 +48,12 @@ class BarcodeTiketActivity : AppCompatActivity() {
             showError("Booking ID tidak ditemukan. Kembali ke daftar tiket.")
             return
         }
-        loadTiket()
+        // loadTiket() dipanggil di onResume agar tidak dobel dengan refresh.
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (bookingId.isNotBlank()) loadTiket()
     }
 
     // ---------------------------------------------
@@ -54,6 +62,7 @@ class BarcodeTiketActivity : AppCompatActivity() {
     private fun loadTiket() {
         binding.scrollContent.visibility = View.GONE
         binding.btnUnduhTiket.visibility = View.GONE
+        binding.layoutBiayaRow.visibility = View.GONE
         binding.tvOverstayTitle.visibility = View.GONE
         binding.tvOverstayBody.text = "Memuat tiket…"
         binding.layoutOverstayBanner.visibility = View.VISIBLE
@@ -79,6 +88,7 @@ class BarcodeTiketActivity : AppCompatActivity() {
     }
 
     private fun render(data: TiketData) {
+        currentData = data
         val code = data.uniqueCode.orEmpty()
         val qr = if (code.isNotBlank()) generateQr(code) else null
         if (qr == null) {
@@ -127,6 +137,7 @@ class BarcodeTiketActivity : AppCompatActivity() {
         binding.btnRetry.visibility = View.GONE
         binding.tvOverstayTitle.visibility = View.VISIBLE
         renderOverstayBanner(data.overstay)
+        renderBiayaRow(data.overstay)
     }
 
     private fun renderOverstayBanner(os: OverstaySummary?) {
@@ -169,6 +180,30 @@ class BarcodeTiketActivity : AppCompatActivity() {
         return base + extra
     }
 
+    private fun renderBiayaRow(os: OverstaySummary?) {
+        if (!BiayaTambahan.hasInfo(os)) {
+            binding.layoutBiayaRow.visibility = View.GONE
+            return
+        }
+        binding.layoutBiayaRow.visibility = View.VISIBLE
+        binding.tvBiayaStatus.text = biayaStatusText(os)
+    }
+
+    private fun biayaStatusText(os: OverstaySummary?): String {
+        val team = os?.team
+        return when {
+            (team?.unpaidFinalCount ?: 0) > 0 -> "Biaya tambahan · Belum dibayar"
+            BiayaTambahan.hasNeedsReview(os) -> "Biaya tambahan · Menunggu pemeriksaan"
+            BiayaTambahan.hasFinal(os) -> "Biaya tambahan · Lunas"
+            BiayaTambahan.hasEstimate(os) -> "Biaya tambahan · Estimasi"
+            else -> "Biaya tambahan"
+        }
+    }
+
+    private fun openBiayaSheet() {
+        BiayaTambahanSheet.newInstance().show(supportFragmentManager, "biaya_tambahan")
+    }
+
     private fun generateQr(code: String, size: Int = 512): Bitmap? {
         return try {
             BarcodeEncoder().encodeBitmap(code, BarcodeFormat.QR_CODE, size, size)
@@ -207,6 +242,7 @@ class BarcodeTiketActivity : AppCompatActivity() {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show()
         binding.scrollContent.visibility = View.GONE
         binding.btnUnduhTiket.visibility = View.GONE
+        binding.layoutBiayaRow.visibility = View.GONE
         binding.includeTim.rvQRCodeTim.setImageDrawable(null)
         binding.rvIndividu.adapter = null
         binding.tvOverstayTitle.visibility = View.GONE
@@ -278,6 +314,7 @@ class BarcodeTiketActivity : AppCompatActivity() {
     // ---------------------------------------------
     private fun setupNavigationButtons() {
         binding.btnRetry.setOnClickListener { loadTiket() }
+        binding.layoutBiayaRow.setOnClickListener { openBiayaSheet() }
         binding.buttonBack.setOnClickListener {
             onBackPressedDispatcher.onBackPressed()
         }

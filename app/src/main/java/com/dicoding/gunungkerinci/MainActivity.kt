@@ -10,6 +10,9 @@ import android.os.Build
 import android.provider.Settings
 import com.dicoding.gunungkerinci.ui.peringatan_dini.WarningMonitoring
 import com.dicoding.gunungkerinci.ui.peringatan_dini.WarningNotifications
+import com.dicoding.gunungkerinci.Ticket.Barcode.BarcodeTiketActivity
+import com.dicoding.gunungkerinci.notif.TicketNotifications
+import com.dicoding.gunungkerinci.notif.TicketReminderScheduler
 import android.util.Log
 import android.view.View
 import android.widget.Toast
@@ -100,6 +103,9 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         if (!WarningMonitoring.running.value) startWarningMonitoring()
+        if (!UserPreference(this).getToken().isNullOrBlank()) {
+            TicketReminderScheduler.schedule(this)
+        }
     }
 
     private fun handleWarningIntent(intent: Intent) {
@@ -108,6 +114,19 @@ class MainActivity : AppCompatActivity() {
         if (nav.currentDestination?.id != R.id.navigation_beranda) nav.navigateToTab(R.id.navigation_beranda)
         nav.getBackStackEntry(R.id.navigation_beranda).savedStateHandle[WarningNotifications.OPEN_WARNING] = true
         intent.removeExtra(WarningNotifications.OPEN_WARNING)
+    }
+
+    /**
+     * Ketukan notifikasi tiket membuka detail tiket booking yang sama. Server
+     * tetap memeriksa izin tiket; bila belum login, abaikan.
+     */
+    private fun handleTicketNotifIntent(intent: Intent) {
+        val bookingId = intent.getStringExtra(TicketNotifications.EXTRA_BOOKING_ID) ?: return
+        intent.removeExtra(TicketNotifications.EXTRA_BOOKING_ID)
+        if (UserPreference(this).getToken().isNullOrBlank()) return
+        startActivity(
+            Intent(this, BarcodeTiketActivity::class.java).putExtra("booking_id", bookingId)
+        )
     }
 
     private val panicButtonViewModel: PanicButtonViewModel by viewModels {
@@ -283,6 +302,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
         handleWarningIntent(intent)
+        handleTicketNotifIntent(intent)
         requestWarningPermission(automatic = true)
     }
 
@@ -360,6 +380,7 @@ class MainActivity : AppCompatActivity() {
         setIntent(intent)
         handleOAuthDeepLink(intent)
         handleWarningIntent(intent)
+        handleTicketNotifIntent(intent)
         requestWarningPermission(automatic = true)
     }
 
