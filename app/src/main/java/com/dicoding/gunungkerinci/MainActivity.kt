@@ -294,6 +294,8 @@ class MainActivity : AppCompatActivity() {
      * - popUpTo(start): rapikan back stack (tidak menumpuk);
      * - saveState/restoreState: simpan & pulihkan state tiap tab (Fragment + ViewModel),
      *   supaya state seperti peringatan dini tidak hilang saat berpindah tab.
+     *   Beranda tetap berada di dasar stack; jangan restore stack layar lain
+     *   yang tersimpan dengan ID start destination saat kembali ke Beranda.
      */
     private fun NavController.navigateToTab(destinationId: Int, args: Bundle? = null) {
         navigate(
@@ -302,7 +304,7 @@ class MainActivity : AppCompatActivity() {
             NavOptions.Builder()
                 .setLaunchSingleTop(true)
                 .setPopUpTo(graph.startDestinationId, inclusive = false, saveState = true)
-                .setRestoreState(true)
+                .setRestoreState(destinationId != graph.startDestinationId)
                 .build()
         )
     }
