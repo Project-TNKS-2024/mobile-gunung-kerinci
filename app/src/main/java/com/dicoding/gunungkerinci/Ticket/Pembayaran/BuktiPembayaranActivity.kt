@@ -54,6 +54,7 @@ class BuktiPembayaranActivity : AppCompatActivity() {
         binding.btnBeranda.setOnClickListener {
             //val intent = Intent(this, MainActivity::class.java)
             val intent = Intent(this, BarcodeTiketActivity::class.java)
+            intent.putExtra("booking_id", bookingId)
             intent.putExtra("navigate_home", true)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
             startActivity(intent)

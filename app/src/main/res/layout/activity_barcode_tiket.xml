@@ -95,13 +95,47 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="3dp"/>
 
+    <!-- ====== BANNER KETERLAMBATAN (overstay) ====== -->
+    <LinearLayout
+        android:id="@+id/layoutOverstayBanner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="14dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/viewDivider"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="12dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp">
+
+        <TextView
+            android:id="@+id/tvOverstayTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/plus_jakarta_sans_bold"
+            android:textSize="14sp"
+            android:textColor="#8A6100" />
+
+        <TextView
+            android:id="@+id/tvOverstayBody"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/plus_jakarta_sans"
+            android:textSize="12sp"
+            android:textColor="#242424"
+            android:layout_marginTop="4dp" />
+
+    </LinearLayout>
+
     <!-- ====== SCROLL CONTAINER ====== -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollContent"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:fillViewport="true"
-        app:layout_constraintTop_toBottomOf="@id/viewDivider"
+        app:layout_constraintTop_toBottomOf="@id/layoutOverstayBanner"
         app:layout_constraintBottom_toTopOf="@id/layoutButtons"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -119,6 +153,7 @@
                 android:layout_height="wrap_content">
                 <!-- ================= MENU TIM CONTENT ================ -->
                 <include
+                    android:id="@+id/includeTim"
                     layout="@layout/layout_tiket_tim"
                     android:visibility="visible" />
             </FrameLayout>

@@ -387,9 +387,9 @@ class HomeFragment : Fragment() {
                         ticket = activeTicket,
                         badgeText = "Lihat Tiket →",
                         onBadgeClick = {
-                            startActivity(
-                                Intent(requireContext(), BarcodeTiketActivity::class.java)
-                            )
+                            val intent = Intent(requireContext(), BarcodeTiketActivity::class.java)
+                            activeTicket.rawBookingId?.let { intent.putExtra("booking_id", it) }
+                            startActivity(intent)
                         },
                         onCheckPointClick = {
                             findNavController().navigate(R.id.navigation_jejak)

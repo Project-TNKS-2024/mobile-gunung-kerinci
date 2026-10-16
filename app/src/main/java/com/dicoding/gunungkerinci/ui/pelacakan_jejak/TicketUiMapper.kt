@@ -66,6 +66,7 @@ internal object TicketUiMapper {
             pendakiCount = formatPendaki(booking),
             totalPayment = formatRupiah(booking.totalPembayaran),
             bookingId = "ID Pemesanan: ${shortId(booking.id)}",
+            rawBookingId = booking.id,
             statusBooking = booking.statusBooking,
             primaryAction = "Check Point"
         )
@@ -85,6 +86,7 @@ internal object TicketUiMapper {
                 pendakiCount = formatPendaki(booking),
                 totalPayment = formatRupiah(booking.totalPembayaran),
                 bookingId = "ID Pemesanan: ${shortId(booking.id)}",
+                rawBookingId = booking.id,
                 statusBooking = booking.statusBooking,
                 primaryAction = "Detail"
             )

@@ -49,6 +49,7 @@ import com.dicoding.gunungkerinci.model.SosMessagesResponse
 import com.dicoding.gunungkerinci.model.SosSendMessageResponse
 import com.dicoding.gunungkerinci.model.SosTriggerRequest
 import com.dicoding.gunungkerinci.model.SosTriggerResponse
+import com.dicoding.gunungkerinci.model.TiketResponse
 import com.dicoding.gunungkerinci.model.TambahPendakiRequest
 import com.dicoding.gunungkerinci.model.TambahPendakiResponse
 import com.dicoding.gunungkerinci.model.TrackingBatchData
@@ -431,6 +432,14 @@ interface ApiService {
     suspend fun getBookingDetail(
         @Path("booking_id") bookingId: String
     ): Response<BookingDetailResponse>
+
+    @GET("api/booking/{booking_id}/tiket")
+    @Headers(
+        "Accept: application/json"
+    )
+    suspend fun getTiket(
+        @Path("booking_id") bookingId: String
+    ): Response<TiketResponse>
 
     @GET("api/booking/{booking_id}/payment")
     @Headers(

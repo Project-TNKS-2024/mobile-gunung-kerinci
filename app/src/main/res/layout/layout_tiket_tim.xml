@@ -240,6 +240,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Kode Pemesanan"
+                android:id="@+id/tvKodeLabelTim"
                 android:textColor="@color/black2"
                 android:textSize="24sp"
                 android:fontFamily="@font/plus_jakarta_sans"
@@ -248,6 +249,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:id="@+id/tvKodePemesananTim"
                 android:text="A7XSFOLD"
                 android:textColor="@color/black2"
                 android:textSize="42sp"

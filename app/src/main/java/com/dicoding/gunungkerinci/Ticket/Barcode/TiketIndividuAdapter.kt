@@ -14,6 +14,7 @@ class TiketIndividuAdapter(
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val tvNama: TextView = itemView.findViewById(R.id.tvNama)
+        val tvStatusPendaki: TextView = itemView.findViewById(R.id.tvStatusPendaki)
         val tvNoSeri: TextView = itemView.findViewById(R.id.textNoSeri)
         val tvGerbangMasuk: TextView = itemView.findViewById(R.id.tvGerbangMasuk)
         val tvGerbangKeluar: TextView = itemView.findViewById(R.id.tvGerbangKeluar)
@@ -38,8 +39,18 @@ class TiketIndividuAdapter(
         holder.tvGerbangKeluar.text = item.gerbangKeluar
         holder.tvTanggalMasuk.text = item.tanggalMasuk
         holder.tvTanggalKeluar.text = item.tanggalKeluar
-        holder.imgQr.setImageResource(item.qrImageRes)
         holder.tvKodePemesanan.text = item.kodePemesanan
+
+        if (item.statusPendaki.isNullOrBlank()) {
+            holder.tvStatusPendaki.visibility = View.GONE
+        } else {
+            holder.tvStatusPendaki.visibility = View.VISIBLE
+            holder.tvStatusPendaki.text = item.statusPendaki
+        }
+
+        if (item.qrBitmap != null) {
+            holder.imgQr.setImageBitmap(item.qrBitmap)
+        }
     }
 
     override fun getItemCount(): Int = listIndividu.size
