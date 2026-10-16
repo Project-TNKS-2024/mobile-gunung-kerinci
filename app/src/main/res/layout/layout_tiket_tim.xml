@@ -2,7 +2,8 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
@@ -51,7 +52,7 @@
                     android:id="@+id/textNoSeri"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="001-00"
+                    tools:text="001-00"
                     app:layout_constraintStart_toEndOf="@id/textSeri"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -99,7 +100,7 @@
                         android:id="@+id/tvNamaPemesan"
                         android:layout_height="wrap_content"
                         android:layout_width="wrap_content"
-                        android:text="Diah Ambarwati"
+                        tools:text="Diah Ambarwati"
                         android:textColor="@color/black"
                         android:textSize="16sp"
                         android:fontFamily="@font/plus_jakarta_sans_medium" />
@@ -117,7 +118,7 @@
                         android:layout_height="wrap_content"
                         android:layout_width="wrap_content"
                         android:id="@+id/tvGerbangMasuk"
-                        android:text="Kersik Tuo"
+                        tools:text="Kersik Tuo"
                         android:textColor="@color/black"
                         android:textSize="16sp"
                         android:fontFamily="@font/plus_jakarta_sans_medium" />
@@ -142,7 +143,7 @@
                         android:id="@+id/tvJumlahAnggota"
                         android:layout_height="wrap_content"
                         android:layout_width="wrap_content"
-                        android:text="2 WNI + 1 WNA"
+                        tools:text="2 WNI + 1 WNA"
                         android:textColor="@color/black"
                         android:textSize="16sp"
                         android:fontFamily="@font/plus_jakarta_sans_medium" />
@@ -160,7 +161,7 @@
                         android:id="@+id/tvGerbangKeluar"
                         android:layout_height="wrap_content"
                         android:layout_width="wrap_content"
-                        android:text="Camping Ground"
+                        tools:text="Camping Ground"
                         android:textColor="@color/black"
                         android:textSize="16sp"
                         android:fontFamily="@font/plus_jakarta_sans_medium" />
@@ -194,7 +195,7 @@
                         android:id="@+id/tvTanggalMasuk"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="01 April 2025"
+                        tools:text="01 April 2025"
                         android:textColor="@color/black"
                         android:textSize="16sp"
                         android:fontFamily="@font/plus_jakarta_sans_medium"/>
@@ -219,7 +220,7 @@
                         android:id="@+id/tvTanggalKeluar"
                         android:layout_height="wrap_content"
                         android:layout_width="wrap_content"
-                        android:text="02 April 2025"
+                        tools:text="02 April 2025"
                         android:textColor="@color/black"
                         android:textSize="16sp"
                         android:fontFamily="@font/plus_jakarta_sans_medium"/>
@@ -232,7 +233,7 @@
                 android:id="@+id/rvQRCodeTim"
                 android:layout_width="250dp"
                 android:layout_height="250dp"
-                android:src="@drawable/qrcode"
+                tools:src="@drawable/qrcode"
                 android:layout_marginTop="50dp"
                 android:adjustViewBounds="true"/>
             
@@ -250,7 +251,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/tvKodePemesananTim"
-                android:text="A7XSFOLD"
+                tools:text="A7XSFOLD"
                 android:textColor="@color/black2"
                 android:textSize="42sp"
                 android:fontFamily="@font/plus_jakarta_sans_bold"

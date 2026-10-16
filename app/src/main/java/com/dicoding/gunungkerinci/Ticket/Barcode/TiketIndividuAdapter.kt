@@ -48,9 +48,7 @@ class TiketIndividuAdapter(
             holder.tvStatusPendaki.text = item.statusPendaki
         }
 
-        if (item.qrBitmap != null) {
-            holder.imgQr.setImageBitmap(item.qrBitmap)
-        }
+        holder.imgQr.setImageBitmap(item.qrBitmap)
     }
 
     override fun getItemCount(): Int = listIndividu.size

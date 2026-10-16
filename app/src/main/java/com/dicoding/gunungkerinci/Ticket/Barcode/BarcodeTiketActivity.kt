@@ -2,7 +2,6 @@ package com.dicoding.gunungkerinci.Ticket.Barcode
 
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.view.ViewTreeObserver
@@ -53,6 +52,12 @@ class BarcodeTiketActivity : AppCompatActivity() {
     // LOAD TIKET ASLI
     // ---------------------------------------------
     private fun loadTiket() {
+        binding.scrollContent.visibility = View.GONE
+        binding.btnUnduhTiket.visibility = View.GONE
+        binding.tvOverstayTitle.visibility = View.GONE
+        binding.tvOverstayBody.text = "Memuat tiket…"
+        binding.layoutOverstayBanner.visibility = View.VISIBLE
+        binding.btnRetry.visibility = View.GONE
         lifecycleScope.launch {
             try {
                 val response = ApiConfig.getApiService(this@BarcodeTiketActivity).getTiket(bookingId)
@@ -76,6 +81,10 @@ class BarcodeTiketActivity : AppCompatActivity() {
     private fun render(data: TiketData) {
         val code = data.uniqueCode.orEmpty()
         val qr = if (code.isNotBlank()) generateQr(code) else null
+        if (qr == null) {
+            showError("QR tiket belum dapat ditampilkan. Coba muat ulang tiket.")
+            return
+        }
 
         // ---- TIM ----
         val ketua = data.pendakis?.firstOrNull()?.biodata
@@ -90,7 +99,7 @@ class BarcodeTiketActivity : AppCompatActivity() {
         binding.includeTim.tvTanggalKeluar.text = formatTanggal(data.tanggalKeluar)
         binding.includeTim.tvKodePemesananTim.text = code.ifBlank { "-" }
         binding.includeTim.textNoSeri.text = ""
-        if (qr != null) binding.includeTim.rvQRCodeTim.setImageBitmap(qr)
+        binding.includeTim.rvQRCodeTim.setImageBitmap(qr)
 
         // ---- INDIVIDU ----
         val overstayById = data.overstay?.pendakis?.associateBy { it.id }
@@ -113,6 +122,10 @@ class BarcodeTiketActivity : AppCompatActivity() {
         binding.rvIndividu.layoutManager = LinearLayoutManager(this)
         binding.rvIndividu.adapter = TiketIndividuAdapter(listIndividu)
 
+        binding.scrollContent.visibility = View.VISIBLE
+        binding.btnUnduhTiket.visibility = View.VISIBLE
+        binding.btnRetry.visibility = View.GONE
+        binding.tvOverstayTitle.visibility = View.VISIBLE
         renderOverstayBanner(data.overstay)
     }
 
@@ -127,7 +140,6 @@ class BarcodeTiketActivity : AppCompatActivity() {
         }
 
         binding.layoutOverstayBanner.visibility = View.VISIBLE
-        binding.layoutOverstayBanner.setBackgroundColor(Color.parseColor("#FDEBBB"))
 
         if (overdue > 0) {
             binding.tvOverstayTitle.text = "Durasi tiket telah berakhir"
@@ -193,11 +205,15 @@ class BarcodeTiketActivity : AppCompatActivity() {
 
     private fun showError(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+        binding.scrollContent.visibility = View.GONE
+        binding.btnUnduhTiket.visibility = View.GONE
+        binding.includeTim.rvQRCodeTim.setImageDrawable(null)
+        binding.rvIndividu.adapter = null
         binding.tvOverstayTitle.visibility = View.GONE
         binding.tvOverstayBody.text = message
         binding.tvOverstayBody.visibility = View.VISIBLE
         binding.layoutOverstayBanner.visibility = View.VISIBLE
-        binding.layoutOverstayBanner.setBackgroundColor(Color.parseColor("#FDEBBB"))
+        binding.btnRetry.visibility = if (bookingId.isNotBlank()) View.VISIBLE else View.GONE
     }
 
     // ---------------------------------------------
@@ -261,6 +277,7 @@ class BarcodeTiketActivity : AppCompatActivity() {
     // BACK & BERANDA BUTTON
     // ---------------------------------------------
     private fun setupNavigationButtons() {
+        binding.btnRetry.setOnClickListener { loadTiket() }
         binding.buttonBack.setOnClickListener {
             onBackPressedDispatcher.onBackPressed()
         }

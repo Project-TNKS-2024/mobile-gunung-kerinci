@@ -98,6 +98,7 @@
     <!-- ====== BANNER KETERLAMBATAN (overstay) ====== -->
     <LinearLayout
         android:id="@+id/layoutOverstayBanner"
+        android:background="@color/softyellow"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -127,11 +128,21 @@
             android:textColor="#242424"
             android:layout_marginTop="4dp" />
 
+        <Button
+            android:id="@+id/btnRetry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Coba lagi"
+            android:textColor="@color/primary"
+            android:fontFamily="@font/plus_jakarta_sans_semibold"
+            android:visibility="gone" />
+
     </LinearLayout>
 
     <!-- ====== SCROLL CONTAINER ====== -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollContent"
+        android:visibility="gone"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:fillViewport="true"
@@ -183,6 +194,7 @@
 
         <FrameLayout
             android:id="@+id/btnUnduhTiket"
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/border_blue2"
