@@ -47,6 +47,9 @@ internal class PeringatanDiniViewModel(
 
                 peringatanDiniRepository.getActiveWarnings(token)
                     .onSuccess { warnings ->
+                        // The screen may succeed while the service's independent poll fails.
+                        // Let the service apply the same session, permission and receipt checks.
+                        WarningMonitoring.reportFetchedWarnings(token, warnings)
                         // Simpan hasil terbaru ke cache milik user sekarang.
                         peringatanDiniRepository.save(ownerKey, warnings, System.currentTimeMillis())
 

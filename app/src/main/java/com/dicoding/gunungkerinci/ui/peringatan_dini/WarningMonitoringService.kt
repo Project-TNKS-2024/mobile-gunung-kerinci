@@ -41,6 +41,11 @@ class WarningMonitoringService : Service() {
         WarningNotifications.createChannels(this)
         audio = WarningAlarmAudio(this)
         receipts = WarningReceiptStore(this)
+        scope.launch {
+            WarningMonitoring.fetchedWarnings.collect { batch ->
+                acceptWarnings(batch.token, batch.warnings)
+            }
+        }
     }
 
     override fun onBind(intent: Intent?): IBinder? = null

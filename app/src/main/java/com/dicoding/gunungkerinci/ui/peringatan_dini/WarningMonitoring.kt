@@ -6,8 +6,24 @@ import androidx.core.content.ContextCompat
 import com.dicoding.gunungkerinci.pref.UserPreference
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 
 internal object WarningMonitoring {
+    internal data class FetchedWarnings(val token: String, val warnings: List<PeringatanDini>)
+    private val fetchedWarningsState = MutableSharedFlow<FetchedWarnings>(
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    internal val fetchedWarnings = fetchedWarningsState.asSharedFlow()
+
+    // Share fresh screen responses with the running service. No replay: cached or
+    // previous-session data must never start an alarm when monitoring is enabled later.
+    internal fun reportFetchedWarnings(token: String, warnings: List<PeringatanDini>) {
+        if (runningState.value) fetchedWarningsState.tryEmit(FetchedWarnings(token, warnings))
+    }
+
     private val runningState = MutableStateFlow(false)
     val running = runningState.asStateFlow()
     private val ringingState = MutableStateFlow(false)
