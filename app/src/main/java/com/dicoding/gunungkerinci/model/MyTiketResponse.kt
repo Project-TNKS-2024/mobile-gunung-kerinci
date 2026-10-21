@@ -22,7 +22,14 @@ data class MyTiketItem(
     @SerializedName("gate_masuk") val gateMasuk: MyTiketGate? = null,
     @SerializedName("gate_keluar") val gateKeluar: MyTiketGate? = null,
     @SerializedName("pendakis") val pendakis: List<MyTiketPendaki>? = null,
-    @SerializedName("overstay") val overstay: OverstaySummary? = null
+    @SerializedName("overstay") val overstay: OverstaySummary? = null,
+    @SerializedName("unique_code") val uniqueCode: String? = null,
+    @SerializedName("cancelled_at") val cancelledAt: String? = null,
+    @SerializedName("cancellation_reason") val cancellationReason: String? = null,
+    @SerializedName("payment_deadline") val paymentDeadline: String? = null,
+    @SerializedName("ticket_notice") val ticketNotice: String? = null,
+    @SerializedName("ticket_notice_type") val ticketNoticeType: String? = null,
+    @SerializedName("can_continue") val canContinue: Boolean? = null
 )
 data class MyTiketGate(
     @SerializedName("id") val id: Int,

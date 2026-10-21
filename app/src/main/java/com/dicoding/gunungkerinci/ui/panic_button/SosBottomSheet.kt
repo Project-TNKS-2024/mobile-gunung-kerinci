@@ -22,6 +22,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
+import com.dicoding.gunungkerinci.ui.components.ProcessIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -65,6 +66,10 @@ internal fun SosBottomSheet(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text("Bantuan Darurat", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = PrimaryBlue)
+            if (uiState.isLoadingActive) ProcessIndicator(if (uiState.activeSos == null) "Memuat status SOS…" else "Memperbarui…")
+            uiState.activeError?.let { Text(it) }
+            uiState.activeSos?.let { Text("SOS aktif di server") }
+            if (uiState.queuedOffline) Text("◷ SOS tersimpan di perangkat, menunggu koneksi")
 
             SosMenuItem(
                 iconRes = R.drawable.ic_messaging,
@@ -75,6 +80,7 @@ internal fun SosBottomSheet(
 
             CallContactsSection(
                 contacts = uiState.callOptions,
+                loading = uiState.isLoadingCallOptions,
                 onOpenLink = onOpenLink
             )
 
@@ -106,6 +112,7 @@ internal fun SosBottomSheet(
 @Composable
 private fun CallContactsSection(
     contacts: List<SosCallOption>,
+    loading: Boolean,
     onOpenLink: (String) -> Unit
 ) {
     // Hanya kontak pertama yang dipakai; kartu langsung menelepon saat diklik.
@@ -120,6 +127,7 @@ private fun CallContactsSection(
             .clickable(enabled = telLink != null) { telLink?.let(onOpenLink) }
             .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
+        if (loading) ProcessIndicator(if (contacts.isEmpty()) "Memuat kontak petugas…" else "Memperbarui…")
         Row(verticalAlignment = Alignment.CenterVertically) {
             Image(
                 painter = painterResource(R.drawable.ic_emergency_call),

@@ -26,6 +26,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import com.dicoding.gunungkerinci.ui.components.ProcessIndicator
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -64,10 +67,25 @@ internal fun PeringatanDiniOverlay(
             )
         }
 
+        if (warning == null && uiState.popupVisible) {
+            AlertDialog(onDismissRequest = onClosePopup,
+                title = { Text("Peringatan Dini") },
+                text = {
+                    when {
+                        uiState.isLoadingWarnings -> ProcessIndicator("Memeriksa peringatan…")
+                        uiState.errorMessage != null -> Text(uiState.errorMessage)
+                        uiState.hasLoadedWarnings -> Text("Tidak ada peringatan aktif.")
+                        else -> Text("Peringatan belum diperiksa.")
+                    }
+                },
+                confirmButton = { TextButton(onClick = onClosePopup) { Text("Tutup") } })
+        }
         if (warning != null && uiState.popupVisible) {
             PeringatanDiniDialog(
                 warning = warning,
                 isUpdatingLocation = uiState.isUpdatingLocation,
+                isSendingLocation = uiState.isSendingLocation,
+                isLoadingWarnings = uiState.isLoadingWarnings,
                 lastLocationUpdate = uiState.lastLocationUpdate,
                 locationUpdateMessage = uiState.locationUpdateMessage,
                 lastUpdatedAt = uiState.lastUpdatedAt,
@@ -118,6 +136,8 @@ private fun PeringatanDiniBubble(
 private fun PeringatanDiniDialog(
     warning: PeringatanDini,
     isUpdatingLocation: Boolean,
+    isSendingLocation: Boolean,
+    isLoadingWarnings: Boolean,
     lastLocationUpdate: String?,
     locationUpdateMessage: String?,
     lastUpdatedAt: String?,
@@ -205,6 +225,7 @@ private fun PeringatanDiniDialog(
                         lineHeight = 20.sp
                     )
 
+                    if (isLoadingWarnings) ProcessIndicator("Memperbarui…")
                     if (lastUpdatedAt != null) {
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
@@ -226,7 +247,8 @@ private fun PeringatanDiniDialog(
                         modifier = Modifier
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
-                                indication = null
+                                indication = null,
+                                enabled = !isUpdatingLocation
                             ) { onUpdateLocation() },
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
@@ -258,12 +280,8 @@ private fun PeringatanDiniDialog(
                     }
 
                     if (isUpdatingLocation) {
+                        ProcessIndicator(if (isSendingLocation) "Mengirim lokasi…" else "Mencari lokasi…")
                         Spacer(modifier = Modifier.height(6.dp))
-                        Text(
-                            text = "Mencari sinyal lokasi…",
-                            fontSize = 12.sp,
-                            color = Color(0xFF8E8E8E)
-                        )
                     }
 
                     if (locationUpdateMessage != null) {

@@ -2,19 +2,19 @@ package com.dicoding.gunungkerinci.SOS
 
 import android.net.Uri
 import android.os.Bundle
-import android.provider.OpenableColumns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.dicoding.gunungkerinci.data.local.TnksDatabase
 import com.dicoding.gunungkerinci.data.repository.SosChatRepository
@@ -26,10 +26,8 @@ import com.dicoding.gunungkerinci.ui.panic_button.SosChatScreen
 import com.dicoding.gunungkerinci.ui.panic_button.SosChatViewModel
 import com.dicoding.gunungkerinci.ui.panic_button.SosChatViewModelFactory
 import com.dicoding.gunungkerinci.ui.panic_button.simpanGambarKecil
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.File
+import kotlinx.coroutines.launch
 
 /** Layar chat darurat (dibuka dari sheet SOS → "Kirim Pesan"). */
 class PesanDaruratFragment : Fragment() {
@@ -66,8 +64,6 @@ class PesanDaruratFragment : Fragment() {
             setContent {
                 val uiState by viewModel.uiState.collectAsState()
 
-                LaunchedEffect(currentToken) { viewModel.start(currentToken) }
-
                 SosChatScreen(
                     uiState = uiState,
                     onBackClick = { findNavController().popBackStack() },
@@ -79,32 +75,31 @@ class PesanDaruratFragment : Fragment() {
         }
     }
 
-    private fun handlePickedImage(uri: Uri) {
-        val resolver = requireContext().contentResolver
-        val name = queryDisplayName(uri) ?: "sos_${System.currentTimeMillis()}.jpg"
-        // Hasil kompres selalu JPEG, jadi ekstensinya dipaksa .jpg.
-        val safeName = name.replace(Regex("[^A-Za-z0-9._-]"), "_").substringBeforeLast('.') + ".jpg"
-        // File disimpan di filesDir (bukan cache) supaya awet sampai worker
-        // offline mengirimkannya (US-12).
-        val dir = File(requireContext().filesDir, "sos_pending").apply { mkdirs() }
-        val file = File(dir, safeName)
-
-        // Kecilkan dulu (maks 1600 px) supaya upload dan tampilnya ringan.
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         viewLifecycleOwner.lifecycleScope.launch {
-            val tersimpan = withContext(Dispatchers.IO) {
-                runCatching {
-                    resolver.openInputStream(uri)?.use { input ->
-                        file.outputStream().use { output -> simpanGambarKecil(input, output) }
-                    }
-                }.getOrNull() ?: false
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                viewModel.pollMessages(currentToken)
             }
-            if (tersimpan) viewModel.sendImage(currentToken, file, caption = null)
         }
     }
 
-    private fun queryDisplayName(uri: Uri): String? =
-        requireContext().contentResolver.query(uri, null, null, null, null)?.use { cursor ->
-            val index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-            if (cursor.moveToFirst() && index >= 0) cursor.getString(index) else null
-        }
+    private fun handlePickedImage(uri: Uri) {
+        val context = requireContext().applicationContext
+        viewModel.sendImage(currentToken, prepareImage = {
+            val dir = File(context.filesDir, "sos_pending").apply { mkdirs() }
+            val file = File(dir, "sos_${java.util.UUID.randomUUID()}.jpg")
+            try {
+                val copied = context.contentResolver.openInputStream(uri)?.use { input ->
+                    file.outputStream().use { output -> simpanGambarKecil(input, output) }
+                } ?: false
+                check(copied) { "Gagal menyiapkan foto. Pilih foto dan coba lagi." }
+                file
+            } catch (error: Exception) {
+                file.delete()
+                throw error
+            }
+        })
+    }
+
 }

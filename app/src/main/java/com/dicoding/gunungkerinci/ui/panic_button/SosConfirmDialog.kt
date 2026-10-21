@@ -19,6 +19,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import com.dicoding.gunungkerinci.ui.components.ProcessIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,6 +46,7 @@ private data class SeverityOption(val value: String, val label: String)
 @Composable
 internal fun SosConfirmDialog(
     isSending: Boolean,
+    isPreparingLocation: Boolean = false,
     onDismiss: () -> Unit,
     onConfirm: (severity: String) -> Unit
 ) {
@@ -77,6 +79,7 @@ internal fun SosConfirmDialog(
                             .fillMaxWidth()
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
+                                enabled = !isSending,
                                 indication = null
                             ) { selected = option.value }
                             .padding(vertical = 6.dp),
@@ -108,9 +111,10 @@ internal fun SosConfirmDialog(
                     Button(
                         onClick = { onConfirm(selected) },
                         enabled = !isSending,
+                        modifier = Modifier.weight(1f).height(56.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = DangerRed)
                     ) {
-                        Text(if (isSending) "Mengirim..." else "Kirim SOS")
+                        if (isSending) ProcessIndicator(if (isPreparingLocation) "Mencari lokasi…" else "Mengirim SOS…") else Text("Kirim SOS")
                     }
                 }
             }

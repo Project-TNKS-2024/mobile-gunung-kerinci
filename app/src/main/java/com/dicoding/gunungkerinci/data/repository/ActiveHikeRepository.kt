@@ -21,7 +21,10 @@ internal data class IdentitasSaya(
     val pendakiIds: Set<String>
 )
 
-internal class ActiveHikeRepository(private val api: ApiService) {
+internal class ActiveHikeRepository(
+    private val api: ApiService,
+    private val sessionStore: CheckpointSessionStore? = null
+) {
 
     /** Daftar seluruh booking milik user yang login (GET /mytiket). */
     suspend fun getBookings(token: String): Result<List<MyTiketItem>> = runCatching {
@@ -31,7 +34,9 @@ internal class ActiveHikeRepository(private val api: ApiService) {
         if (!response.isSuccessful || body?.success != true) {
             error(body?.message ?: "Gagal mengambil daftar booking (${response.code()})")
         }
-        body.data.orEmpty()
+        body.data.orEmpty().also { sessionStore?.saveBookings(token, it) }
+    }.recoverCatching { error ->
+        if (error is java.io.IOException) sessionStore?.readBookings(token) ?: throw error else throw error
     }
 
     /** Pendakian aktif (booking dengan status_booking = 6). */
@@ -49,12 +54,15 @@ internal class ActiveHikeRepository(private val api: ApiService) {
         val bearer = if (token.startsWith("Bearer ")) token else "Bearer $token"
         val response = api.getPendakiIdentity(bearer)
         val body = response.body()
-        if (!response.isSuccessful || body?.success != true) IdentitasSaya(null, emptySet())
-        else IdentitasSaya(
+        if (!response.isSuccessful || body?.success != true) error("Gagal memuat identitas pendaki")
+        IdentitasSaya(
             userId = body.data?.id_user,
             pendakiIds = body.data?.pendaki_ids.orEmpty().toSet()
-        )
-    }.getOrDefault(IdentitasSaya(null, emptySet()))
+        ).also { sessionStore?.saveIdentity(token, it) }
+    }.getOrElse { error ->
+        if (error is java.io.IOException) sessionStore?.readIdentity(token) ?: IdentitasSaya(null, emptySet())
+        else IdentitasSaya(null, emptySet())
+    }
 
     companion object {
         private const val STATUS_BOOKING_MENDAKI = 6

@@ -14,6 +14,9 @@ internal class SosRepository(
     private val pendingSosDao: PendingSosDao? = null
 ) {
 
+    fun observeLatestPending(): kotlinx.coroutines.flow.Flow<PendingSosEntity?> =
+        pendingSosDao?.observeLatest() ?: kotlinx.coroutines.flow.flowOf(null)
+
     suspend fun trigger(
         token: String,
         latitude: Double,

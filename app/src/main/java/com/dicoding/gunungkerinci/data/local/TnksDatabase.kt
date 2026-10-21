@@ -33,7 +33,7 @@ import com.dicoding.gunungkerinci.data.local.warning.PeringatanDiniMetaEntity
         PeringatanDiniEntity::class,
         PeringatanDiniMetaEntity::class
     ],
-    version = 10,
+    version = 13,
     exportSchema = false
 )
 abstract class TnksDatabase : RoomDatabase() {
@@ -82,6 +82,29 @@ abstract class TnksDatabase : RoomDatabase() {
                         override fun migrate(db: SupportSQLiteDatabase) {
                             db.execSQL("ALTER TABLE tracking_posts ADD COLUMN temperatureC REAL")
                             db.execSQL("ALTER TABLE tracking_posts ADD COLUMN distanceToSummitM INTEGER")
+                        }
+                    })
+                    .addMigrations(object : Migration(10, 11) {
+                        override fun migrate(db: SupportSQLiteDatabase) {
+                            db.execSQL("ALTER TABLE tracking_posts ADD COLUMN distanceToNextM INTEGER")
+                        }
+                    })
+                    .addMigrations(object : Migration(11, 12) {
+                        override fun migrate(db: SupportSQLiteDatabase) {
+                            // Konfigurasi pos: puncak + durasi turun.
+                            db.execSQL("ALTER TABLE tracking_posts ADD COLUMN isSummit INTEGER NOT NULL DEFAULT 0")
+                            db.execSQL("ALTER TABLE tracking_posts ADD COLUMN estimatedDescentTimeMinutes INTEGER")
+                            // Log check-in: fase + identitas event idempoten + penanda summit.
+                            db.execSQL("ALTER TABLE checkpoint_logs ADD COLUMN phase TEXT NOT NULL DEFAULT 'naik'")
+                            db.execSQL("ALTER TABLE checkpoint_logs ADD COLUMN clientEventId TEXT")
+                            db.execSQL("ALTER TABLE checkpoint_logs ADD COLUMN isSummit INTEGER NOT NULL DEFAULT 0")
+                            // Semua log lama adalah naik: tambahkan "_naik" ke localId (kunci utama).
+                            db.execSQL("UPDATE checkpoint_logs SET localId = localId || '_naik'")
+                        }
+                    })
+                    .addMigrations(object : Migration(12, 13) {
+                        override fun migrate(db: SupportSQLiteDatabase) {
+                            db.execSQL("ALTER TABLE tracking_posts ADD COLUMN mapImageUrl TEXT")
                         }
                     })
                     .fallbackToDestructiveMigration()

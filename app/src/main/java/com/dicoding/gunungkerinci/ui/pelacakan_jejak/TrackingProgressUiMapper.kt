@@ -3,8 +3,11 @@ package com.dicoding.gunungkerinci.ui.pelacakan_jejak
 import com.dicoding.gunungkerinci.model.TrackingPost
 import com.dicoding.gunungkerinci.model.TrackingProgressCheckpoint
 import com.dicoding.gunungkerinci.model.TrackingProgressHiker
+import com.dicoding.gunungkerinci.model.TrackingProgressV2Hiker
 
 internal object TrackingProgressUiMapper {
+
+    /** Proyeksi naik (legacy v1) — dipertahankan untuk konsumen lama. */
     fun toCheckpointUi(
         checkpoints: List<TrackingProgressCheckpoint>,
         posts: List<TrackingPost> = emptyList(),
@@ -23,6 +26,7 @@ internal object TrackingProgressUiMapper {
             JejakCheckpointUi(
                 times = listOf(JejakTimelineMapper.time(checkpoint.estimatedArrivalAt) ?: "—"),
                 name = checkpoint.nama,
+                travelMinutesFromPrevious = checkpoint.travelMinutesFromPrevious ?: previousPost?.estimatedTimeMinutes,
                 description = JejakTimelineMapper.travelDescription(
                     checkpoint.travelMinutesFromPrevious ?: previousPost?.estimatedTimeMinutes
                 ),
@@ -44,49 +48,48 @@ internal object TrackingProgressUiMapper {
     }
 
     /**
-     * Daftar anggota tim + status kehadiran mereka **di pos tertentu**
-     * (section "Cek Anggota"). Sumber: `GET /tracking/progress/{booking_id}` → `hikers[]`.
+     * Daftar anggota tim + status kehadiran mereka di pos + fase tertentu.
+     * Sumber: `GET /api/tracking/v2/progress/{booking_id}` → `hikers[]`.
      */
     fun toMembers(
-        hikers: List<TrackingProgressHiker>,
+        hikers: List<TrackingProgressV2Hiker>,
         postId: Int?,
-        localMarks: List<LocalMemberMark> = emptyList()
+        phase: String?,
+        localMarks: List<LocalMemberMark> = emptyList(),
+        notes: List<com.dicoding.gunungkerinci.model.CheckpointMemberNote> = emptyList()
     ): List<JejakMemberUi> {
         val marksForPost = if (postId == null) emptyList()
-        else localMarks.filter { it.postId == postId }
+        else localMarks.filter { it.postId == postId && it.phase == phase }
         return hikers.map { hiker ->
-            val serverChecked = postId != null &&
-                hiker.checkpoints.any { it.postId == postId && it.completed }
+            val serverChecked = postId != null && phase != null &&
+                hiker.visits.any { it.postId == postId && it.phase == phase && it.completed }
             val localMark = marksForPost.firstOrNull { it.pendakiId == hiker.pendakiId }
             JejakMemberUi(
                 pendakiId = hiker.pendakiId,
                 name = hiker.nama,
                 checked = serverChecked || localMark != null,
-                // Hanya "menunggu kirim" kalau catatan lokal ada TAPI server belum mencatatnya.
-                pending = localMark?.pending == true && !serverChecked,
-                isLeader = hiker.isLeader
+                pending = localMark?.pending == true,
+                isLeader = hiker.isLeader,
+                trackingPhase = hiker.trackingPhase,
+                note = notes.firstOrNull { it.pendakiId == hiker.pendakiId && it.postId == postId && it.phase == phase }?.note.orEmpty()
             )
         }
     }
 
     /**
-     * Syarat switch kehadiran anggota boleh dipakai: ketua sudah terbukti berada di pos itu,
-     * yaitu sedang dalam radius pos tersebut atau sudah check-in di pos itu. Tanpa bukti itu,
-     * kehadiran tidak boleh dicatat dari jauh.
+     * Bukti ketua berada di pos + fase yang diminta: sedang dalam radius pos,
+     * atau sudah check-in di pos itu pada fase yang sama.
      */
     fun ketuaAdaDiPosIni(
         postId: Int?,
+        phase: String?,
         myPendakiId: String?,
-        hikers: List<TrackingProgressHiker>,
+        hikers: List<TrackingProgressV2Hiker>,
         gpsGateState: GpsGateState
     ): Boolean {
-        if (postId == null) return false
-        // Sedang dalam radius pos yang sedang dibuka.
-        if (gpsGateState is GpsGateState.DalamRadius && gpsGateState.postId == postId) return true
-        // Atau sudah pernah check-in di pos itu.
+        if (postId == null || phase == null) return false
         if (myPendakiId.isNullOrBlank()) return false
         val milikSaya = hikers.firstOrNull { it.pendakiId == myPendakiId } ?: return false
-        return milikSaya.checkpoints.any { it.postId == postId && it.completed }
+        return milikSaya.visits.any { it.postId == postId && it.phase == phase && it.completed }
     }
-
 }

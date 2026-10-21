@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -31,6 +32,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import com.dicoding.gunungkerinci.ui.components.ProcessIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -47,9 +49,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import coil.compose.SubcomposeAsyncImage
 import com.dicoding.gunungkerinci.R
 import com.dicoding.gunungkerinci.model.SosChatMessage
 import com.dicoding.gunungkerinci.network.DebugNetworkConfig
+import com.dicoding.gunungkerinci.util.DateTimeFormat
 import java.io.File
 
 private val EmergencyBlue = Color(0xFF1967D2)
@@ -71,8 +75,12 @@ internal fun SosChatScreen(
     var input by remember { mutableStateOf("") }
 
     val totalBubble = uiState.messages.size + uiState.queuedMessages.size
+    var previousTotal by remember { mutableStateOf(0) }
     LaunchedEffect(totalBubble) {
-        if (totalBubble > 0) listState.animateScrollToItem(totalBubble - 1)
+        val wasAtBottom = previousTotal == 0 ||
+            (listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1) >= previousTotal - 1
+        previousTotal = totalBubble
+        if (totalBubble > 0 && wasAtBottom) listState.animateScrollToItem(totalBubble - 1)
     }
 
     Scaffold(
@@ -113,11 +121,13 @@ internal fun SosChatScreen(
                 .padding(padding)
                 .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
+            if (uiState.isSending) Text(if (uiState.isPreparingImage) "Menyiapkan foto…" else "Mengirim pesan…")
             when {
-                uiState.isLoading -> LoadingState()
+                uiState.isLoading && uiState.messages.isEmpty() && uiState.queuedMessages.isEmpty() -> LoadingState()
                 uiState.messages.isEmpty() && uiState.queuedMessages.isEmpty() ->
                     EmptyState(errorMessage = uiState.errorMessage, onRefreshClick = onRefreshClick)
                 else -> {
+                    if (uiState.isLoading) ProcessIndicator("Memperbarui…")
                     uiState.errorMessage?.let { ErrorBanner(it) }
                     uiState.queuedInfo?.let { InfoBanner(it) }
                     LazyColumn(
@@ -210,12 +220,15 @@ private fun MessageBubble(message: SosChatMessage) {
                 Spacer(Modifier.height(3.dp))
             }
             if (isImage) {
-                AsyncImage(
+                SubcomposeAsyncImage(
                     model = message.content.orEmpty().toAbsoluteApiUrl(),
+                    loading = { Box(contentAlignment = Alignment.Center) { ProcessIndicator("Memuat foto…") } },
+                    error = { Box(contentAlignment = Alignment.Center) { Text("Foto gagal dimuat. Muat ulang percakapan.") } },
                     contentDescription = "Lampiran gambar SOS",
                     contentScale = ContentScale.Fit,
                     modifier = Modifier
-                        .widthIn(max = 252.dp)
+                        .width(252.dp)
+                        .height(180.dp)
                         .clip(RoundedCornerShape(12.dp))
                 )
             } else {
@@ -227,7 +240,7 @@ private fun MessageBubble(message: SosChatMessage) {
             }
             Spacer(Modifier.height(4.dp))
             Text(
-                text = message.createdAt.orEmpty().take(16).replace("T", " "),
+                text = DateTimeFormat.apiWibDateTime(message.createdAt).orEmpty(),
                 color = if (isImage) Color(0xFF98A2B3)
                 else if (isHiker) Color.White.copy(alpha = 0.72f)
                 else Color(0xFF98A2B3),
@@ -347,7 +360,8 @@ private fun QueuedBubble(queued: QueuedChatUi) {
                     contentDescription = "Pesan gambar menunggu kirim",
                     contentScale = ContentScale.Fit,
                     modifier = Modifier
-                        .widthIn(max = 252.dp)
+                        .width(252.dp)
+                        .height(180.dp)
                         .clip(RoundedCornerShape(12.dp))
                 )
             } else {
@@ -359,7 +373,7 @@ private fun QueuedBubble(queued: QueuedChatUi) {
             }
             Spacer(Modifier.height(4.dp))
             Text(
-                text = "⏳ Menunggu kirim",
+                text = "◷ Menunggu koneksi",
                 color = Color(0xFF98A2B3),
                 fontSize = 10.sp
             )

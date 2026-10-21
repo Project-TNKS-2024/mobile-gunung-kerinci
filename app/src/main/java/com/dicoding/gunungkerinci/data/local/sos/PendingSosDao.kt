@@ -8,6 +8,9 @@ import androidx.room.Query
 @Dao
 interface PendingSosDao {
 
+    @Query("SELECT * FROM pending_sos ORDER BY createdAt DESC LIMIT 1")
+    fun observeLatest(): kotlinx.coroutines.flow.Flow<PendingSosEntity?>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(sos: PendingSosEntity)
 

@@ -4,6 +4,8 @@ import com.dicoding.gunungkerinci.data.local.checkpoint.CheckpointLogDao
 import com.dicoding.gunungkerinci.data.local.checkpoint.CheckpointLogEntity
 import com.dicoding.gunungkerinci.data.local.checkpoint.TrackingPostDao
 import com.dicoding.gunungkerinci.data.local.checkpoint.TrackingPostEntity
+import com.dicoding.gunungkerinci.data.local.checkpoint.checkpointLocalId
+import com.dicoding.gunungkerinci.model.TrackingPhase
 import com.dicoding.gunungkerinci.model.TrackingPost
 import com.dicoding.gunungkerinci.network.ApiService
 
@@ -23,7 +25,7 @@ class TrackingRepository(
             error(body.message ?: "Gagal mengambil data post")
         }
         val posts = body.data.orEmpty()
-        trackingPostDao?.upsertAll(posts.map { it.toEntity(gateId) })
+        trackingPostDao?.replaceForGate(gateId, posts.map { it.toEntity(gateId) })
         posts
     }.recoverCatching { throwable ->
         val cachedPosts = trackingPostDao?.getByGate(gateId).orEmpty()
@@ -42,18 +44,18 @@ class TrackingRepository(
         checkpointLogDao?.upsert(log)
     }
 
-    suspend fun hasCheckedIn(bookingId: String, pendakiId: String, postId: Int): Boolean {
-        return (checkpointLogDao?.countExistingCheckIn(bookingId, pendakiId, postId) ?: 0) > 0
+    suspend fun hasCheckedIn(bookingId: String, pendakiId: String, postId: Int, phase: String): Boolean {
+        return (checkpointLogDao?.countExistingCheckIn(bookingId, pendakiId, postId, phase) ?: 0) > 0
     }
 
-    /** ID log di server untuk satu pos — dipakai saat membatalkan kehadiran. */
-    suspend fun getServerLogId(bookingId: String, pendakiId: String, postId: Int): Int? {
-        return checkpointLogDao?.getServerId(bookingId, pendakiId, postId)
+    /** ID log di server untuk satu pos + fase — dipakai saat membatalkan kehadiran. */
+    suspend fun getServerLogId(bookingId: String, pendakiId: String, postId: Int, phase: String): Int? {
+        return checkpointLogDao?.getServerId(bookingId, pendakiId, postId, phase)
     }
 
-    /** Catatan lokal satu (booking, pendaki, pos) — dipakai membatalkan sebelum tersinkron. */
-    suspend fun getCheckpointLog(bookingId: String, pendakiId: String, postId: Int): CheckpointLogEntity? {
-        return checkpointLogDao?.getLog(bookingId, pendakiId, postId)
+    /** Catatan lokal satu (booking, pendaki, pos, fase) — dipakai membatalkan sebelum tersinkron. */
+    suspend fun getCheckpointLog(bookingId: String, pendakiId: String, postId: Int, phase: String): CheckpointLogEntity? {
+        return checkpointLogDao?.getLog(bookingId, pendakiId, postId, phase)
     }
 
     /** Semua catatan lokal satu booking — dipakai overlay "menunggu kirim" di UI. */
@@ -66,14 +68,16 @@ class TrackingRepository(
         bookingId: String,
         pendakiId: String,
         postId: Int,
+        phase: String,
         serverId: Int,
-        method: String
+        method: String,
+        clientEventId: String? = null,
+        isSummit: Boolean = false,
+        checkedAt: Long = System.currentTimeMillis()
     ) {
         if (checkpointLogDao == null) return
-        val localId = "${bookingId}_${pendakiId}_$postId"
-        val existing = checkpointLogDao.getServerId(bookingId, pendakiId, postId)
-        // Sudah tersimpan — tidak perlu menimpa.
-        if (existing != null) return
+        val localId = checkpointLocalId(bookingId, pendakiId, postId, phase)
+        val existing = checkpointLogDao.getLog(bookingId, pendakiId, postId, phase)
         checkpointLogDao.upsert(
             CheckpointLogEntity(
                 localId = localId,
@@ -81,22 +85,44 @@ class TrackingRepository(
                 bookingId = bookingId,
                 pendakiId = pendakiId,
                 postId = postId,
+                phase = phase,
+                clientEventId = clientEventId,
+                isSummit = isSummit,
                 method = method,
                 latitude = null,
                 longitude = null,
-                checkedAt = System.currentTimeMillis(),
+                checkedAt = checkedAt,
                 syncStatus = "SENT"
-            )
+            ).let { canonical ->
+                existing?.copy(
+                    serverId = serverId, isSummit = isSummit, checkedAt = checkedAt,
+                    syncStatus = "SENT", retryCount = 0,
+                    clientEventId = clientEventId ?: existing.clientEventId
+                ) ?: canonical
+            }
         )
     }
 
+    suspend fun removeStaleServerLogs(bookingId: String, pendakiId: String, serverIds: List<Int>) {
+        checkpointLogDao?.removeStaleServerLogs(bookingId, pendakiId, serverIds)
+    }
+
     /** Hapus catatan lokal setelah kehadiran dibatalkan di server. */
-    suspend fun deleteCheckInLocal(bookingId: String, pendakiId: String, postId: Int) {
-        checkpointLogDao?.deleteCheckIn(bookingId, pendakiId, postId)
+    suspend fun deleteCheckInLocal(bookingId: String, pendakiId: String, postId: Int, phase: String) {
+        checkpointLogDao?.deleteCheckIn(bookingId, pendakiId, postId, phase)
     }
 
     suspend fun getLastCheckpoint(bookingId: String): CheckpointLogEntity? {
         return checkpointLogDao?.getLastCheckpoint(bookingId)
+    }
+
+    /** Apakah summit naik pendaki sudah terkirim ke server (dipakai antrean turun). */
+    suspend fun hasSentSummit(bookingId: String, pendakiId: String): Boolean {
+        return (checkpointLogDao?.countSentSummit(bookingId, pendakiId) ?: 0) > 0
+    }
+
+    suspend fun getAscentLogs(bookingId: String, pendakiId: String): List<CheckpointLogEntity> {
+        return checkpointLogDao?.getAscentLogs(bookingId, pendakiId).orEmpty()
     }
 
     /**
@@ -122,7 +148,11 @@ class TrackingRepository(
             estimatedTimeMinutes = estimatedTimeMinutes,
             infoIsDummy = infoIsDummy,
             temperatureC = temperatureC,
-            distanceToSummitM = distanceToSummitM
+            distanceToSummitM = distanceToSummitM,
+            distanceToNextM = distanceToNextM,
+            mapImageUrl = mapImageUrl,
+            isSummit = isSummit,
+            estimatedDescentTimeMinutes = estimatedDescentTimeMinutes
         )
     }
 
@@ -138,7 +168,11 @@ class TrackingRepository(
             estimatedTimeMinutes = estimatedTimeMinutes,
             infoIsDummy = infoIsDummy,
             temperatureC = temperatureC,
-            distanceToSummitM = distanceToSummitM
+            distanceToSummitM = distanceToSummitM,
+            distanceToNextM = distanceToNextM,
+            mapImageUrl = mapImageUrl,
+            isSummit = isSummit,
+            estimatedDescentTimeMinutes = estimatedDescentTimeMinutes
         )
     }
 }

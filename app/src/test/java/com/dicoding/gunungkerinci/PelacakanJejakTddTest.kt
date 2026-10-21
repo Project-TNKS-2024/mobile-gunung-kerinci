@@ -2,209 +2,137 @@ package com.dicoding.gunungkerinci
 
 import com.dicoding.gunungkerinci.data.local.checkpoint.CheckpointLogDao
 import com.dicoding.gunungkerinci.data.local.checkpoint.CheckpointLogEntity
+import com.dicoding.gunungkerinci.data.local.checkpoint.checkpointLocalId
 import com.dicoding.gunungkerinci.data.repository.TrackingRepository
-import com.dicoding.gunungkerinci.model.GpsNearestPost
-import com.dicoding.gunungkerinci.model.TrackingPost
-import com.dicoding.gunungkerinci.model.TrackingProgressCheckpoint
-import com.dicoding.gunungkerinci.model.TrackingProgressHiker
+import com.dicoding.gunungkerinci.data.sync.CheckpointSyncResult
+import com.dicoding.gunungkerinci.data.sync.classifyCheckpointResponse
+import com.dicoding.gunungkerinci.model.*
 import com.dicoding.gunungkerinci.network.ApiService
-import com.dicoding.gunungkerinci.ui.pelacakan_jejak.CheckpointQrCheckInValidator
-import com.dicoding.gunungkerinci.ui.pelacakan_jejak.CheckpointQrParser
-import com.dicoding.gunungkerinci.ui.pelacakan_jejak.CheckpointState
-import com.dicoding.gunungkerinci.ui.pelacakan_jejak.GpsGateMapper
-import com.dicoding.gunungkerinci.ui.pelacakan_jejak.GpsGateState
-import com.dicoding.gunungkerinci.ui.pelacakan_jejak.LocalMemberMark
-import com.dicoding.gunungkerinci.ui.pelacakan_jejak.TrackingPostUiMapper
-import com.dicoding.gunungkerinci.ui.pelacakan_jejak.TrackingProgressUiMapper
+import com.dicoding.gunungkerinci.ui.pelacakan_jejak.*
 import kotlinx.coroutines.runBlocking
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.ResponseBody.Companion.toResponseBody
+import org.junit.Assert.*
 import org.junit.Test
+import retrofit2.Response
 import retrofit2.Retrofit
 
-/**
- * Test Case TDD — fitur Pelacakan Jejak.
- *
- * Satu method = satu baris Tabel 16 (TDD-A01–TDD-A10). Semua murni JVM:
- * tanpa emulator, tanpa mock, tanpa Robolectric.
- */
+/** Tujuh skenario skripsi TDD-A01 sampai TDD-A07; satu metode per skenario. */
 class PelacakanJejakTddTest {
 
-    // TDD-A01 — parsing QR checkpoint dengan format valid
     @Test
-    fun `TDD-A01 - parsing QR checkpoint format valid`() {
-        val hasil = CheckpointQrParser.parse("TNKS_CHECKPOINT:4")
-
-        assertEquals(4, hasil?.postId)
-    }
-
-    // TDD-A02 — parsing QR checkpoint dengan format tidak valid
-    @Test
-    fun `TDD-A02 - parsing QR checkpoint format tidak valid`() {
+    fun `TDD-A01 - QR valid terbaca sedangkan format salah dan kosong ditolak`() {
+        assertEquals(4, CheckpointQrParser.parse("TNKS_CHECKPOINT:4")?.postId)
+        assertNull(CheckpointQrCheckInValidator.errorMessage("TNKS_CHECKPOINT:4"))
         assertNull(CheckpointQrParser.parse("bukan-qr-checkpoint"))
-        assertNull(CheckpointQrParser.parse(""))
-        assertNull(CheckpointQrParser.parse(null))
+        for (qr in listOf(null, "", "   ")) {
+            assertNull(CheckpointQrParser.parse(qr))
+            assertEquals("QR code tidak boleh kosong", CheckpointQrCheckInValidator.errorMessage(qr))
+        }
     }
 
-    // TDD-A03 — validasi QR check-in kosong
     @Test
-    fun `TDD-A03 - validasi QR kosong`() {
-        val pesanSpasi = CheckpointQrCheckInValidator.errorMessage(qrCodeValue = "   ")
-        val pesanKosong = CheckpointQrCheckInValidator.errorMessage(qrCodeValue = "")
-        val pesanTidakAda = CheckpointQrCheckInValidator.errorMessage(qrCodeValue = null)
-
-        assertEquals("QR code tidak boleh kosong", pesanSpasi)
-        assertEquals("QR code tidak boleh kosong", pesanKosong)
-        assertEquals("QR code tidak boleh kosong", pesanTidakAda)
+    fun `TDD-A02 - koordinat valid diterima dan koordinat QR boleh tidak diisi`() {
+        assertNull(CheckpointQrCheckInValidator.errorMessage("TNKS_CHECKPOINT:4", -1.6975, 101.2635))
+        assertNull(CheckpointQrCheckInValidator.errorMessage("TNKS_CHECKPOINT:4"))
+        assertEquals("Latitude tidak valid", CheckpointQrCheckInValidator.errorMessage("TNKS_CHECKPOINT:4", -100.0, 101.2635))
+        assertEquals("Longitude tidak valid", CheckpointQrCheckInValidator.errorMessage("TNKS_CHECKPOINT:4", -1.6975, 200.0))
     }
 
-    // TDD-A04 — validasi koordinat lokasi di luar rentang valid
     @Test
-    fun `TDD-A04 - validasi koordinat di luar rentang`() {
-        val lat = CheckpointQrCheckInValidator.errorMessage(
-            qrCodeValue = "TNKS_CHECKPOINT:4",
-            latitude = -100.0,
-            longitude = 101.2635
-        )
-        val lon = CheckpointQrCheckInValidator.errorMessage(
-            qrCodeValue = "TNKS_CHECKPOINT:4",
-            latitude = -1.6975,
-            longitude = 200.0
-        )
-
-        assertEquals("Latitude tidak valid", lat)
-        assertEquals("Longitude tidak valid", lon)
+    fun `TDD-A03 - hasil radius dipetakan sebagai dasar konfirmasi GPS`() {
+        val dekat = GpsNearestPost(id = 4, nama = "Puncak Kerinci", distanceMeters = 12.0, withinRadius = true, radiusMeter = 50)
+        assertTrue(GpsGateMapper.toGateState(dekat) is GpsGateState.DalamRadius)
+        assertTrue(GpsGateMapper.toGateState(dekat.copy(distanceMeters = 500.0, withinRadius = false)) is GpsGateState.LuarRadius)
     }
 
-    // TDD-A05 — pemetaan data post/progress ke tampilan checkpoint
     @Test
-    fun `TDD-A05 - pemetaan data post dan progress ke checkpoint`() {
-        val posts = listOf(
-            post(id = 3, nama = "Puncak Kerinci", urutan = 3),
-            post(id = 1, nama = "Pos 1", urutan = 1),
-            post(id = 2, nama = "Pos 2", urutan = 2)
-        )
-        val dariPost = TrackingPostUiMapper.toCheckpointUi(posts, completedPostIds = setOf(1))
+    fun `TDD-A04 - itinerary dan progres membedakan naik turun tanpa menggandakan puncak`() {
+        val visits = TrackingVisitUiMapper.fromPosts(listOf(
+            post(3, "Puncak Kerinci", 3).copy(isSummit = true),
+            post(1, "Pos 1", 1), post(2, "Pos 2", 2)
+        ))
+        assertEquals(listOf("naik:1", "naik:2", "naik:3", "turun:2", "turun:1"), visits.map { it.visitKey })
+        assertEquals(1, visits.count { it.isSummit })
+        val awal = TrackingVisitUiMapper.project(hikerV2("p1", "Budi").copy(visits = visits), emptyList())
+        val uiAwal = TrackingVisitUiMapper.toCheckpointUi(awal.visits, awal.nextVisitKey, listOf(awal))
+        assertEquals("naik:1", uiAwal.single { it.state == CheckpointState.Current }.visitKey)
+        assertTrue(uiAwal.filter { it.phase == "turun" }.all { it.state == CheckpointState.Upcoming })
 
-        // Urutan tampil mengikuti urutan pos, bukan urutan data dari server.
-        assertEquals(listOf("Pos 1", "Pos 2", "Puncak Kerinci"), dariPost.map { it.name })
-        assertEquals(
-            listOf(CheckpointState.Completed, CheckpointState.Current, CheckpointState.Upcoming),
-            dariPost.map { it.state }
-        )
-
-        val checkpoints = listOf(
-            TrackingProgressCheckpoint(postId = 2, nama = "Pos 2", urutan = 2, completed = false, checkedAt = null, method = null),
-            TrackingProgressCheckpoint(postId = 1, nama = "Pos 1", urutan = 1, completed = true, checkedAt = null, method = "qr")
-        )
-        val dariProgress = TrackingProgressUiMapper.toCheckpointUi(
-            checkpoints,
-            hikers = listOf(hiker("p1", "Budi", postId = 1))
-        )
-
-        // Urut naik walau input dari server acak, dan pos yang sudah check-in berstatus Completed.
-        assertEquals(listOf(1, 2), dariProgress.map { it.postId })
-        assertEquals(listOf(CheckpointState.Completed, CheckpointState.Current), dariProgress.map { it.state })
-        assertEquals(listOf("Budi"), dariProgress.first { it.postId == 1 }.memberNames)
+        val naikSelesai = visits.map { it.copy(completed = it.phase == "naik") }
+        val turun = TrackingVisitUiMapper.project(awal.copy(visits = naikSelesai), emptyList())
+        assertEquals("turun", turun.trackingPhase)
+        assertEquals(PhaseProgress(3, 3, 100), turun.ascentProgress)
+        assertEquals(PhaseProgress(0, 2, 0), turun.descentProgress)
+        assertEquals(PhaseProgress(3, 5, 60), turun.overallProgress)
+        assertEquals("turun:2", turun.nextVisitKey)
+        val uiTurun = TrackingVisitUiMapper.toCheckpointUi(turun.visits, turun.nextVisitKey, listOf(turun))
+        assertEquals("turun:2", uiTurun.single { it.state == CheckpointState.Current }.visitKey)
+        assertEquals(3, uiTurun.count { it.state == CheckpointState.Completed })
     }
 
-    // TDD-A06 — deteksi radius: pendaki berada DALAM radius pos
     @Test
-    fun `TDD-A06 - pendaki berada dalam radius pos`() {
-        val status = GpsGateMapper.toGateState(
-            GpsNearestPost(
-                id = 4,
-                nama = "Puncak Kerinci",
-                distanceMeters = 12.0,
-                withinRadius = true,
-                radiusMeter = 50
-            )
-        )
-
-        assertTrue(status is GpsGateState.DalamRadius)
-    }
-
-    // TDD-A07 — deteksi radius: pendaki berada DI LUAR radius pos
-    @Test
-    fun `TDD-A07 - pendaki berada di luar radius pos`() {
-        val status = GpsGateMapper.toGateState(
-            GpsNearestPost(
-                id = 4,
-                nama = "Puncak Kerinci",
-                distanceMeters = 500.0,
-                withinRadius = false,
-                radiusMeter = 50
-            )
-        )
-
-        assertTrue(status is GpsGateState.LuarRadius)
-    }
-
-    // TDD-A08 — pencegahan duplikasi check-in pada pos yang sama
-    @Test
-    fun `TDD-A08 - check-in ulang di pos yang sama ditolak`() = runBlocking {
+    fun `TDD-A05 - identitas kunjungan dan respons ulang harus sesuai sebelum dianggap terkirim`() = runBlocking {
         val dao = FakeCheckpointLogDao()
         val repository = TrackingRepository(apiTidakDipakai(), checkpointLogDao = dao)
+        val log = logCheckpoint("booking-1", "pendaki-1", 4).copy(clientEventId = "event-1")
+        dao.upsert(log)
+        assertTrue(repository.hasCheckedIn("booking-1", "pendaki-1", 4, "naik"))
+        assertFalse(repository.hasCheckedIn("booking-2", "pendaki-1", 4, "naik"))
+        assertFalse(repository.hasCheckedIn("booking-1", "pendaki-2", 4, "naik"))
+        assertFalse(repository.hasCheckedIn("booking-1", "pendaki-1", 5, "naik"))
+        assertFalse(repository.hasCheckedIn("booking-1", "pendaki-1", 4, "turun"))
 
-        dao.upsert(logCheckpoint(bookingId = "booking-1", pendakiId = "pendaki-1", postId = 4))
-
-        // Pos 4 sudah tercatat → ditolak. Pos lain → masih boleh.
-        assertTrue(repository.hasCheckedIn("booking-1", "pendaki-1", 4))
-        assertFalse(repository.hasCheckedIn("booking-1", "pendaki-1", 5))
+        val data = CheckpointV2Data(checkpointLogId = 15, clientEventId = "event-1", pendakiId = "pendaki-1",
+            phase = "naik", post = CheckpointQrPost(4, "Pos 4", 4), visitKey = "naik:4")
+        val sukses = Response.success(CheckpointV2Response(true, null, data, null))
+        assertEquals(CheckpointSyncResult.Sent(15), classifyCheckpointResponse(sukses, log, "event-1"))
+        assertEquals(CheckpointSyncResult.Sent(15), classifyCheckpointResponse(duplicateResponse("naik:4"), log, "event-1"))
+        assertEquals(CheckpointSyncResult.Rejected, classifyCheckpointResponse(duplicateResponse("turun:4"), log, "event-1"))
+        assertEquals(CheckpointSyncResult.Rejected, classifyCheckpointResponse(
+            Response.success(CheckpointV2Response(true, null, data.copy(pendakiId = "pendaki-2"), null)), log, "event-1"))
+        assertEquals(CheckpointSyncResult.Rejected, classifyCheckpointResponse(
+            Response.error<CheckpointV2Response>(403, "{}".toResponseBody("application/json".toMediaType())), log, "event-1"))
     }
 
-    // TDD-A09 — pencatatan kehadiran anggota oleh ketua tim
     @Test
-    fun `TDD-A09 - kehadiran anggota menggabungkan status server dan penanda lokal`() {
+    fun `TDD-A06 - kehadiran server dan antrean lokal hanya berlaku pada pos dan fase yang sesuai`() {
+        val visits = TrackingVisitUiMapper.fromPosts(listOf(post(1, "Pos 1", 1), post(4, "Puncak", 2).copy(isSummit = true)))
         val hikers = listOf(
-            TrackingProgressHiker(
-                pendakiId = "anggota-1",
-                nama = "Ani",
-                completed = 0,
-                total = 3,
-                percentage = 0,
-                checkpoints = emptyList()
-            ),
-            TrackingProgressHiker(
-                pendakiId = "anggota-2",
-                nama = "Budi",
-                completed = 0,
-                total = 3,
-                percentage = 0,
-                checkpoints = emptyList()
-            )
+            hikerV2("anggota-1", "Ani"),
+            hikerV2("anggota-2", "Budi").copy(visits = visits.map { it.copy(completed = it.visitKey == "naik:4") }),
+            hikerV2("anggota-3", "Cici")
         )
-        val localMarks = listOf(LocalMemberMark(postId = 4, pendakiId = "anggota-1", pending = true))
-
-        val members = TrackingProgressUiMapper.toMembers(hikers, postId = 4, localMarks = localMarks)
-
-        val ani = members.first { it.pendakiId == "anggota-1" }
-        val budi = members.first { it.pendakiId == "anggota-2" }
-        assertTrue(ani.checked)
-        assertTrue(ani.pending)
-        assertFalse(budi.checked)
-        assertFalse(budi.pending)
+        val marks = listOf(LocalMemberMark(postId = 4, pendakiId = "anggota-1", pending = true, phase = "naik"))
+        val members = TrackingProgressUiMapper.toMembers(hikers, 4, "naik", marks)
+        assertTrue(members[0].checked)
+        assertTrue(members[0].pending)
+        assertTrue(members[1].checked)
+        assertFalse(members[1].pending)
+        assertFalse(members[2].checked)
+        assertFalse(members[2].pending)
+        assertTrue(TrackingProgressUiMapper.toMembers(hikers, 4, "turun", marks).none { it.checked || it.pending })
+        assertTrue(TrackingProgressUiMapper.toMembers(hikers, 1, "naik", marks).none { it.checked || it.pending })
     }
 
-    // TDD-A10 — pembatalan kehadiran anggota membersihkan catatan lokal
     @Test
-    fun `TDD-A10 - pembatalan kehadiran membersihkan catatan lokal`() = runBlocking {
-        val dao = FakeCheckpointLogDao()
-        val repository = TrackingRepository(apiTidakDipakai(), checkpointLogDao = dao)
-
-        repository.saveServerLogId("booking-1", "pendaki-1", 4, serverId = 15, method = "qr")
-        assertTrue(repository.hasCheckedIn("booking-1", "pendaki-1", 4))
-
-        repository.deleteCheckInLocal("booking-1", "pendaki-1", 4)
-
-        // Setelah dibatalkan, pos itu dianggap belum tercatat → bisa check-in lagi.
-        assertFalse(repository.hasCheckedIn("booking-1", "pendaki-1", 4))
-        assertNull(repository.getServerLogId("booking-1", "pendaki-1", 4))
+    fun `TDD-A07 - pembatalan menghapus kunjungan terpilih tanpa menghapus fase lain`() = runBlocking {
+        val repository = TrackingRepository(apiTidakDipakai(), checkpointLogDao = FakeCheckpointLogDao())
+        repository.saveServerLogId("booking-1", "pendaki-1", 4, "naik", serverId = 15, method = "qr")
+        repository.saveServerLogId("booking-1", "pendaki-1", 4, "turun", serverId = 16, method = "qr")
+        assertTrue(repository.hasCheckedIn("booking-1", "pendaki-1", 4, "naik"))
+        repository.deleteCheckInLocal("booking-1", "pendaki-1", 4, "naik")
+        assertFalse(repository.hasCheckedIn("booking-1", "pendaki-1", 4, "naik"))
+        assertNull(repository.getServerLogId("booking-1", "pendaki-1", 4, "naik"))
+        assertTrue(repository.hasCheckedIn("booking-1", "pendaki-1", 4, "turun"))
+        assertEquals(16, repository.getServerLogId("booking-1", "pendaki-1", 4, "turun"))
     }
 
-    // ==================== helper ====================
+    private fun duplicateResponse(visitKey: String) = Response.error<CheckpointV2Response>(409,
+        """{"success":false,"errors":{"code":"CHECKPOINT_ALREADY_RECORDED","visit_key":"$visitKey","checkpoint_log_id":15}}"""
+            .toResponseBody("application/json".toMediaType()))
+
+
 
     private fun post(id: Int, nama: String, urutan: Int) = TrackingPost(
         id = id,
@@ -230,13 +158,27 @@ class PelacakanJejakTddTest {
         )
     )
 
+    private fun hikerV2(id: String, nama: String) = TrackingProgressV2Hiker(
+        pendakiId = id,
+        nama = nama,
+        isLeader = false,
+        trackingPhase = TrackingPhase.NAIK.serialized,
+        nextVisitKey = null,
+        ascentProgress = PhaseProgress(0, 3, 0),
+        descentProgress = PhaseProgress(0, 2, 0),
+        overallProgress = PhaseProgress(0, 5, 0),
+        routeReturnCompleted = false,
+        visits = emptyList()
+    )
+
     private fun logCheckpoint(bookingId: String, pendakiId: String, postId: Int) =
         CheckpointLogEntity(
-            localId = "${bookingId}_${pendakiId}_$postId",
+            localId = checkpointLocalId(bookingId, pendakiId, postId, TrackingPhase.NAIK.serialized),
             serverId = null,
             bookingId = bookingId,
             pendakiId = pendakiId,
             postId = postId,
+            phase = TrackingPhase.NAIK.serialized,
             method = "qr",
             latitude = -1.6975,
             longitude = 101.2635,
@@ -256,42 +198,51 @@ class PelacakanJejakTddTest {
         private val logs = mutableListOf<CheckpointLogEntity>()
 
         override suspend fun upsert(log: CheckpointLogEntity) {
+            logs.removeAll { it.localId == log.localId }
             logs += log
         }
 
-        override suspend fun countExistingCheckIn(bookingId: String, pendakiId: String, postId: Int): Int =
+        override suspend fun countExistingCheckIn(bookingId: String, pendakiId: String, postId: Int, phase: String): Int =
             logs.count {
-                it.bookingId == bookingId && it.pendakiId == pendakiId && it.postId == postId
+                it.bookingId == bookingId && it.pendakiId == pendakiId && it.postId == postId && it.phase == phase
             }
 
         override suspend fun getPendingSync(pending: String, failed: String) = error("tidak dipakai")
         override suspend fun getLastCheckpoint(bookingId: String) = error("tidak dipakai")
         override suspend fun updateStatus(localId: String, status: String) = error("tidak dipakai")
+        override suspend fun setClientEventId(localId: String, clientEventId: String) = error("tidak dipakai")
         override suspend fun markSent(localId: String, serverId: Int?, status: String) = error("tidak dipakai")
         override suspend fun markFailed(localId: String, status: String) = error("tidak dipakai")
         override suspend fun markPermanentFailure(localId: String) = error("tidak dipakai")
         override suspend fun resetStuckSyncing() = error("tidak dipakai")
         override suspend fun resetRetriableFailures(bookingId: String): Int = error("tidak dipakai")
+        override suspend fun getAscentLogs(bookingId: String, pendakiId: String) = error("tidak dipakai")
+        override suspend fun countSentSummit(bookingId: String, pendakiId: String): Int = error("tidak dipakai")
 
         // Dipakai saat membatalkan kehadiran (toggle dimatikan).
-        override suspend fun getServerId(bookingId: String, pendakiId: String, postId: Int): Int? =
+        override suspend fun getServerId(bookingId: String, pendakiId: String, postId: Int, phase: String): Int? =
             logs.firstOrNull {
                 it.bookingId == bookingId && it.pendakiId == pendakiId &&
-                    it.postId == postId && it.serverId != null
+                    it.postId == postId && it.phase == phase && it.serverId != null
             }?.serverId
 
-        override suspend fun deleteCheckIn(bookingId: String, pendakiId: String, postId: Int) {
+        override suspend fun deleteCheckIn(bookingId: String, pendakiId: String, postId: Int, phase: String) {
             logs.removeAll {
-                it.bookingId == bookingId && it.pendakiId == pendakiId && it.postId == postId
+                it.bookingId == bookingId && it.pendakiId == pendakiId && it.postId == postId && it.phase == phase
             }
         }
 
-        override suspend fun getLog(bookingId: String, pendakiId: String, postId: Int): CheckpointLogEntity? =
+        override suspend fun getLog(bookingId: String, pendakiId: String, postId: Int, phase: String): CheckpointLogEntity? =
             logs.lastOrNull {
-                it.bookingId == bookingId && it.pendakiId == pendakiId && it.postId == postId
+                it.bookingId == bookingId && it.pendakiId == pendakiId && it.postId == postId && it.phase == phase
             }
 
         override suspend fun getByBooking(bookingId: String): List<CheckpointLogEntity> =
             logs.filter { it.bookingId == bookingId }
+
+        override suspend fun removeStaleServerLogs(bookingId: String, pendakiId: String, serverIds: List<Int>) {
+            logs.removeAll { it.bookingId == bookingId && it.pendakiId == pendakiId &&
+                it.syncStatus == "SENT" && it.serverId !in serverIds }
+        }
     }
 }

@@ -2,6 +2,7 @@ package com.dicoding.gunungkerinci.notif
 
 import com.dicoding.gunungkerinci.model.MyTiketItem
 import com.dicoding.gunungkerinci.model.OverstaySummary
+import com.dicoding.gunungkerinci.util.DateTimeFormat
 
 enum class TicketEventType { REMINDER, OVERDUE }
 
@@ -31,9 +32,9 @@ object TicketNotificationSelection {
     const val OVERDUE_BODY =
         "Durasi tiket telah berakhir. Buka tiket untuk melihat status kepulangan dan estimasi biaya tambahan."
 
-    fun serverDate(serverNowIso: String?): String? = serverNowIso?.take(10)
+    fun serverDate(serverNowIso: String?): String? = DateTimeFormat.apiWibDate(serverNowIso)
 
-    fun serverTime(serverNowIso: String?): String? = serverNowIso?.substring(11, 16)
+    fun serverTime(serverNowIso: String?): String? = DateTimeFormat.apiWibTimestamp(serverNowIso)?.substring(11, 16)
 
     /** Masih ada pendaki yang status terakhirnya mendaki (belum checkout). */
     fun hasActivePendaki(os: OverstaySummary?): Boolean =

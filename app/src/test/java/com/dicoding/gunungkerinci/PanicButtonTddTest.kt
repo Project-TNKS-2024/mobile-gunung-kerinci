@@ -7,133 +7,80 @@ import com.dicoding.gunungkerinci.data.sync.SosQueueRule
 import com.dicoding.gunungkerinci.network.ApiService
 import com.dicoding.gunungkerinci.ui.panic_button.DisasterReportValidator
 import com.dicoding.gunungkerinci.ui.panic_button.SosTriggerValidator
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
+import org.junit.Assert.*
 import org.junit.Test
 import retrofit2.Retrofit
 import java.io.IOException
 
-/**
- * Test Case TDD — fitur Panic Button (Tabel 22).
- *
- * Satu method = satu baris Tabel 22 (TDD-C01–TDD-C08). Murni JVM:
- * tanpa emulator, tanpa mock, tanpa Robolectric.
- */
+/** Enam skenario skripsi TDD-C01 sampai TDD-C06; antrean lokal bukan bukti penerimaan server. */
 class PanicButtonTddTest {
 
-    // TDD-C01 — pemicu SOS valid (GPS + severity valid)
     @Test
-    fun `TDD-C01 - pemicu SOS dengan data valid`() {
-        val hasil = SosTriggerValidator.error(
-            latitude = -1.6975,
-            longitude = 101.2635,
-            severity = "high",
-            message = "Tolong, saya butuh bantuan"
-        )
-
-        assertNull(hasil)
+    fun `TDD-C01 - lokasi dan tingkat bahaya SOS harus valid`() {
+        for (severity in listOf("low", "medium", "high")) {
+            assertNull(SosTriggerValidator.error(-1.6975, 101.2635, severity, null))
+        }
+        for ((lat, lon) in listOf(null to 101.2635, -1.6975 to null, 999.0 to 101.2635, -1.6975 to 200.0, Double.NaN to 101.2635)) {
+            assertEquals("Lokasi GPS tidak valid", SosTriggerValidator.error(lat, lon, "high", null))
+        }
+        assertEquals("Tingkat SOS tidak valid", SosTriggerValidator.error(-1.6975, 101.2635, "extreme", null))
     }
 
-    // TDD-C02 — koordinat lokasi tidak valid
     @Test
-    fun `TDD-C02 - koordinat lokasi tidak valid`() {
-        val kosong = SosTriggerValidator.error(
-            latitude = null, longitude = 101.2635, severity = "high", message = null
-        )
-        val diLuar = SosTriggerValidator.error(
-            latitude = 999.0, longitude = 101.2635, severity = "high", message = null
-        )
-
-        assertEquals("Lokasi GPS tidak valid", kosong)
-        assertEquals("Lokasi GPS tidak valid", diLuar)
+    fun `TDD-C02 - pesan tambahan SOS opsional dengan batas seribu karakter`() {
+        for (message in listOf(null, "", "Tolong, saya butuh bantuan", "x".repeat(1000))) {
+            assertNull(SosTriggerValidator.error(-1.6975, 101.2635, "high", message))
+        }
+        assertEquals("Pesan darurat tidak valid", SosTriggerValidator.error(-1.6975, 101.2635, "high", "x".repeat(1001)))
     }
 
-    // TDD-C03 — tingkat bahaya (severity) tidak valid
     @Test
-    fun `TDD-C03 - tingkat SOS tidak valid`() {
-        val hasil = SosTriggerValidator.error(
-            latitude = -1.6975, longitude = 101.2635, severity = "extreme", message = null
-        )
-
-        assertEquals("Tingkat SOS tidak valid", hasil)
+    fun `TDD-C03 - laporan memerlukan isian wajib sedangkan lampiran opsional harus sesuai`() {
+        assertNull(DisasterReportValidator.error("Banjir", "Deskripsi", "Pos 1"))
+        assertEquals("Potensi bencana wajib diisi", DisasterReportValidator.error("", "Deskripsi", "Pos 1"))
+        assertEquals("Deskripsi wajib diisi", DisasterReportValidator.error("Banjir", "", "Pos 1"))
+        assertEquals("Lokasi wajib diisi", DisasterReportValidator.error("Banjir", "Deskripsi", ""))
+        assertNull(DisasterReportValidator.error("Banjir", "Deskripsi", "Pos 1", "image/jpeg", 5L * 1024 * 1024))
+        assertEquals("Lampiran tidak valid", DisasterReportValidator.error("Banjir", "Deskripsi", "Pos 1", "application/pdf", 1000L))
+        assertEquals("Lampiran tidak valid", DisasterReportValidator.error("Banjir", "Deskripsi", "Pos 1", "image/jpeg", 6L * 1024 * 1024))
     }
 
-    // TDD-C04 — pesan darurat kosong atau melebihi batas karakter
     @Test
-    fun `TDD-C04 - pesan darurat kosong atau melebihi batas`() {
-        val kosong = SosTriggerValidator.error(
-            latitude = -1.6975, longitude = 101.2635, severity = "high",
-            message = "", wajibPesan = true
-        )
-        val kepanjangan = SosTriggerValidator.error(
-            latitude = -1.6975, longitude = 101.2635, severity = "high",
-            message = "x".repeat(1001)
-        )
-
-        assertEquals("Pesan darurat tidak valid", kosong)
-        assertEquals("Pesan darurat tidak valid", kepanjangan)
-    }
-
-    // TDD-C05 — laporan/lampiran bencana tidak valid
-    @Test
-    fun `TDD-C05 - laporan bencana field atau lampiran tidak valid`() {
-        val tanpaPotensi = DisasterReportValidator.error(
-            potensiBencana = "", deskripsi = "Deskripsi", lokasi = "Lokasi"
-        )
-        val formatSalah = DisasterReportValidator.error(
-            potensiBencana = "Banjir", deskripsi = "Deskripsi", lokasi = "Lokasi",
-            lampiranMime = "application/pdf", lampiranBytes = 1_000L
-        )
-        val terlaluBesar = DisasterReportValidator.error(
-            potensiBencana = "Banjir", deskripsi = "Deskripsi", lokasi = "Lokasi",
-            lampiranMime = "image/jpeg", lampiranBytes = 6L * 1024 * 1024
-        )
-
-        assertEquals("Potensi bencana wajib diisi", tanpaPotensi)
-        assertEquals("Lampiran tidak valid", formatSalah)
-        assertEquals("Lampiran tidak valid", terlaluBesar)
-    }
-
-    // TDD-C06 — simpan data SOS secara lokal saat jaringan tidak ada
-    @Test
-    fun `TDD-C06 - data SOS disimpan lokal saat jaringan tidak tersedia`() {
+    fun `TDD-C04 - hanya kegagalan jaringan memutuskan penyimpanan SOS ke antrean`() {
         assertTrue(SosQueueRule.simpanOffline(IOException("no network")))
         assertFalse(SosQueueRule.simpanOffline(RuntimeException("server menolak")))
     }
 
-    // TDD-C07 — kirim ulang data SOS saat koneksi tersedia
     @Test
-    fun `TDD-C07 - data SOS dikirim ulang saat koneksi tersedia`() {
+    fun `TDD-C05 - kegagalan sementara dicoba ulang dan penolakan permanen tidak dianggap terkirim`() {
         assertTrue(SosQueueRule.harusKirimUlang(code = null, error = IOException("timeout")))
-        assertTrue(SosQueueRule.harusKirimUlang(code = 500, error = null))
-        // 401 = token kedaluwarsa, masih bisa berhasil setelah pendaki login ulang.
-        assertTrue(SosQueueRule.harusKirimUlang(code = 401, error = null))
-        assertFalse(SosQueueRule.harusKirimUlang(code = 403, error = null))
+        for (code in listOf(401, 408, 429, 500, 503)) {
+            assertTrue("HTTP $code dapat dicoba kembali", SosQueueRule.harusKirimUlang(code, error = null))
+        }
+        for (code in listOf(403, 422)) {
+            assertFalse("HTTP $code tidak dicoba ulang", SosQueueRule.harusKirimUlang(code, error = null))
+        }
+        assertFalse(SosQueueRule.harusKirimUlang(code = null, error = RuntimeException("ditolak")))
     }
 
-    // TDD-C08 — pesan chat darurat di-queue saat offline (US-12)
     @Test
-    fun `TDD-C08 - pesan chat darurat disimpan ke antrean saat offline`() = runBlocking {
-        val dao = FakePendingChatDao()
-        // ApiService tidak pernah dipanggil — cukup dibuat lewat Retrofit tanpa server.
+    fun `TDD-C06 - antrean chat terikat sesi SOS dan dapat dihapus tanpa menyatakan terkirim`() = runBlocking {
         val api = Retrofit.Builder().baseUrl("http://localhost/").build().create(ApiService::class.java)
-        val repository = SosChatRepository(api, pendingChatDao = dao)
-
-        val tersimpan = repository.savePendingChat(sosId = 7, type = "text", content = "Tolong, butuh bantuan", imagePath = null)
-
-        assertTrue(tersimpan)
-        assertEquals(1, dao.pendingCount(sosId = 7))
-
-        // Setelah berhasil terkirim, baris antrean dibersihkan.
-        repository.deletePendingChat(localId = dao.firstLocalId())
-        assertEquals(0, dao.pendingCount(sosId = 7))
+        val repository = SosChatRepository(api, pendingChatDao = FakePendingChatDao())
+        assertTrue(repository.savePendingChat(7, "text", "Tolong, butuh bantuan", null))
+        assertTrue(repository.savePendingChat(8, "text", "Pesan sesi lain", null))
+        val pesan = repository.observePendingChats(7).first().single()
+        assertEquals(7, pesan.sosId)
+        assertEquals("Tolong, butuh bantuan", pesan.content)
+        assertEquals("PENDING", pesan.syncStatus)
+        repository.deletePendingChat(pesan.localId)
+        assertTrue(repository.observePendingChats(7).first().isEmpty())
+        assertEquals("Pesan sesi lain", repository.observePendingChats(8).first().single().content)
     }
 
-    /** C08 hanya memakai `upsert` dan `delete`, jadi sisanya dibuat kosong. */
     private class FakePendingChatDao : PendingChatDao {
         private val chats = mutableListOf<PendingChatEntity>()
 
@@ -150,8 +97,8 @@ class PanicButtonTddTest {
         }
 
         override suspend fun getPendingSync(pending: String, failed: String) = emptyList<PendingChatEntity>()
-        override suspend fun getPendingForSos(sosId: Int) = emptyList<PendingChatEntity>()
-        override fun observePendingForSos(sosId: Int) = flowOf(emptyList<PendingChatEntity>())
+        override suspend fun getPendingForSos(sosId: Int) = chats.filter { it.sosId == sosId }
+        override fun observePendingForSos(sosId: Int) = flowOf(chats.filter { it.sosId == sosId })
         override suspend fun markFailed(localId: String) = Unit
     }
 }

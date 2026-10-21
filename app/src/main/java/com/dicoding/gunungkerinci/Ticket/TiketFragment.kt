@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
@@ -75,6 +76,9 @@ class TiketFragment : Fragment() {
         }
 
         binding.btnRetry.setOnClickListener { loadData() }
+        binding.btnRefreshRetry.setOnClickListener { loadData() }
+        binding.floatingButton.setOnClickListener { startActivity(Intent(requireContext(), PilihTiketActivity::class.java)) }
+        if (loaded) render()
 
         binding.rvTiket.layoutManager = LinearLayoutManager(requireContext())
     }
@@ -92,10 +96,8 @@ class TiketFragment : Fragment() {
             return
         }
 
-        loadJob?.cancel()
+        if (loadJob?.isActive == true) return
         showLoading()
-        loaded = false
-        allBookings = emptyList()
 
         loadJob = viewLifecycleOwner.lifecycleScope.launch {
             val api = ApiConfig.getApiService(requireContext())
@@ -139,6 +141,7 @@ class TiketFragment : Fragment() {
             allBookings.filter { TiketStatus.isTicket(it.statusBooking) }
         }
 
+        binding.layoutRefresh.visibility = View.GONE
         if (filtered.isEmpty()) {
             showEmpty()
             return
@@ -149,9 +152,16 @@ class TiketFragment : Fragment() {
         binding.layoutBelumAda.visibility = View.GONE
         binding.buttonPesanTiket.visibility = View.GONE
         binding.rvTiket.visibility = View.VISIBLE
+        binding.floatingButton.visibility = View.VISIBLE
 
         binding.rvTiket.adapter = TiketListAdapter(filtered) { item ->
-            if (TiketStatus.isDraft(item.statusBooking)) continueDraft(item) else openBarcode(item.id)
+            if (item.statusBooking == 9 || item.canContinue == false && TiketStatus.isDraft(item.statusBooking)) {
+                AlertDialog.Builder(requireContext())
+                    .setTitle(TiketStatus.cardLabel(item))
+                    .setMessage(item.ticketNotice ?: item.cancellationReason ?: "Pesanan ini tidak dapat dilanjutkan.")
+                    .setPositiveButton("Tutup", null)
+                    .show()
+            } else if (TiketStatus.isDraft(item.statusBooking)) continueDraft(item) else openBarcode(item.id)
         }
     }
 
@@ -194,6 +204,16 @@ class TiketFragment : Fragment() {
     }
 
     private fun showLoading() {
+        if (loaded) {
+            render()
+            binding.layoutRefresh.visibility = View.VISIBLE
+            binding.progressRefresh.visibility = View.VISIBLE
+            binding.tvRefresh.text = "Memperbarui…"
+            binding.btnRefreshRetry.visibility = View.GONE
+            return
+        }
+        binding.layoutRefresh.visibility = View.GONE
+        binding.floatingButton.visibility = View.GONE
         binding.progressLoading.visibility = View.VISIBLE
         binding.layoutError.visibility = View.GONE
         binding.layoutBelumAda.visibility = View.GONE
@@ -202,19 +222,30 @@ class TiketFragment : Fragment() {
     }
 
     private fun showEmpty() {
+        binding.floatingButton.visibility = View.GONE
         binding.progressLoading.visibility = View.GONE
         binding.layoutError.visibility = View.GONE
         binding.rvTiket.visibility = View.GONE
         binding.layoutBelumAda.visibility = View.VISIBLE
         binding.buttonPesanTiket.visibility = View.VISIBLE
         binding.tvEmptyText.text = if (isDraftTab) {
-            "Belum ada draft pesanan\nPesan tiket untuk memulai"
+            "Anda Belum Membuat Pesanan\nPesan Tiket Anda Sekarang!"
         } else {
-            "Belum ada tiket\nPesan tiket untuk memulai"
+            "Anda Belum Memiliki Tiket\nPesan Tiket Anda Sekarang!"
         }
     }
 
     private fun showError(message: String) {
+        if (loaded) {
+            render()
+            binding.layoutRefresh.visibility = View.VISIBLE
+            binding.progressRefresh.visibility = View.GONE
+            binding.tvRefresh.text = "$message Data sebelumnya tetap ditampilkan."
+            binding.btnRefreshRetry.visibility = View.VISIBLE
+            return
+        }
+        binding.layoutRefresh.visibility = View.GONE
+        binding.floatingButton.visibility = View.GONE
         binding.progressLoading.visibility = View.GONE
         binding.layoutBelumAda.visibility = View.GONE
         binding.buttonPesanTiket.visibility = View.GONE
@@ -236,7 +267,9 @@ class TiketFragment : Fragment() {
     }
 
     private fun moveIndicatorTo(targetView: View) {
+        val currentBinding = _binding ?: return
         targetView.post {
+            if (_binding !== currentBinding) return@post
             val params = binding.viewIndicator.layoutParams
             params.width = targetView.width
             binding.viewIndicator.layoutParams = params

@@ -15,11 +15,15 @@ internal data class SosUiState(
     val activeSos: SosActiveData? = null,
     val isLoadingActive: Boolean = false,
     val callOptions: List<SosCallOption> = emptyList(),
-    val isLoadingCallOptions: Boolean = false
+    val isLoadingCallOptions: Boolean = false,
+    val callOptionsError: String? = null,
+    val activeError: String? = null,
+    val isPreparingLocation: Boolean = false
 )
 
 /** State layar chat SOS. */
 internal data class SosChatUiState(
+    val isPreparingImage: Boolean = false,
     val messages: List<SosChatMessage> = emptyList(),
     val queuedMessages: List<QueuedChatUi> = emptyList(),
     val queuedInfo: String? = null,
@@ -41,6 +45,7 @@ internal data class QueuedChatUi(
 
 /** State layar laporan bencana. */
 internal data class DisasterReportUiState(
+    val isPreparingAttachment: Boolean = false,
     val isSending: Boolean = false,
     val successMessage: String? = null,
     val errorMessage: String? = null,

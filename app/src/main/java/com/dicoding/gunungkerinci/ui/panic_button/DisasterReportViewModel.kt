@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okhttp3.MultipartBody
 
 /** Laporan bencana: kirim laporan dan muat riwayatnya. */
@@ -26,42 +28,69 @@ internal class DisasterReportViewModel(
         lokasi: String,
         latitude: Double?,
         longitude: Double?,
-        lampiran: MultipartBody.Part?
+        lampiran: MultipartBody.Part? = null,
+        prepareAttachment: (suspend () -> MultipartBody.Part?)? = null
     ) {
+        if (_uiState.value.isSending) return
+        _uiState.update { it.copy(isSending = true, isPreparingAttachment = prepareAttachment != null, successMessage = null, errorMessage = null) }
         viewModelScope.launch {
-            _uiState.update { it.copy(isSending = true, successMessage = null, errorMessage = null) }
-            disasterReportRepository.submit(
-                token = token,
-                potensiBencana = potensiBencana,
-                deskripsi = deskripsi,
-                lokasi = lokasi,
-                latitude = latitude,
-                longitude = longitude,
-                lampiran = lampiran
-            )
-                .onSuccess {
-                    _uiState.update {
-                        it.copy(isSending = false, successMessage = "Laporan bencana terkirim.")
+            try {
+                val attachment = withContext(Dispatchers.IO) { prepareAttachment?.invoke() ?: lampiran }
+                _uiState.update { it.copy(isPreparingAttachment = false) }
+                _uiState.update { it.copy(isSending = true, successMessage = null, errorMessage = null) }
+                disasterReportRepository.submit(
+                    token = token,
+                    potensiBencana = potensiBencana,
+                    deskripsi = deskripsi,
+                    lokasi = lokasi,
+                    latitude = latitude,
+                    longitude = longitude,
+                    lampiran = attachment
+                )
+                    .onSuccess {
+                        _uiState.update {
+                            it.copy(isSending = false, successMessage = "Laporan bencana terkirim.")
+                        }
                     }
-                }
-                .onFailure { error ->
-                    _uiState.update {
-                        it.copy(isSending = false, errorMessage = pesanJaringan(error, "Gagal mengirim laporan"))
+                    .onFailure { error ->
+                        if (error is kotlinx.coroutines.CancellationException) throw error
+                        _uiState.update {
+                            it.copy(isSending = false, errorMessage = pesanJaringan(error, "Gagal mengirim laporan"))
+                        }
                     }
-                }
+
+            } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                _uiState.update { it.copy(errorMessage = error.message ?: "Proses gagal. Coba lagi.") }
+            } finally {
+                _uiState.update { it.copy(isSending = false, isPreparingAttachment = false) }
+            }
         }
     }
 
     fun loadReports(token: String) {
+        if (_uiState.value.isLoadingReports) return
+        _uiState.update { it.copy(isLoadingReports = true) }
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoadingReports = true, errorMessage = null) }
-            disasterReportRepository.getMyReports(token)
-                .onSuccess { list -> _uiState.update { it.copy(isLoadingReports = false, reports = list) } }
-                .onFailure { error ->
-                    _uiState.update {
-                        it.copy(isLoadingReports = false, errorMessage = pesanJaringan(error, "Gagal memuat laporan"))
+            try {
+                _uiState.update { it.copy(isLoadingReports = true, errorMessage = null) }
+                disasterReportRepository.getMyReports(token)
+                    .onSuccess { list -> _uiState.update { it.copy(isLoadingReports = false, reports = list) } }
+                    .onFailure { error ->
+                        if (error is kotlinx.coroutines.CancellationException) throw error
+                        _uiState.update {
+                            it.copy(isLoadingReports = false, errorMessage = pesanJaringan(error, "Gagal memuat laporan"))
+                        }
                     }
-                }
+
+            } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                _uiState.update { it.copy(errorMessage = error.message ?: "Proses gagal. Coba lagi.") }
+            } finally {
+                _uiState.update { it.copy(isLoadingReports = false) }
+            }
         }
     }
 

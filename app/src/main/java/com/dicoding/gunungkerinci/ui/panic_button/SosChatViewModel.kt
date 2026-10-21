@@ -8,16 +8,20 @@ import com.dicoding.gunungkerinci.data.repository.SosChatRepository
 import com.dicoding.gunungkerinci.data.repository.SosRepository
 import com.dicoding.gunungkerinci.data.sync.SosQueueRule
 import com.dicoding.gunungkerinci.data.sync.SyncScheduler
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 /** Chat darurat: cari SOS aktif, muat riwayat, kirim teks atau gambar. */
 internal class SosChatViewModel(
@@ -31,46 +35,71 @@ internal class SosChatViewModel(
 
     private var sosId: Int? = null
     private var ikutiJob: Job? = null
+    private val messagesMutex = Mutex()
+
+    /** Dibatalkan oleh lifecycle layar ketika chat tidak lagi terlihat. */
+    suspend fun pollMessages(token: String) {
+        start(token)
+        while (currentCoroutineContext().isActive) {
+            delay(3_000L)
+            if (_uiState.value.isLoading || _uiState.value.isSending) continue
+            val id = sosId
+            if (id == null) start(token) else loadMessages(token, id)
+        }
+    }
 
     /** Dipanggil saat layar dibuka: cari SOS aktif lalu muat pesannya. */
     fun start(token: String) {
+        if (_uiState.value.isLoading) return
+        _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, errorMessage = null, isSosActive = false) }
-            sosRepository.getActive(token)
-                .onSuccess { active ->
-                    if (active == null) {
-                        sosId = null
+            try {
+                _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+                sosRepository.getActive(token)
+                    .onSuccess { active ->
+                        if (active == null) {
+                            sosId = null
+                            _uiState.update {
+                                it.copy(
+                                    isLoading = false,
+                                    messages = emptyList(),
+                                    queuedMessages = emptyList(),
+                                    isSosActive = false,
+                                    errorMessage = "Tidak ada SOS aktif."
+                                )
+                            }
+                        } else {
+                            sosId = active.id
+                            _uiState.update { it.copy(isSosActive = true) }
+                            loadMessages(token, active.id)
+                            ikutiAntrean(token, active.id)
+                        }
+                    }
+                    .onFailure { error ->
+                        if (error is kotlinx.coroutines.CancellationException) throw error
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
-                                messages = emptyList(),
-                                queuedMessages = emptyList(),
                                 isSosActive = false,
-                                errorMessage = "Tidak ada SOS aktif."
+                                errorMessage = pesanJaringan(error, "Gagal memuat status SOS")
                             )
                         }
-                    } else {
-                        sosId = active.id
-                        _uiState.update { it.copy(isSosActive = true) }
-                        loadMessages(token, active.id)
-                        ikutiAntrean(token, active.id)
                     }
-                }
-                .onFailure { error ->
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            isSosActive = false,
-                            errorMessage = pesanJaringan(error, "Gagal memuat status SOS")
-                        )
-                    }
-                }
+
+            } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                _uiState.update { it.copy(errorMessage = error.message ?: "Proses gagal. Coba lagi.") }
+            } finally {
+                _uiState.update { it.copy(isLoading = false) }
+            }
         }
     }
 
     fun refresh(token: String) = start(token)
 
     fun sendText(token: String, text: String) {
+        if (_uiState.value.isSending || text.isBlank()) return
         // Chat hanya bisa dikirim setelah SOS aktif, jadi beri tahu alasannya.
         val id = sosId
         if (id == null) {
@@ -79,19 +108,30 @@ internal class SosChatViewModel(
             }
             return
         }
+        _uiState.update { it.copy(isSending = true, errorMessage = null, queuedInfo = null) }
         viewModelScope.launch {
-            _uiState.update { it.copy(isSending = true, errorMessage = null, queuedInfo = null) }
-            sosChatRepository.sendText(token, id, text)
-                .onSuccess {
-                    loadMessages(token, id)
-                }
-                .onFailure { error ->
-                    antreJikaOffline(error, id, type = "text", content = text, imagePath = null)
-                }
+            try {
+                sosChatRepository.sendText(token, id, text)
+                    .onSuccess {
+                        loadMessages(token, id)
+                    }
+                    .onFailure { error ->
+                        if (error is kotlinx.coroutines.CancellationException) throw error
+                        antreJikaOffline(error, id, type = "text", content = text, imagePath = null)
+                    }
+
+            } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                _uiState.update { it.copy(errorMessage = error.message ?: "Proses gagal. Coba lagi.") }
+            } finally {
+                _uiState.update { it.copy(isSending = false) }
+            }
         }
     }
 
-    fun sendImage(token: String, imageFile: File, caption: String? = null) {
+    fun sendImage(token: String, imageFile: File? = null, caption: String? = null, prepareImage: (suspend () -> File)? = null) {
+        if (_uiState.value.isSending) return
         // Sama seperti sendText: butuh SOS aktif.
         val id = sosId
         if (id == null) {
@@ -100,31 +140,43 @@ internal class SosChatViewModel(
             }
             return
         }
+        _uiState.update { it.copy(isSending = true, errorMessage = null, queuedInfo = null) }
         viewModelScope.launch {
-            _uiState.update { it.copy(isSending = true, errorMessage = null, queuedInfo = null) }
-            sosChatRepository.sendImageFile(token, id, imageFile, caption)
-                .onSuccess {
-                    _uiState.update { it.copy(isSending = false) }
-                    runCatching { imageFile.delete() } // lampiran sudah hidup di server
-                    loadMessages(token, id)
-                }
-                .onFailure { error ->
-                    _uiState.update { it.copy(isSending = false) }
-                    antreJikaOffline(error, id, type = "image", content = caption, imagePath = imageFile.absolutePath)
-                }
+            try {
+                _uiState.update { it.copy(isPreparingImage = prepareImage != null) }
+                val preparedFile = withContext(Dispatchers.IO) { prepareImage?.invoke() ?: requireNotNull(imageFile) }
+                _uiState.update { it.copy(isPreparingImage = false) }
+                sosChatRepository.sendImageFile(token, id, preparedFile, caption)
+                    .onSuccess {
+                        withContext(Dispatchers.IO) { preparedFile.delete() } // lampiran sudah hidup di server
+                        loadMessages(token, id)
+                    }
+                    .onFailure { error ->
+                        if (error is kotlinx.coroutines.CancellationException) throw error
+                        antreJikaOffline(error, id, type = "image", content = caption, imagePath = preparedFile.absolutePath)
+                    }
+
+            } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                _uiState.update { it.copy(errorMessage = error.message ?: "Proses gagal. Coba lagi.") }
+            } finally {
+                _uiState.update { it.copy(isSending = false, isPreparingImage = false) }
+            }
         }
     }
 
-    private suspend fun loadMessages(token: String, id: Int) {
+    private suspend fun loadMessages(token: String, id: Int) = messagesMutex.withLock {
         sosChatRepository.getMessages(token, id)
             .onSuccess { data ->
                 _uiState.update {
-                    it.copy(isSending = false, isLoading = false, messages = data.messages.orEmpty(), errorMessage = null)
+                    it.copy(isLoading = false, messages = data.messages.orEmpty(), errorMessage = null)
                 }
             }
             .onFailure { error ->
+                    if (error is kotlinx.coroutines.CancellationException) throw error
                 _uiState.update {
-                    it.copy(isSending = false, isLoading = false, errorMessage = pesanJaringan(error, "Gagal memuat pesan"))
+                    it.copy(isLoading = false, errorMessage = pesanJaringan(error, "Gagal memuat pesan"))
                 }
             }
     }
@@ -166,7 +218,7 @@ internal class SosChatViewModel(
         content = content,
         isImage = type == "image",
         imagePath = imagePath,
-        timeLabel = SimpleDateFormat("HH.mm", Locale.US).format(Date(createdAt))
+        timeLabel = com.dicoding.gunungkerinci.util.DateTimeFormat.epochToWibHm(createdAt).orEmpty()
     )
 }
 

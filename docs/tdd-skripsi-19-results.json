@@ -1,0 +1,81 @@
+{
+  "date": "2026-10-20",
+  "source_thesis": "skripsi-v32-revisi-uat.docx",
+  "tdd_scenarios": [
+    {
+      "class": "com.dicoding.gunungkerinci.PanicButtonTddTest",
+      "timestamp": "2026-10-20T09:22:52.142Z",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        "TDD-C02 - pesan tambahan SOS opsional dengan batas seribu karakter",
+        "TDD-C04 - hanya kegagalan jaringan memutuskan penyimpanan SOS ke antrean",
+        "TDD-C06 - antrean chat terikat sesi SOS dan dapat dihapus tanpa menyatakan terkirim",
+        "TDD-C01 - lokasi dan tingkat bahaya SOS harus valid",
+        "TDD-C03 - laporan memerlukan isian wajib sedangkan lampiran opsional harus sesuai",
+        "TDD-C05 - kegagalan sementara dicoba ulang dan penolakan permanen tidak dianggap terkirim"
+      ]
+    },
+    {
+      "class": "com.dicoding.gunungkerinci.PelacakanJejakTddTest",
+      "timestamp": "2026-10-20T09:22:52.478Z",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        "TDD-A01 - QR valid terbaca sedangkan format salah dan kosong ditolak",
+        "TDD-A05 - identitas kunjungan dan respons ulang harus sesuai sebelum dianggap terkirim",
+        "TDD-A03 - hasil radius dipetakan sebagai dasar konfirmasi GPS",
+        "TDD-A04 - itinerary dan progres membedakan naik turun tanpa menggandakan puncak",
+        "TDD-A06 - kehadiran server dan antrean lokal hanya berlaku pada pos dan fase yang sesuai",
+        "TDD-A07 - pembatalan menghapus kunjungan terpilih tanpa menghapus fase lain",
+        "TDD-A02 - koordinat valid diterima dan koordinat QR boleh tidak diisi"
+      ]
+    },
+    {
+      "class": "com.dicoding.gunungkerinci.PeringatanDiniTddTest",
+      "timestamp": "2026-10-20T09:22:52.767Z",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        "TDD-B04 - cache dipertahankan dan ditandai usang saat pembaruan gagal sementara",
+        "TDD-B06 - alarm baru dapat dihentikan tidak berulang dan dicabut bersama notifikasi",
+        "TDD-B01 - daftar kosong dan pencabutan membersihkan peringatan serta popup",
+        "TDD-B03 - popup yang ditutup tidak berulang dan dapat dibuka kembali",
+        "TDD-B05 - sesi atau pendakian tidak berlaku membersihkan peringatan dan menghentikan pemantauan",
+        "TDD-B02 - prioritas tingkat bahaya didahulukan lalu waktu terbaru"
+      ]
+    }
+  ],
+  "all_unit_tests": {
+    "tests": 19,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "classes": 3,
+  "verified_ids_match_thesis": true,
+  "removed_by_user_request": {
+    "files": [
+      "BiayaTambahanTest.kt",
+      "BottomNavigationTest.kt",
+      "JejakTimelineTest.kt",
+      "TicketNotificationSelectionTest.kt",
+      "TiketStatusTest.kt",
+      "WarningNotificationTest.kt",
+      "CheckpointOfflineStateTest.kt",
+      "CheckpointResponseHandlingTest.kt",
+      "LocationDetailDistanceTest.kt",
+      "ProfileAndTicketRegressionTest.kt",
+      "TrackingVisitUiMapperTest.kt"
+    ],
+    "test_count": 62,
+    "retained_thesis_tdd": 19,
+    "retained_other_tests": 0
+  }
+}

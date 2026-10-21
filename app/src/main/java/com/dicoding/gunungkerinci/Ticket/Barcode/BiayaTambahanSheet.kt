@@ -14,8 +14,6 @@ import com.dicoding.gunungkerinci.model.OverstayPendaki
 import com.dicoding.gunungkerinci.model.OverstaySummary
 import com.dicoding.gunungkerinci.ui.pelacakan_jejak.TicketUiMapper
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 /**
  * Panel bawah rincian biaya tambahan. Membaca ringkasan overstay dari
@@ -150,18 +148,8 @@ class BiayaTambahanSheet : BottomSheetDialogFragment() {
 
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
 
-    private fun formatWib(iso: String?): String {
-        if (iso.isNullOrBlank()) return "-"
-        return try {
-            val input = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US)
-            input.timeZone = java.util.TimeZone.getTimeZone("Asia/Jakarta")
-            val output = SimpleDateFormat("dd MMM yyyy, HH:mm 'WIB'", Locale("id", "ID"))
-            output.timeZone = java.util.TimeZone.getTimeZone("Asia/Jakarta")
-            output.format(input.parse(iso.take(19))!!)
-        } catch (e: Exception) {
-            iso
-        }
-    }
+    private fun formatWib(iso: String?): String =
+        com.dicoding.gunungkerinci.util.DateTimeFormat.apiWibLongDateTime(iso) ?: "-"
 
     override fun onDestroyView() {
         super.onDestroyView()

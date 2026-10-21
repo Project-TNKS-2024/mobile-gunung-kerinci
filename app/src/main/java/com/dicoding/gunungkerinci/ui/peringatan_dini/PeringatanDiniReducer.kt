@@ -28,7 +28,7 @@ internal object PeringatanDiniReducer {
     ): Pair<PeringatanDiniUiState, Int?> {
         val active = PeringatanDiniSelector.select(warnings)
         if (active == null) {
-            return PeringatanDiniUiState() to null
+            return current.copy(activeWarning = null, popupVisible = false, errorMessage = null) to null
         }
 
         val isNew = active.id != lastAutoShownId
@@ -49,7 +49,7 @@ internal object PeringatanDiniReducer {
         message: String?,
         isTerminal: Boolean
     ): PeringatanDiniUiState =
-        if (isTerminal) PeringatanDiniUiState(errorMessage = message)
+        if (isTerminal) current.copy(activeWarning = null, errorMessage = message, isStale = false)
         else current.copy(errorMessage = message)
 
     fun dismissPopup(state: PeringatanDiniUiState): PeringatanDiniUiState =

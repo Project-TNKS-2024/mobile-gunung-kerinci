@@ -3,6 +3,7 @@ package com.dicoding.gunungkerinci.ui.pelacakan_jejak
 import com.dicoding.gunungkerinci.model.MyTiketItem
 import java.util.Calendar
 import java.util.Locale
+import com.dicoding.gunungkerinci.util.DateTimeFormat
 
 /**
  * Memetakan booking dari `GET /mytiket` menjadi kartu tiket di layar Jejak.
@@ -145,9 +146,9 @@ internal object TicketUiMapper {
         }.getOrNull()
     }
 
-    /** "2026-09-13" atau "2026-09-12T04:31:25.000000Z" → "13 September 2026". */
+    /** Calendar date or API WIB timestamp, formatted without shifting its date. */
     fun formatTanggal(iso: String?): String {
-        val tanggal = iso?.take(10) ?: return "-"
+        val tanggal = DateTimeFormat.calendarDate(iso) ?: DateTimeFormat.apiWibDate(iso) ?: return "-"
         val bagian = tanggal.split("-")
         if (bagian.size != 3) return tanggal
         val bulan = bagian[1].toIntOrNull()?.minus(1)?.let { NAMA_BULAN.getOrNull(it) } ?: return tanggal

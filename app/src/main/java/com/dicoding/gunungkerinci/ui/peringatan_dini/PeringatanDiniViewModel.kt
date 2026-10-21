@@ -28,52 +28,65 @@ internal class PeringatanDiniViewModel(
     // Ambil peringatan aktif. Dipanggil saat layar tampil dan saat polling.
     // ownerKey = pemilik cache; "" berarti cache tidak dipakai.
     fun load(token: String, ownerKey: String = "") {
+        if (_uiState.value.isLoadingWarnings) return
+        _uiState.update { it.copy(isLoadingWarnings = true) }
         viewModelScope.launch {
-            // Tampilkan dulu dari cache, biar tidak senyap saat dibuka tanpa jaringan.
-            if (_uiState.value.activeWarning == null) {
-                val cached = peringatanDiniRepository.cachedFor(ownerKey)
-                if (cached.isNotEmpty()) {
-                    val at = DateTimeFormat.epochToWibHm(peringatanDiniRepository.cachedAt(ownerKey))
-                    _uiState.value = PeringatanDiniReducer.fromCache(cached, at)
-                    if (openWhenLoaded) {
-                        _uiState.update { PeringatanDiniReducer.showPopup(it) }
+            try {
+                // Tampilkan dulu dari cache, biar tidak senyap saat dibuka tanpa jaringan.
+                if (_uiState.value.activeWarning == null) {
+                    val cached = peringatanDiniRepository.cachedFor(ownerKey)
+                    if (cached.isNotEmpty()) {
+                        val at = DateTimeFormat.epochToWibHm(peringatanDiniRepository.cachedAt(ownerKey))
+                        _uiState.update { current -> current.copy(activeWarning = PeringatanDiniReducer.fromCache(cached, at).activeWarning, lastUpdatedAt = at, isStale = true) }
+                        if (openWhenLoaded) {
+                            _uiState.update { PeringatanDiniReducer.showPopup(it) }
+                            openWhenLoaded = false
+                        }
+                    }
+                }
+
+                peringatanDiniRepository.getActiveWarnings(token)
+                    .onSuccess { warnings ->
+                        // Simpan hasil terbaru ke cache milik user sekarang.
+                        peringatanDiniRepository.save(ownerKey, warnings, System.currentTimeMillis())
+
+                        val (state, shownId) = PeringatanDiniReducer.onNewWarnings(
+                            current = _uiState.value,
+                            warnings = warnings,
+                            lastAutoShownId = lastAutoShownWarningId
+                        )
+                        lastAutoShownWarningId = shownId
+                        _uiState.value = state.copy(
+                            popupVisible = state.popupVisible || openWhenLoaded,
+                            lastUpdatedAt = DateTimeFormat.nowWibHm(),
+                            isStale = false,
+                            hasLoadedWarnings = true
+                        )
                         openWhenLoaded = false
+
+                        if (state.activeWarning != null) {
+                            fetchLastPosition(token)
+                        }
                     }
-                }
+                    .onFailure { e ->
+                        if (e is kotlinx.coroutines.CancellationException) throw e
+                        // 401/403 = gagal permanen, peringatan lama dihapus.
+                        // Gagal lain (jaringan/5xx) cuma sementara, tetap tampil.
+                        val terminal = (e as? PeringatanDiniApiException)?.code in listOf(401, 403)
+                        val errorState = PeringatanDiniReducer.fromError(_uiState.value, e.message, terminal)
+                        _uiState.value = errorState.copy(
+                            // Data cache yang gagal disegarkan ditandai usang.
+                            isStale = !terminal && errorState.activeWarning != null
+                        )
+                    }
+
+            } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                _uiState.update { it.copy(errorMessage = error.message ?: "Proses gagal. Coba lagi.") }
+            } finally {
+                _uiState.update { it.copy(isLoadingWarnings = false) }
             }
-
-            peringatanDiniRepository.getActiveWarnings(token)
-                .onSuccess { warnings ->
-                    // Simpan hasil terbaru ke cache milik user sekarang.
-                    peringatanDiniRepository.save(ownerKey, warnings, System.currentTimeMillis())
-
-                    val (state, shownId) = PeringatanDiniReducer.onNewWarnings(
-                        current = _uiState.value,
-                        warnings = warnings,
-                        lastAutoShownId = lastAutoShownWarningId
-                    )
-                    lastAutoShownWarningId = shownId
-                    _uiState.value = state.copy(
-                        popupVisible = state.popupVisible || (openWhenLoaded && state.activeWarning != null),
-                        lastUpdatedAt = DateTimeFormat.nowWibHm(),
-                        isStale = false
-                    )
-                    if (state.activeWarning != null) openWhenLoaded = false
-
-                    if (state.activeWarning != null) {
-                        fetchLastPosition(token)
-                    }
-                }
-                .onFailure { e ->
-                    // 401/403 = gagal permanen, peringatan lama dihapus.
-                    // Gagal lain (jaringan/5xx) cuma sementara, tetap tampil.
-                    val terminal = (e as? PeringatanDiniApiException)?.code in listOf(401, 403)
-                    val errorState = PeringatanDiniReducer.fromError(_uiState.value, e.message, terminal)
-                    _uiState.value = errorState.copy(
-                        // Data cache yang gagal disegarkan ditandai usang.
-                        isStale = !terminal && errorState.activeWarning != null
-                    )
-                }
         }
     }
 
@@ -86,22 +99,33 @@ internal class PeringatanDiniViewModel(
         accuracy: Double? = null
     ) {
         val repo = trackingGpsRepository ?: run {
-            _uiState.update { it.copy(locationUpdateMessage = "Layanan lokasi tidak tersedia") }
+            _uiState.update { it.copy(isUpdatingLocation = false, isSendingLocation = false, locationUpdateMessage = "Layanan lokasi tidak tersedia") }
             return
         }
+        if (_uiState.value.isSendingLocation) return
+        _uiState.update { it.copy(isUpdatingLocation = true, isSendingLocation = true, locationUpdateMessage = null) }
         viewModelScope.launch {
-            _uiState.update { it.copy(isUpdatingLocation = true, locationUpdateMessage = null) }
-            repo.kirimTitik(token, latitude, longitude, altitude, accuracy, null)
-                .onSuccess {
-                    _uiState.update {
-                        it.copy(isUpdatingLocation = false, lastLocationUpdate = DateTimeFormat.nowWibHm())
+            try {
+                repo.kirimTitik(token, latitude, longitude, altitude, accuracy, null)
+                    .onSuccess {
+                        _uiState.update {
+                            it.copy(isUpdatingLocation = false, lastLocationUpdate = DateTimeFormat.nowWibHm())
+                        }
                     }
-                }
-                .onFailure { error ->
-                    _uiState.update {
-                        it.copy(isUpdatingLocation = false, locationUpdateMessage = error.message ?: "Gagal memperbarui lokasi")
+                    .onFailure { error ->
+                        if (error is kotlinx.coroutines.CancellationException) throw error
+                        _uiState.update {
+                            it.copy(isUpdatingLocation = false, locationUpdateMessage = error.message ?: "Gagal memperbarui lokasi")
+                        }
                     }
-                }
+
+            } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                _uiState.update { it.copy(locationUpdateMessage = error.message ?: "Proses gagal. Coba lagi.") }
+            } finally {
+                _uiState.update { it.copy(isUpdatingLocation = false, isSendingLocation = false) }
+            }
         }
     }
 
@@ -111,7 +135,7 @@ internal class PeringatanDiniViewModel(
         viewModelScope.launch {
             repo.getMyPosition(token)
                 .onSuccess { iso ->
-                    DateTimeFormat.isoToWibHm(iso)?.let { label ->
+                    DateTimeFormat.apiWibHm(iso)?.let { label ->
                         _uiState.update { it.copy(lastLocationUpdate = label) }
                     }
                 }
@@ -120,17 +144,20 @@ internal class PeringatanDiniViewModel(
     }
 
     // Tombol "Update Lokasi": tandai sedang mencari sinyal GPS.
-    fun mulaiCariLokasi() {
-        _uiState.update { it.copy(isUpdatingLocation = true, locationUpdateMessage = null) }
+    fun mulaiCariLokasi(): Boolean {
+        if (_uiState.value.isUpdatingLocation) return false
+        _uiState.update { it.copy(isUpdatingLocation = true, isSendingLocation = false, locationUpdateMessage = null) }
+        return true
     }
 
     // Pencarian lokasi gagal, tampilkan alasannya di popup
     fun gagalCariLokasi(pesan: String) {
-        _uiState.update { it.copy(isUpdatingLocation = false, locationUpdateMessage = pesan) }
+        _uiState.update { it.copy(isUpdatingLocation = false, isSendingLocation = false, locationUpdateMessage = pesan) }
     }
 
     // Tutup popup peringatan dini
     fun dismissPopup() {
+        openWhenLoaded = false
         _uiState.update { PeringatanDiniReducer.dismissPopup(it) }
     }
 
@@ -144,7 +171,7 @@ internal class PeringatanDiniViewModel(
 
     fun openPopup() {
         openWhenLoaded = _uiState.value.activeWarning == null
-        _uiState.update { PeringatanDiniReducer.showPopup(it) } 
+        _uiState.update { it.copy(popupVisible = true) }
     }
 }
 

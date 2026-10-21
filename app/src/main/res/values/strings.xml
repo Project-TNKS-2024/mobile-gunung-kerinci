@@ -279,4 +279,13 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="defaul_web_client_id">519630177463-aqpttusb47s3f8e2schim200eb9u27on.apps.googleusercontent.com</string>
+    <string name="warning_monitor_title">Pemantauan Bahaya</string>
+    <string name="warning_monitor_description">Terima alarm dan getaran saat ada peringatan bahaya baru.</string>
+    <string name="warning_monitor_active">Aktif</string>
+    <string name="warning_monitor_inactive">Nonaktif</string>
+    <string name="warning_monitor_permission_needed">Nonaktif · Izin notifikasi diperlukan</string>
+    <string name="warning_monitor_stop_title">Matikan pemantauan bahaya?</string>
+    <string name="warning_monitor_stop_message">Kamu tidak akan menerima alarm PDB selama pemantauan nonaktif.</string>
+    <string name="warning_monitor_stop_confirm">Matikan</string>
+    <string name="warning_monitor_cancel">Batal</string>
 </resources>

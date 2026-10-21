@@ -12,6 +12,9 @@ internal data class PeringatanDini(
 )
 
 internal data class PeringatanDiniUiState(
+    val isLoadingWarnings: Boolean = false,
+    val hasLoadedWarnings: Boolean = false,
+    val isSendingLocation: Boolean = false,
     val activeWarning: PeringatanDini? = null,
     val popupVisible: Boolean = false,
     val errorMessage: String? = null,

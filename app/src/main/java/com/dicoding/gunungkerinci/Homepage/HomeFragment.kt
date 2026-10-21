@@ -24,14 +24,26 @@ import com.dicoding.gunungkerinci.databinding.FragmentHomeBinding
 import android.util.Log
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.CancellationException
 import com.dicoding.gunungkerinci.network.ApiConfig
 import com.dicoding.gunungkerinci.pref.UserPreference
 import android.os.Build
 import android.text.Html
-import com.dicoding.gunungkerinci.Homepage.Cuaca.CuacaActivity
 import com.dicoding.gunungkerinci.ui.pelacakan_jejak.ActiveTicketCard
 import com.dicoding.gunungkerinci.ui.pelacakan_jejak.TicketUiMapper
-import com.bumptech.glide.Glide
+import androidx.appcompat.app.AlertDialog
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.RelativeSizeSpan
+import android.text.style.TypefaceSpan
+import android.text.style.StyleSpan
+import android.graphics.Typeface
+import com.dicoding.gunungkerinci.model.BerandaData
+import kotlinx.coroutines.Job
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 import androidx.navigation.fragment.findNavController
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -56,6 +68,9 @@ class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
+    private var berandaJob: Job? = null
+    private var greetingJob: Job? = null
+    private var cardData: BerandaData? = null
 
     private val peringatanDiniViewModel: PeringatanDiniViewModel by viewModels {
         PeringatanDiniViewModelFactory(
@@ -143,10 +158,11 @@ class HomeFragment : Fragment() {
             return
         }
 
-        peringatanDiniViewModel.mulaiCariLokasi()
+        val requestBinding = _binding ?: return
+        if (!peringatanDiniViewModel.mulaiCariLokasi()) return
         LokasiProvider.cariSekarang(ctx) { lokasi ->
             // View bisa sudah hancur saat GPS menjawab.
-            if (!isAdded) return@cariSekarang
+            if (!isAdded || _binding !== requestBinding) return@cariSekarang
             if (lokasi == null) {
                 peringatanDiniViewModel.gagalCariLokasi("Sinyal lokasi belum dapat. Coba lagi sebentar.")
                 return@cariSekarang
@@ -185,7 +201,45 @@ class HomeFragment : Fragment() {
         startWarningPolling()
     }
 
+    override fun onResume() {
+        super.onResume()
+        loadGreeting()
+    }
+
+    private fun loadGreeting() {
+        val requestBinding = _binding ?: return
+        val token = UserPreference(requireContext()).getToken().orEmpty()
+        if (token.isBlank() || greetingJob?.isActive == true) return
+        greetingJob = viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val response = ApiConfig.getApiService(requireContext()).getProfile("Bearer $token")
+                if (_binding !== requestBinding || !response.isSuccessful) return@launch
+                val profile = response.body()?.data ?: return@launch
+                val name = listOfNotNull(profile.first_name, profile.last_name)
+                    .map { it.trim() }.filter { it.isNotEmpty() }.joinToString(" ")
+                if (name.isNotEmpty()) {
+                    requestBinding.halo.text = "Halo,"
+                    requestBinding.User.text = name
+                } else {
+                    requestBinding.halo.text = "Halo!"
+                    requestBinding.User.text = ""
+                }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                // Pertahankan sapaan terakhir saat profil belum dapat dimuat.
+            }
+        }
+    }
+
     override fun onDestroyView() {
+        if (peringatanDiniViewModel.uiState.value.isUpdatingLocation && !peringatanDiniViewModel.uiState.value.isSendingLocation) {
+            peringatanDiniViewModel.gagalCariLokasi("Pencarian lokasi dibatalkan. Coba lagi.")
+        }
+        berandaJob?.cancel()
+        berandaJob = null
+        greetingJob?.cancel()
+        greetingJob = null
         super.onDestroyView()
         _binding = null
     }
@@ -199,6 +253,7 @@ class HomeFragment : Fragment() {
             try {
                 val response = ApiConfig.getApiService(requireContext())
                     .getDestinasi()
+                val binding = _binding ?: return@launch
                 if (response.isSuccessful) {
 
                     val result = response.body()
@@ -245,11 +300,10 @@ class HomeFragment : Fragment() {
 
                     binding.recyclerViewWisata.adapter = adapter
 
-                    // Label status gunung (Gunung Kerinci) dari backend.
-                    result?.data?.firstOrNull { it.id == 1 }?.let { kerinci ->
-                        binding.statusGunung.text = kerinci.status_gunung_label
-                    }
+
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 Log.d("DESTINASI_API", e.message.toString())
             }
@@ -311,7 +365,7 @@ class HomeFragment : Fragment() {
         }
 
         binding.cardCuaca.setOnClickListener {
-            startActivity(Intent(requireContext(), CuacaActivity::class.java))
+            showHomeCardDetails()
         }
 
     }
@@ -321,45 +375,92 @@ class HomeFragment : Fragment() {
      * `cuaca` bisa null (WeatherAPI di backend gagal) -> kolom diisi "-".
      */
     private fun setupBeranda() {
-        val token = UserPreference(requireContext()).getToken().orEmpty()
-
-        binding.loadingCuaca.isVisible = true
-        binding.grupKontenCuaca.isVisible = false
-
-        viewLifecycleOwner.lifecycleScope.launch {
+        val requestBinding = _binding ?: return
+        if (berandaJob?.isActive == true) return
+        cardData?.let { renderHomeCard(it) }
+        requestBinding.loadingCuaca.isVisible = true
+        requestBinding.weatherNoticeRow.isVisible = true
+        requestBinding.weatherNotice.text = if (cardData == null) "Memuat informasi..." else "Memperbarui..."
+        requestBinding.cardCuaca.isClickable = true
+        requestBinding.cardCuaca.isFocusable = true
+        berandaJob = viewLifecycleOwner.lifecycleScope.launch {
             try {
-                val response = ApiConfig.getApiService(requireContext())
-                    .getBeranda("Bearer $token")
-
-                val data = response.body()?.data
-
-                val cuaca = data?.cuaca
-                val current = cuaca?.current
-                val condition = current?.condition
-
-                binding.suhu.text = current?.tempC?.let { "${it.toInt()}°c" } ?: "-"
-                binding.ketSuhu.text = condition?.text ?: "-"
-                binding.ketKota.text = cuaca?.location?.name ?: "-"
-
-                condition?.icon?.let { icon ->
-                    Glide.with(this@HomeFragment)
-                        .load("https:$icon")
-                        .placeholder(R.drawable.ket_status)
-                        .into(binding.iconStatus)
+                val token = UserPreference(requireContext()).getToken().orEmpty()
+                val response = ApiConfig.getApiService(requireContext()).getBeranda("Bearer $token")
+                val body = response.body()
+                if (!response.isSuccessful || body?.success != true || body.data == null) {
+                    throw IllegalStateException("Data beranda belum tersedia")
                 }
-
-                binding.pendakiNow.text = (data?.totalMendaki ?: 0).toString()
-                binding.JmlpendakiNow.text = (data?.totalPendaki ?: 0).toString()
+                if (_binding !== requestBinding) return@launch
+                cardData = body.data
+                renderHomeCard(body.data)
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
-                binding.suhu.text = "-"
-                binding.ketSuhu.text = "-"
-                binding.ketKota.text = "-"
-                Log.d("BERANDA_API", e.message.toString())
+                if (_binding !== requestBinding) return@launch
+                renderHomeCard(cardData)
             } finally {
-                binding.loadingCuaca.isVisible = false
-                binding.grupKontenCuaca.isVisible = true
+                if (_binding === requestBinding) requestBinding.loadingCuaca.isVisible = false
             }
         }
+    }
+
+    private fun renderHomeCard(data: BerandaData?) {
+        val binding = _binding ?: return
+        val weather = data?.cuaca
+        val current = weather?.current
+        val active = data?.ringkasanPendaki?.sedangMendaki ?: data?.totalMendaki
+        val total = data?.ringkasanPendaki?.totalTercatat ?: data?.totalPendaki
+        binding.grupKontenCuaca.isVisible = true
+        binding.suhu.text = current?.tempC?.let { "${it.toInt()}°C" } ?: "—"
+        binding.ketSuhu.text = current?.condition?.text?.takeIf { it.isNotBlank() } ?: "Belum tersedia"
+        binding.ketKota.text = weather?.location?.name?.takeIf { it.isNotBlank() } ?: "Gunung Kerinci"
+        val status = data?.statusGunung?.takeIf { it.kode in 0..4 }
+        binding.statusGunung.text = status?.label?.takeIf { it.isNotBlank() } ?: "Belum tersedia"
+        binding.statusGunung.setTextColor(android.graphics.Color.parseColor(when (status?.kode) {
+            0, 1 -> "#166534"
+            2 -> "#92400E"
+            3, 4 -> "#B42318"
+            else -> "#475467"
+        }))
+        binding.iconStatus.isVisible = status?.kode in 2..4
+        val first = active?.toString() ?: "—"
+        val counts = "$first/${total ?: "—"} Total Pendaki"
+        binding.pendakiNow.text = SpannableString(counts).apply {
+            setSpan(RelativeSizeSpan(12f / 18f), first.length, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            setSpan(StyleSpan(Typeface.NORMAL), first.length, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            setSpan(TypefaceSpan("sans-serif"), first.length, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+        binding.pendakiNow.contentDescription = "${active ?: "Belum diketahui"} sedang mendaki; ${total ?: "belum diketahui"} total kunjungan tercatat. Bukan kuota."
+        binding.weatherNoticeRow.isVisible = false
+    }
+
+    private fun showHomeCardDetails() {
+        val data = cardData
+        val active = data?.ringkasanPendaki?.sedangMendaki ?: data?.totalMendaki
+        val total = data?.ringkasanPendaki?.totalTercatat ?: data?.totalPendaki
+        val observed = data?.cuacaDiamatiPada?.let {
+            SimpleDateFormat("dd MMM yyyy HH.mm 'WIB'", Locale.forLanguageTag("id-ID")).apply {
+                timeZone = TimeZone.getTimeZone("Asia/Jakarta")
+            }.format(Date(it * 1000))
+        } ?: "Belum tersedia"
+        val summaryTime = com.dicoding.gunungkerinci.util.DateTimeFormat
+            .apiWibLongDateTime(data?.diperbaruiPada) ?: "Belum tersedia"
+        AlertDialog.Builder(requireContext())
+            .setTitle("Cuaca dan pendaki")
+            .setMessage(buildString {
+                append("Cuaca: ${data?.cuaca?.current?.tempC?.let { "$it°C" } ?: "Belum tersedia"}")
+                append("\n${data?.cuaca?.current?.condition?.text ?: "Kondisi belum tersedia"}")
+                append("\nPengamatan cuaca: $observed")
+                append("\n\nStatus gunung: ${data?.statusGunung?.label ?: "Belum tersedia"}")
+                append("\nTingkat aktivitas gunung dikelola petugas; berbeda dari kondisi cuaca.")
+                append("\n\n${active ?: "—"} sedang mendaki dari ${total ?: "—"} total kunjungan tercatat.")
+                append("\nTotal mencakup seluruh riwayat kunjungan yang sudah check-in, termasuk yang sudah turun. Bukan kuota atau total hari ini.")
+                append("\nRingkasan diperbarui: $summaryTime")
+            })
+            .setNeutralButton("Perbarui") { _, _ -> setupBeranda() }
+            .setPositiveButton("Tutup", null)
+            .show()
     }
 
     /**
@@ -373,6 +474,7 @@ class HomeFragment : Fragment() {
             try {
                 val response = ApiConfig.getApiService(requireContext())
                     .getMyTiket("Bearer $token")
+                val binding = _binding ?: return@launch
 
                 val bookings = response.body()?.data.orEmpty()
                 val activeTicket = TicketUiMapper.toActiveTicket(bookings) ?: return@launch
@@ -396,6 +498,8 @@ class HomeFragment : Fragment() {
                         }
                     )
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 Log.d("MYTIKET_API", e.message.toString())
             }

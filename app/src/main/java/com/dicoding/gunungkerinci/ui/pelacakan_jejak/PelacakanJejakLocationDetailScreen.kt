@@ -1,5 +1,13 @@
 package com.dicoding.gunungkerinci.ui.pelacakan_jejak
 
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -28,11 +36,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import com.dicoding.gunungkerinci.ui.components.ProcessIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -57,6 +65,11 @@ internal fun PelacakanJejakLocationDetailScreen(
     catatanKehadiran: String? = null,
     /** true selagi permintaan kehadiran anggota diproses — toggle dinonaktifkan. */
     isMarkingMember: Boolean = false,
+    processingMemberId: String? = null,
+    noteScopeKey: String = "",
+    savingNoteKey: String? = null,
+    noteErrorKey: String? = null,
+    noteError: String? = null,
     /** Pesan berhasil penandaan kehadiran anggota. */
     memberMarkMessage: String? = null,
     /** Pesan galat penandaan kehadiran anggota (mis. ditolak server karena bukan ketua). */
@@ -68,7 +81,8 @@ internal fun PelacakanJejakLocationDetailScreen(
      * Dipanggil dengan (pendakiId, checked). Server memverifikasi hak akses,
      * jadi UI tidak perlu tahu siapa ketua.
      */
-    onMemberToggle: (pendakiId: String, checked: Boolean) -> Unit = { _, _ -> }
+    onMemberToggle: (pendakiId: String, checked: Boolean) -> Unit = { _, _ -> },
+    onMemberNoteSave: (pendakiId: String, note: String) -> Unit = { _, _ -> }
 ) {
     Column(
         modifier = Modifier
@@ -95,7 +109,7 @@ internal fun PelacakanJejakLocationDetailScreen(
             CompactInfoCard(R.drawable.jejak_icon_avg_time, "Estimasi rata-rata", detail.averageEstimateValue, Modifier.weight(1f))
         }
         Spacer(Modifier.height(14.dp))
-        MountainRouteIllustration()
+        TrailMapImage(detail.mapImageUrl, detail.positionLabel)
         Spacer(Modifier.height(14.dp))
         LocationInfoGrid(
             altitudeText = detail.altitudeText,
@@ -134,14 +148,25 @@ internal fun PelacakanJejakLocationDetailScreen(
         } else {
             members.forEachIndexed { index, member ->
                 MemberCheckCard(
-                    name = member.name,
+                    name = member.name + when (member.trackingPhase) {
+                        "naik" -> " · Naik"
+                        "turun" -> " · Turun"
+                        else -> ""
+                    },
                     isLeader = member.isLeader,
                     avatarColor = avatarColorFor(member.name),
                     checked = member.checked,
                     pending = member.pending,
+                    processing = isMarkingMember && processingMemberId == member.pendakiId,
                     enabled = !isMarkingMember && member.pendakiId != myPendakiId &&
                         (bisaUbahKehadiran || member.pending),
                     onToggle = { checked -> onMemberToggle(member.pendakiId, checked) },
+                    noteKey = "$noteScopeKey:${member.pendakiId}",
+                    note = member.note,
+                    noteSaving = savingNoteKey == "$noteScopeKey:${member.pendakiId}",
+                    noteEditable = !isMarkingMember && (bisaUbahKehadiran || member.pendakiId == myPendakiId),
+                    noteError = noteError.takeIf { noteErrorKey == "$noteScopeKey:${member.pendakiId}" },
+                    onNoteSave = { onMemberNoteSave(member.pendakiId, it) },
                 )
                 if (index != members.lastIndex) {
                     Spacer(Modifier.height(10.dp))
@@ -272,19 +297,6 @@ private fun CompactInfoCard(iconRes: Int, label: String, value: String, modifier
 }
 
 @Composable
-private fun MountainRouteIllustration() {
-    // Asset langsung dari Figma node 1521:9127 supaya gunung dan rute identik dengan desain.
-    Image(
-        painter = painterResource(R.drawable.jejak_mountain_route),
-        contentDescription = null,
-        contentScale = ContentScale.Fit,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(220.dp)
-    )
-}
-
-@Composable
 private fun LocationInfoGrid(
     altitudeText: String,
     waterSourceStatus: String,
@@ -356,17 +368,25 @@ private fun MemberCheckCard(
     avatarColor: Color,
     checked: Boolean,
     pending: Boolean,
+    processing: Boolean,
     enabled: Boolean,
-    onToggle: (Boolean) -> Unit
+    onToggle: (Boolean) -> Unit,
+    noteKey: String,
+    note: String,
+    noteSaving: Boolean,
+    noteEditable: Boolean,
+    noteError: String?,
+    onNoteSave: (String) -> Unit
 ) {
+    var noteDraft by rememberSaveable(noteKey, note) { mutableStateOf(note) }
     // `checked` tetap dibaca dari parameter (sumber = server), bukan disalin ke state lokal.
     // Sebelumnya nilai disalin sekali lewat remember → perubahan dari server tidak pernah
     // terlihat. Sekarang switch selalu mencerminkan data server; kalau backend menolak,
     // nilai akan kembali sendiri setelah progress dimuat ulang.
-    Surface(shape = RoundedCornerShape(18.dp), color = JejakWhite, border = BorderStroke(1.dp, JejakBorder), modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(12.dp)) {
+    Surface(shape = RoundedCornerShape(8.dp), color = JejakWhite, border = BorderStroke(1.dp, JejakBorder), modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.size(48.dp).clip(CircleShape).background(avatarColor), contentAlignment = Alignment.Center) {
+                Box(Modifier.size(52.dp).clip(CircleShape).background(avatarColor), contentAlignment = Alignment.Center) {
                     Text(name.firstOrNull()?.toString() ?: "?", color = JejakWhite, fontWeight = FontWeight.Bold, fontSize = 20.sp)
                 }
                 Spacer(Modifier.width(12.dp))
@@ -379,10 +399,42 @@ private fun MemberCheckCard(
                 }
                 MemberToggle(checked = checked, enabled = enabled, onCheckedChange = onToggle)
             }
+            if (!checked) {
+                Spacer(Modifier.height(12.dp))
+                BasicTextField(
+                    value = noteDraft,
+                    onValueChange = { noteDraft = it.take(500) },
+                    enabled = noteEditable && !noteSaving,
+                    textStyle = TextStyle(color = JejakTextPrimary, fontSize = 14.sp, lineHeight = 20.sp),
+                    maxLines = 4,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp)
+                        .border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(8.dp))
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    decorationBox = { field ->
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            Image(painter = painterResource(R.drawable.checkpoint_note_plus_figma), contentDescription = null, modifier = Modifier.size(24.dp))
+                            Box(Modifier.weight(1f)) {
+                                if (noteDraft.isEmpty()) Text("Tambahkan Catatan", fontSize = 14.sp, color = Color(0xFFB3B3B3))
+                                field()
+                            }
+                        }
+                    }
+                )
+                if (noteDraft.trim() != note || noteSaving) {
+                    TextButton(onClick = { onNoteSave(noteDraft) }, enabled = noteEditable && !noteSaving,
+                        modifier = Modifier.align(Alignment.End)) {
+                        if (noteSaving) ProcessIndicator("Menyimpan...") else Text("Simpan")
+                    }
+                }
+                noteError?.let { Text(it, color = Color(0xFFCF372B), fontSize = 12.sp) }
+            }
+            if (processing) {
+                ProcessIndicator(if (checked) "Membatalkan…" else "Mencatat…")
+            }
             if (pending) {
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    text = "Menunggu kirim (perangkat offline)",
+                    text = "◷ Menunggu sinkronisasi",
                     color = Color(0xFFB26A00),
                     fontSize = 12.sp
                 )

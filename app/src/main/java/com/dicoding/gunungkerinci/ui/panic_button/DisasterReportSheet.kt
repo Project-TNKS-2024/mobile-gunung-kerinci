@@ -25,6 +25,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
+import com.dicoding.gunungkerinci.ui.components.ProcessIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,7 +50,7 @@ private val ErrorRed = Color(0xFFF84233)
 internal fun DisasterReportSheet(
     uiState: DisasterReportUiState,
     onDismiss: () -> Unit,
-    onSubmit: (potensi: String, deskripsi: String, lokasi: String, lampiran: MultipartBody.Part?) -> Unit
+    onSubmit: (potensi: String, deskripsi: String, lokasi: String, lampiran: suspend () -> MultipartBody.Part?) -> Unit
 ) {
     val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -73,7 +74,7 @@ internal fun DisasterReportSheet(
     }
 
     ModalBottomSheet(
-        onDismissRequest = onDismiss,
+        onDismissRequest = { if (!uiState.isSending) onDismiss() },
         sheetState = sheetState,
         containerColor = Color.White
     ) {
@@ -93,7 +94,7 @@ internal fun DisasterReportSheet(
             FormField("Lokasi", "Deskripsikan lokasi dengan rinci", lokasi, minLines = 3) { lokasi = it }
             Spacer(Modifier.height(8.dp))
 
-            LampiranField(name = lampiranName, onPick = { picker.launch("image/*") })
+            LampiranField(name = lampiranName, onPick = { if (!uiState.isSending) picker.launch("image/*") })
 
             val tampilError = error ?: uiState.errorMessage
             val tampilSukses = uiState.successMessage
@@ -116,7 +117,10 @@ internal fun DisasterReportSheet(
                         return@Button
                     }
                     error = null
-                    onSubmit(potensi, deskripsi, lokasi, lampiranUri?.toPart(context, lampiranName, lampiranMime))
+                    val uri = lampiranUri
+                    val name = lampiranName
+                    val mime = lampiranMime
+                    onSubmit(potensi, deskripsi, lokasi) { uri?.toPart(context, name, mime) }
                 },
                 enabled = !uiState.isSending,
                 modifier = Modifier
@@ -125,7 +129,7 @@ internal fun DisasterReportSheet(
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue)
             ) {
-                Text(if (uiState.isSending) "Mengirim..." else "Kirim", fontSize = 16.sp, color = Color.White)
+                if (uiState.isSending) ProcessIndicator(if (uiState.isPreparingAttachment) "Menyiapkan lampiran…" else "Mengirim laporan…") else Text("Kirim", fontSize = 16.sp, color = Color.White)
             }
         }
     }
@@ -213,8 +217,8 @@ private fun android.content.Context.getFileSize(uri: Uri): Long {
 }
 
 private fun Uri.toPart(context: android.content.Context, name: String, mime: String?): MultipartBody.Part? {
-    val bytes = runCatching { context.contentResolver.openInputStream(this)?.use { it.readBytes() } }.getOrNull()
-        ?: return null
+    val bytes = context.contentResolver.openInputStream(this)?.use { it.readBytes() }
+        ?: throw java.io.IOException("Lampiran gagal dibaca. Pilih foto dan coba lagi.")
     val fileName = name.ifBlank { "lampiran_bencana.jpg" }
     val body = bytes.toRequestBody((mime ?: "image/jpeg").toMediaTypeOrNull())
     return MultipartBody.Part.createFormData("lampiran", fileName, body)

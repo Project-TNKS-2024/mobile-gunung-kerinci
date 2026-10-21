@@ -81,13 +81,13 @@ internal class TrackingGpsRepository(private val api: ApiService) {
 }
 
 /**
- * millis → ISO-8601 UTC, contoh "2026-09-08T03:00:00.000Z".
+ * Epoch waktu kejadian lokal → ISO-8601 WIB; nilai epoch tidak digeser.
  * Dipakai sebagai `recorded_at` di jalur offline (wajib diisi di endpoint batch).
  *
  * CATATAN: minSdk 24 — JANGAN pakai java.time (butuh API 26 tanpa desugaring).
  */
-internal fun isoUtc(millis: Long): String {
-    val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US)
-    format.timeZone = TimeZone.getTimeZone("UTC")
+internal fun isoWib(millis: Long): String {
+    val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.US)
+    format.timeZone = TimeZone.getTimeZone("Asia/Jakarta")
     return format.format(Date(millis))
 }

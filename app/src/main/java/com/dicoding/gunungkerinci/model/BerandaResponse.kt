@@ -19,7 +19,11 @@ data class BerandaData(
     @SerializedName("total_mendaki") val totalMendaki: Int? = null,
     @SerializedName("total_pendaki") val totalPendaki: Int? = null,
     @SerializedName("total_pendaki_wni") val totalPendakiWni: Int? = null,
-    @SerializedName("total_pendaki_wna") val totalPendakiWna: Int? = null
+    @SerializedName("total_pendaki_wna") val totalPendakiWna: Int? = null,
+    @SerializedName("ringkasan_pendaki") val ringkasanPendaki: RingkasanPendaki? = null,
+    @SerializedName("status_gunung") val statusGunung: StatusGunungBeranda? = null,
+    @SerializedName("ringkasan_diperbarui_pada") val diperbaruiPada: String? = null,
+    @SerializedName("cuaca_diamati_pada") val cuacaDiamatiPada: Long? = null
 )
 
 data class Cuaca(
@@ -40,4 +44,16 @@ data class CuacaCurrent(
 data class CuacaCondition(
     @SerializedName("text") val text: String? = null,
     @SerializedName("icon") val icon: String? = null
+)
+
+
+data class RingkasanPendaki(
+    @SerializedName("sedang_mendaki") val sedangMendaki: Int? = null,
+    @SerializedName("total_tercatat") val totalTercatat: Int? = null,
+    @SerializedName("cakupan") val cakupan: String? = null
+)
+
+data class StatusGunungBeranda(
+    @SerializedName("kode") val kode: Int? = null,
+    @SerializedName("label") val label: String? = null
 )

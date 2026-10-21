@@ -19,5 +19,9 @@ data class TrackingPostEntity(
     val estimatedTimeMinutes: Int? = null,
     @ColumnInfo(defaultValue = "0") val infoIsDummy: Boolean = false,
     val temperatureC: Double? = null,
-    val distanceToSummitM: Int? = null
+    val distanceToSummitM: Int? = null,
+    val distanceToNextM: Int? = null,
+    @ColumnInfo(defaultValue = "0") val isSummit: Boolean = false,
+    val estimatedDescentTimeMinutes: Int? = null,
+    val mapImageUrl: String? = null
 )

@@ -1,30 +1,17 @@
 package com.dicoding.gunungkerinci.ui.pelacakan_jejak
 
-import java.text.ParsePosition
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import com.dicoding.gunungkerinci.util.DateTimeFormat
 
 internal object JejakTimelineMapper {
     private val jakarta = TimeZone.getTimeZone("Asia/Jakarta")
 
-    private fun parse(iso: String?): Date? {
-        if (iso.isNullOrBlank()) return null
-        val normalized = iso.trim().replace(Regex("\\.\\d+(?=Z|[+-]\\d{2}:?\\d{2}$)"), "")
-        val position = ParsePosition(0)
-        val parsed = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.US).apply {
-            isLenient = false
-        }.parse(normalized, position)
-        return parsed?.takeIf { position.index == normalized.length }
-    }
-
-    private fun format(iso: String?, pattern: String): String? = parse(iso)?.let {
-        SimpleDateFormat(pattern, Locale.US).apply { timeZone = jakarta }.format(it)
-    }
-
-    fun time(iso: String?): String? = format(iso, "HH.mm")
-    fun date(iso: String?): String? = format(iso, "yyyy-MM-dd")
+    fun time(iso: String?): String? = DateTimeFormat.apiWibHm(iso)
+    fun date(iso: String?): String? = DateTimeFormat.apiWibDate(iso)
+    fun millis(iso: String?): Long? = DateTimeFormat.isoToEpochMillis(iso)
     fun timeAt(millis: Long): String = SimpleDateFormat("HH.mm", Locale.US).apply {
         timeZone = jakarta
     }.format(Date(millis))

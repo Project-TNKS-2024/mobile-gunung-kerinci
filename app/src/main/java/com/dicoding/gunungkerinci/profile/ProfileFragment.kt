@@ -8,7 +8,10 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.dicoding.gunungkerinci.Login.LoginActivity
+import com.dicoding.gunungkerinci.MainActivity
 import com.dicoding.gunungkerinci.R
 import com.dicoding.gunungkerinci.databinding.FragmentProfileBinding
 import com.dicoding.gunungkerinci.network.ApiConfig
@@ -16,7 +19,10 @@ import com.dicoding.gunungkerinci.notif.TicketNotifDedup
 import com.dicoding.gunungkerinci.notif.TicketNotifications
 import com.dicoding.gunungkerinci.notif.TicketReminderScheduler
 import com.dicoding.gunungkerinci.pref.UserPreference
+import com.dicoding.gunungkerinci.ui.peringatan_dini.WarningMonitoring
+import com.dicoding.gunungkerinci.ui.peringatan_dini.WarningNotifications
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.CancellationException
 
 class ProfileFragment : Fragment() {
 
@@ -43,8 +49,33 @@ class ProfileFragment : Fragment() {
         // FOTO PROFIL DEFAULT
         binding.fotoProfile.setImageResource(R.drawable.akundefault)
 
-        getProfile()
-
+        binding.switchWarningMonitoring.setOnClickListener {
+            // Restore the actual state until confirmation or service startup completes.
+            val active = WarningMonitoring.running.value && WarningNotifications.allowed(requireContext())
+            renderWarningMonitoring()
+            if (active) {
+                AlertDialog.Builder(requireContext())
+                    .setTitle(R.string.warning_monitor_stop_title)
+                    .setMessage(R.string.warning_monitor_stop_message)
+                    .setPositiveButton(R.string.warning_monitor_stop_confirm) { _, _ ->
+                        WarningMonitoring.disable(requireContext())
+                        renderWarningMonitoring()
+                    }
+                    .setNegativeButton(R.string.warning_monitor_cancel, null)
+                    .show()
+            } else {
+                (requireActivity() as MainActivity).toggleWarningMonitoring()
+                renderWarningMonitoring()
+            }
+        }
+        binding.pemantauanBahaya.setOnClickListener {
+            binding.switchWarningMonitoring.performClick()
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                WarningMonitoring.running.collect { renderWarningMonitoring() }
+            }
+        }
 
         //KLIK ISI BIODATA -> PINDAH PAGE
         binding.btnIsiBiodata.setOnClickListener {
@@ -100,7 +131,21 @@ class ProfileFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
+        renderWarningMonitoring()
         getProfile()
+    }
+
+    private fun renderWarningMonitoring() {
+        val binding = _binding ?: return
+        val context = requireContext()
+        val allowed = WarningNotifications.allowed(context)
+        val active = WarningMonitoring.running.value && allowed
+        binding.switchWarningMonitoring.isChecked = active
+        binding.warningMonitoringStatus.setText(when {
+            active -> R.string.warning_monitor_active
+            WarningMonitoring.enabled(context) && !allowed -> R.string.warning_monitor_permission_needed
+            else -> R.string.warning_monitor_inactive
+        })
     }
 
     private fun getProfile() {
@@ -115,6 +160,7 @@ class ProfileFragment : Fragment() {
                 val response = ApiConfig
                     .getApiService(requireContext())
                     .getProfile("Bearer $token")
+                val binding = _binding ?: return@launch
 
                 if (response.isSuccessful &&
                     response.body()?.data != null) {
@@ -152,6 +198,8 @@ class ProfileFragment : Fragment() {
                     showDefaultProfile()
                 }
 
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 showDefaultProfile()
             }
@@ -165,6 +213,7 @@ class ProfileFragment : Fragment() {
                 val response = ApiConfig
                     .getApiService(requireContext())
                     .getPendakiIdentity("Bearer $token")
+                val binding = _binding ?: return@launch
 
                 if (response.isSuccessful &&
                     response.body()?.data != null) {
@@ -195,6 +244,8 @@ class ProfileFragment : Fragment() {
                         }
                     }
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -218,6 +269,8 @@ class ProfileFragment : Fragment() {
                 // Apapun respon server → logout lokal
                 clearSession()
                 goToLogin()
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 // Kalau API error → tetap logout lokal
                 clearSession()
@@ -249,6 +302,7 @@ class ProfileFragment : Fragment() {
 
     //DEFAULT UI BELUM DIISI
     private fun showDefaultProfile() {
+        val binding = _binding ?: return
         binding.tvUserName.text = "Pengguna Baru"
 
         binding.btnIsiBiodata.visibility = View.VISIBLE

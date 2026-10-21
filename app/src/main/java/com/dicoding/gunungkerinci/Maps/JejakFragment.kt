@@ -28,6 +28,7 @@ import com.dicoding.gunungkerinci.data.repository.ManualCheckInRepository
 import com.dicoding.gunungkerinci.data.repository.TrackingGpsRepository
 import com.dicoding.gunungkerinci.data.repository.TrackingProgressRepository
 import com.dicoding.gunungkerinci.data.repository.TrackingRepository
+import com.dicoding.gunungkerinci.data.repository.CheckpointSessionStore
 import com.dicoding.gunungkerinci.data.local.TnksDatabase
 import com.dicoding.gunungkerinci.data.sync.SyncScheduler
 import com.dicoding.gunungkerinci.network.ApiConfig
@@ -67,7 +68,7 @@ class JejakFragment : Fragment() {
         }
     }
 
-    // Permission launcher — dipakai saat user klik tombol GPS check-in
+    // Permission launcher â€” dipakai saat user klik tombol GPS check-in
     private var pendingGpsAction: (() -> Unit)? = null
     private val locationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -93,7 +94,8 @@ class JejakFragment : Fragment() {
     ): View {
         val api = ApiConfig.getApiService(requireContext())
         val database = TnksDatabase.getInstance(requireContext())
-        val activeHikeRepository = ActiveHikeRepository(api)
+        val sessionStore = CheckpointSessionStore(requireContext())
+        val activeHikeRepository = ActiveHikeRepository(api, sessionStore)
         viewModel = ViewModelProvider(
             this,
             PelacakanJejakViewModelFactory(
@@ -104,7 +106,7 @@ class JejakFragment : Fragment() {
                     checkpointLogDao = database.checkpointLogDao()
                 ),
                 checkpointQrRepository = CheckpointQrRepository(api),
-                trackingProgressRepository = TrackingProgressRepository(api),
+                trackingProgressRepository = TrackingProgressRepository(api, sessionStore),
                 gpsCheckInRepository = GpsCheckInRepository(api),
                 manualCheckInRepository = ManualCheckInRepository(api),
                 trackingGpsRepository = TrackingGpsRepository(api),
@@ -117,7 +119,7 @@ class JejakFragment : Fragment() {
             setContent {
                 val uiState by viewModel.uiState.collectAsState()
 
-                // LaunchedEffect — satu kali per perubahan key, bukan setiap recompose.
+                // LaunchedEffect â€” satu kali per perubahan key, bukan setiap recompose.
                 LaunchedEffect(uiState.qrScanMessage) {
                     val msg = uiState.qrScanMessage ?: return@LaunchedEffect
                     Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
@@ -145,6 +147,9 @@ class JejakFragment : Fragment() {
                 }
 
                 PelacakanJejakScreen(
+                    onOpenTicket = { bookingId ->
+                        startActivity(Intent(requireContext(), com.dicoding.gunungkerinci.Ticket.Barcode.BarcodeTiketActivity::class.java).putExtra("booking_id", bookingId))
+                    },
                     uiState = uiState,
                     onRetryLoadPosts = { loadActiveHike() },
                     onDaySelected = viewModel::selectDay,
@@ -169,9 +174,10 @@ class JejakFragment : Fragment() {
                     onDismissGpsDialog = { viewModel.clearGpsAndManualMessages() },
                     onPrepareCheckIn = viewModel::prepareCheckpointCheckIn,
                     onCheckInResultHandled = viewModel::clearCheckInNavigation,
-                    // Ketua tim menandai kehadiran anggota pada pos yang sedang dibuka (US-05).
-                    onMemberToggle = { pendakiId, checked, postId ->
-                        viewModel.tandaiKehadiranAnggota(pendakiId, checked, postId)
+                    // Ketua tim menandai kehadiran anggota pada pos + fase yang sedang dibuka (US-05).
+                    onMemberNoteSave = viewModel::saveMemberNote,
+                    onMemberToggle = { pendakiId, checked, postId, phase ->
+                        viewModel.tandaiKehadiranAnggota(pendakiId, checked, postId, phase)
                     }
                 )
             }
@@ -207,7 +213,7 @@ class JejakFragment : Fragment() {
     /**
      * Minta permission lokasi jika belum ada, lalu cek GPS radius pos terdekat.
      *
-     * @param silent true untuk auto-deteksi saat layar pos dibuka — status gate
+     * @param silent true untuk auto-deteksi saat layar pos dibuka â€” status gate
      *   tetap diperbarui, tapi alasan gagal tidak muncul sebagai toast berulang.
      */
     private fun launchGpsCheckIn(silent: Boolean = false) {
@@ -250,11 +256,11 @@ class JejakFragment : Fragment() {
     }
 
     /**
-     * Persen baterai saat ini (0..100) — dikirim bersama titik posisi ke gk_tracking
+     * Persen baterai saat ini (0..100) â€” dikirim bersama titik posisi ke gk_tracking
      * supaya dashboard petugas bisa menampilkan sisa daya pendaki.
      *
      * Membaca sticky broadcast ACTION_BATTERY_CHANGED: tanpa permission, tanpa polling,
-     * tidak menambah pemakaian baterai. Gagal baca → null; posisi & check-in tetap jalan.
+     * tidak menambah pemakaian baterai. Gagal baca â†’ null; posisi & check-in tetap jalan.
      */
     private fun bateraiPersen(): Int? {
         val intent = requireContext()

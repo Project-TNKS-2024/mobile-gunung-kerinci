@@ -9,10 +9,19 @@ import com.dicoding.gunungkerinci.model.OverstaySummary
  */
 object TiketStatus {
 
-    /** Status 0–3 adalah draft (belum jadi tiket), 4–8 adalah tiket tersedia. */
-    fun isDraft(status: Int?): Boolean = status != null && status in 0..3
+    /** Status 0–3 dan riwayat batal 9 di Draft; 4–8 di Tiket Saya. */
+    fun isDraft(status: Int?): Boolean = status != null && (status in 0..3 || status == 9)
 
     fun isTicket(status: Int?): Boolean = status != null && status in 4..8
+
+    fun cardLabel(item: MyTiketItem): String = when {
+        item.statusBooking == 9 || (item.statusBooking == 3 && item.canContinue == false) -> "Dibatalkan"
+        item.statusBooking in 0..2 -> "Selesaikan Pendaftaran"
+        item.statusBooking == 3 -> "Menunggu Pembayaran"
+        item.statusBooking in 4..6 -> "Aktif"
+        item.statusBooking in 7..8 -> "Selesai"
+        else -> "Status belum tersedia"
+    }
 
     /**
      * Label tambahan (overstay) untuk kartu tiket.

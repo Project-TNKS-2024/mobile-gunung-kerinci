@@ -7,6 +7,8 @@ import com.dicoding.gunungkerinci.model.CancelBookingResponse
 import com.dicoding.gunungkerinci.model.CancelCheckpointResponse
 import com.dicoding.gunungkerinci.model.CheckpointQrRequest
 import com.dicoding.gunungkerinci.model.CheckpointQrResponse
+import com.dicoding.gunungkerinci.model.CheckpointV2Response
+import com.dicoding.gunungkerinci.model.TrackingProgressV2Response
 import com.dicoding.gunungkerinci.model.CountryResponse
 import com.dicoding.gunungkerinci.model.CreateBookingRequest
 import com.dicoding.gunungkerinci.model.CreateBookingResponse
@@ -74,6 +76,13 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ApiService {
+    @POST("api/tracking/v2/member-note")
+    @Headers("Accept: application/json")
+    suspend fun saveCheckpointMemberNote(
+        @Header("Authorization") token: String,
+        @Body request: com.dicoding.gunungkerinci.model.SaveCheckpointMemberNoteRequest
+    ): Response<com.dicoding.gunungkerinci.model.BaseResponse<com.dicoding.gunungkerinci.model.CheckpointMemberNote>>
+
 
     @POST("api/register")
     @Headers(
@@ -322,6 +331,34 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Path("gate_id") gateId: Int
     ): Response<TrackingPostResponse>
+
+    @GET("api/tracking/v2/progress/{booking_id}")
+    @Headers("Accept: application/json")
+    suspend fun getTrackingProgressV2(
+        @Header("Authorization") token: String,
+        @Path("booking_id") bookingId: String
+    ): Response<TrackingProgressV2Response>
+
+    @POST("api/tracking/v2/checkpoint/qr")
+    @Headers("Accept: application/json", "Content-Type: application/json")
+    suspend fun checkInQrV2(
+        @Header("Authorization") token: String,
+        @Body request: CheckpointQrRequest
+    ): Response<CheckpointV2Response>
+
+    @POST("api/tracking/v2/checkpoint/manual")
+    @Headers("Accept: application/json", "Content-Type: application/json")
+    suspend fun checkInManualV2(
+        @Header("Authorization") token: String,
+        @Body request: ManualCheckInRequest
+    ): Response<CheckpointV2Response>
+
+    @DELETE("api/tracking/v2/checkpoint/{checkpointLogId}")
+    @Headers("Accept: application/json")
+    suspend fun cancelCheckpointV2(
+        @Header("Authorization") token: String,
+        @Path("checkpointLogId") checkpointLogId: Int
+    ): Response<CancelCheckpointResponse>
 
     @GET("api/emergency/active")
     @Headers("Accept: application/json")

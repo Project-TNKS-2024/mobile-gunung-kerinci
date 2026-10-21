@@ -8,6 +8,7 @@ import android.view.ViewTreeObserver
 import android.view.animation.TranslateAnimation
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dicoding.gunungkerinci.MainActivity
@@ -20,6 +21,9 @@ import com.dicoding.gunungkerinci.network.ApiConfig
 import com.google.zxing.BarcodeFormat
 import com.journeyapps.barcodescanner.BarcodeEncoder
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.CancellationException
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -33,6 +37,29 @@ class BarcodeTiketActivity : AppCompatActivity() {
 
     /** Respons detail tiket terakhir yang berhasil diambil (dipakai panel biaya). */
     internal var currentData: TiketData? = null
+    private var pendingExport: TiketData? = null
+    private var exportIndividual = false
+    private val saveTicket = registerForActivityResult(ActivityResultContracts.CreateDocument("application/pdf")) { uri ->
+        val data = pendingExport
+        pendingExport = null
+        if (uri != null && data != null) {
+            lifecycleScope.launch {
+                binding.btnUnduhTiket.isEnabled = false
+                try {
+                    withContext(Dispatchers.IO) {
+                        val stream = contentResolver.openOutputStream(uri, "w")
+                            ?: error("Lokasi penyimpanan tidak dapat dibuka")
+                        stream.use { TicketPdfExporter.write(data, exportIndividual, it) }
+                    }
+                    Toast.makeText(this@BarcodeTiketActivity, "Tiket PDF berhasil disimpan", Toast.LENGTH_LONG).show()
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Toast.makeText(this@BarcodeTiketActivity, "Tiket gagal disimpan. Coba pilih lokasi lain.", Toast.LENGTH_LONG).show()
+                } finally { binding.btnUnduhTiket.isEnabled = true }
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,6 +87,7 @@ class BarcodeTiketActivity : AppCompatActivity() {
     // LOAD TIKET ASLI
     // ---------------------------------------------
     private fun loadTiket() {
+        currentData = null
         binding.scrollContent.visibility = View.GONE
         binding.btnUnduhTiket.visibility = View.GONE
         binding.layoutBiayaRow.visibility = View.GONE
@@ -81,6 +109,8 @@ class BarcodeTiketActivity : AppCompatActivity() {
                     return@launch
                 }
                 render(data)
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 showError("Gagal memuat tiket. Coba lagi.")
             }
@@ -239,6 +269,7 @@ class BarcodeTiketActivity : AppCompatActivity() {
     }
 
     private fun showError(message: String) {
+        currentData = null
         Toast.makeText(this, message, Toast.LENGTH_LONG).show()
         binding.scrollContent.visibility = View.GONE
         binding.btnUnduhTiket.visibility = View.GONE
@@ -313,6 +344,18 @@ class BarcodeTiketActivity : AppCompatActivity() {
     // BACK & BERANDA BUTTON
     // ---------------------------------------------
     private fun setupNavigationButtons() {
+        binding.btnUnduhTiket.setOnClickListener {
+            val data = currentData
+            if (data?.uniqueCode.isNullOrBlank()) {
+                Toast.makeText(this, "Muat tiket terlebih dahulu sebelum mengunduh.", Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
+            pendingExport = data
+            exportIndividual = binding.rvIndividu.visibility == View.VISIBLE
+            val safeCode = data.uniqueCode.replace(Regex("[^A-Za-z0-9_-]"), "_")
+            val suffix = if (exportIndividual) "-Individu" else ""
+            saveTicket.launch("Tiket-$safeCode$suffix.pdf")
+        }
         binding.btnRetry.setOnClickListener { loadTiket() }
         binding.layoutBiayaRow.setOnClickListener { openBiayaSheet() }
         binding.buttonBack.setOnClickListener {

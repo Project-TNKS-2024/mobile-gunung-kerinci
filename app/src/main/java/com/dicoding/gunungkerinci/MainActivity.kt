@@ -180,6 +180,7 @@ class MainActivity : AppCompatActivity() {
 
                 LaunchedEffect(panicState.successMessage) {
                     panicState.successMessage?.let {
+                        showSosDialog = false
                         Toast.makeText(this@MainActivity, it, Toast.LENGTH_LONG).show()
                         panicButtonViewModel.clearMessages()
                     }
@@ -207,6 +208,7 @@ class MainActivity : AppCompatActivity() {
                     onSosClick = {
                         showSosSheet = true
                         panicButtonViewModel.clearMessages()
+                        panicButtonViewModel.loadActive(UserPreference(this@MainActivity).getToken().orEmpty())
                         panicButtonViewModel.loadCallOptions(
                             UserPreference(this@MainActivity).getToken().orEmpty()
                         )
@@ -236,10 +238,10 @@ class MainActivity : AppCompatActivity() {
 
                 if (showSosDialog) {
                     SosConfirmDialog(
-                        isSending = panicState.isSending,
+                        isSending = panicState.isSending || panicState.isPreparingLocation,
+                        isPreparingLocation = panicState.isPreparingLocation,
                         onDismiss = { showSosDialog = false },
                         onConfirm = { severity ->
-                            showSosDialog = false
                             kirimSos(severity)
                         }
                     )
@@ -261,7 +263,7 @@ class MainActivity : AppCompatActivity() {
                                 lokasi = lokasi,
                                 latitude = loc?.latitude,
                                 longitude = loc?.longitude,
-                                lampiran = lampiran
+                                prepareAttachment = lampiran
                             )
                         }
                     )
@@ -332,6 +334,7 @@ class MainActivity : AppCompatActivity() {
     // ================= SOS panic button =================
 
     private fun kirimSos(severity: String) {
+        if (panicButtonViewModel.uiState.value.isSending || panicButtonViewModel.uiState.value.isPreparingLocation || pendingSosSeverity != null) return
         val fine = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
                 PackageManager.PERMISSION_GRANTED
         val coarse = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) ==
@@ -353,20 +356,12 @@ class MainActivity : AppCompatActivity() {
     // SOS: cari lokasi BARU dulu (batas 8 detik). Kalau GPS mati atau sinyal tak dapat,
     // cariSekarang() sendiri memakai catatan lokasi terakhir yang masih segar.
     private fun doSendSos(severity: String) {
-        Toast.makeText(this, "Mencari sinyal lokasi…", Toast.LENGTH_SHORT).show()
-        LokasiProvider.cariSekarang(this, timeoutMs = 8_000L) { lokasi ->
-            if (isFinishing || isDestroyed) return@cariSekarang
-            if (lokasi == null) {
-                Toast.makeText(this, "Lokasi belum tersedia. Nyalakan GPS lalu coba lagi.", Toast.LENGTH_LONG).show()
-                return@cariSekarang
+        panicButtonViewModel.prepareAndSendSos(UserPreference(this).getToken().orEmpty(), severity) {
+            kotlinx.coroutines.suspendCancellableCoroutine { continuation ->
+                LokasiProvider.cariSekarang(this, timeoutMs = 8_000L) { lokasi ->
+                    if (continuation.isActive) continuation.resumeWith(Result.success(lokasi?.let { it.latitude to it.longitude }))
+                }
             }
-            panicButtonViewModel.sendSos(
-                token = UserPreference(this).getToken().orEmpty(),
-                latitude = lokasi.latitude,
-                longitude = lokasi.longitude,
-                severity = severity,
-                message = null
-            )
         }
     }
 

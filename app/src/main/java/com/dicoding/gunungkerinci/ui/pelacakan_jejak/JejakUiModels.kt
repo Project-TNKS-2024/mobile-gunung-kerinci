@@ -49,7 +49,19 @@ internal data class JejakCheckpointUi(
     /** Contoh: "checkpoint pada 10:30 wib". Null kalau pos belum di-check-in. */
     val checkedAtLabel: String? = null,
     val timelineDate: String? = null,
-    val estimateIsDummy: Boolean = false
+    val estimateIsDummy: Boolean = false,
+    /** Identitas kunjungan unik "naik:8" / "turun:8" (v2). */
+    val visitKey: String? = null,
+    /** Fase kunjungan (v2): "naik"/"turun". */
+    val phase: String? = null,
+    /** Penanda puncak jalur (v2). */
+    val isSummit: Boolean = false,
+    /** Jarak segmen keluar yang telah dinormalisasi arah itinerary (v2). */
+    val distanceToNextM: Int? = null,
+    /** Durasi segmen keluar yang telah dinormalisasi arah itinerary (v2). */
+    val estimatedTimeToNextMinutes: Int? = null,
+    /** Durasi masuk menuju kunjungan ini dari segmen sebelumnya. */
+    val travelMinutesFromPrevious: Int? = null
 )
 
 internal enum class CheckpointState { Completed, Current, Upcoming }
@@ -97,7 +109,9 @@ internal data class JejakMemberUi(
     val checked: Boolean,
     /** True bila kehadiran baru dicatat lokal (antrean offline) dan belum sampai server. */
     val pending: Boolean = false,
-    val isLeader: Boolean = false
+    val isLeader: Boolean = false,
+    val trackingPhase: String? = null,
+    val note: String = ""
 )
 
 /**
@@ -107,5 +121,7 @@ internal data class JejakMemberUi(
 internal data class LocalMemberMark(
     val postId: Int,
     val pendakiId: String,
-    val pending: Boolean
+    val pending: Boolean,
+    /** Fase kunjungan (v2) — membedakan kehadiran naik vs turun di pos yang sama. */
+    val phase: String? = null
 )

@@ -1,12 +1,6 @@
 package com.dicoding.gunungkerinci.ui.pelacakan_jejak
 
 import com.dicoding.gunungkerinci.model.TrackingPost
-import kotlin.math.atan2
-import kotlin.math.cos
-import kotlin.math.pow
-import kotlin.math.roundToInt
-import kotlin.math.sin
-import kotlin.math.sqrt
 
 internal data class LocationDetailUi(
     val positionLabel: String,
@@ -22,7 +16,8 @@ internal data class LocationDetailUi(
     val waterSourceStatus: String,
     val campingStatus: String,
     val temperatureText: String = "—",
-    val distanceToSummitText: String = "—"
+    val distanceToSummitText: String = "—",
+    val mapImageUrl: String? = null
 ) {
     companion object {
         val Default = LocationDetailUi(
@@ -62,52 +57,80 @@ internal object LocationDetailUiMapper {
             checkpoint.name
         }
 
-        // Kalkulasi jarak & estimasi ke pos berikutnya berdasarkan daftar pos
+        // Jarak dan durasi antarpos berasal dari backend, termasuk saat memakai cache offline.
         val sortedPosts = allPosts.sortedBy { it.urutan }
         val currentIndex = sortedPosts.indexOfFirst { it.id == checkpoint.postId || it.urutan == checkpoint.order }
         val nextPost = if (currentIndex in 0 until sortedPosts.lastIndex) sortedPosts[currentIndex + 1] else null
         val currentPost = if (currentIndex >= 0) sortedPosts[currentIndex] else null
 
-        val distanceMeters = if (currentPost != null && nextPost != null) {
-            calculateDistanceMeters(
-                currentPost.latitude.toDoubleOrNull() ?: 0.0,
-                currentPost.longitude.toDoubleOrNull() ?: 0.0,
-                nextPost.latitude.toDoubleOrNull() ?: 0.0,
-                nextPost.longitude.toDoubleOrNull() ?: 0.0
-            )
-        } else null
+        // v2: segmen keluar sudah dinormalisasi arah itinerary (turun memakai segmen mundur).
+        val isV2 = checkpoint.visitKey != null
+        val distanceMeters = if (isV2) {
+            checkpoint.distanceToNextM?.takeIf { it >= 0 }
+        } else {
+            currentPost?.distanceToNextM?.takeIf { it >= 0 && nextPost != null }
+        }
+        val estimateMinutes = if (isV2) {
+            checkpoint.estimatedTimeToNextMinutes?.takeIf { it >= 0 }
+        } else {
+            currentPost?.estimatedTimeMinutes?.takeIf { it >= 0 && nextPost != null }
+        }
 
-        val (distanceText, estimateText) = if (distanceMeters != null) {
-            val distString = if (distanceMeters >= 1000) {
+        val isLastPost = currentIndex == sortedPosts.lastIndex && sortedPosts.isNotEmpty()
+        val isRouteEnd = isV2 && checkpoint.phase == "turun" && currentIndex == 0
+
+        val distanceText = if (distanceMeters != null) {
+            if (distanceMeters >= 1000) {
                 String.format(java.util.Locale("id", "ID"), "%.1f km", distanceMeters / 1000.0)
             } else {
-                "${distanceMeters.roundToInt()} m"
+                "$distanceMeters m"
             }
-            // Estimasi pendakian gunung rata-rata ~2 km/jam (±30 m/menit)
-            val estimateMinutes = (distanceMeters / 33.3).roundToInt().coerceAtLeast(10)
-            val estString = if (estimateMinutes >= 60) {
+        } else if (isV2 && checkpoint.isSummit) {
+            "Puncak"
+        } else if (isRouteEnd) {
+            "Titik Akhir"
+        } else if (isLastPost) {
+            "Puncak / Titik Akhir"
+        } else {
+            "-"
+        }
+
+        val estimateText = if (estimateMinutes != null) {
+            if (estimateMinutes >= 60) {
                 "${estimateMinutes / 60} jam ${estimateMinutes % 60} mnt"
             } else {
                 "$estimateMinutes Menit"
             }
-            distString to estString
-        } else if (currentIndex == sortedPosts.lastIndex && sortedPosts.isNotEmpty()) {
-            "Puncak / Titik Akhir" to "Puncak Tertinggi"
+        } else if (isV2 && checkpoint.isSummit) {
+            "Puncak Tertinggi"
+        } else if (isLastPost) {
+            "Puncak Tertinggi"
         } else {
-            "-" to "-"
+            "-"
+        }
+
+        val nextDirectedPost = when {
+            !isV2 -> nextPost
+            checkpoint.phase == "turun" || checkpoint.isSummit -> sortedPosts.getOrNull(currentIndex - 1)
+            else -> nextPost
+        }
+        val distanceLabel = when {
+            nextDirectedPost != null -> "Jarak menuju ${nextDirectedPost.nama}"
+            else -> "Jarak menuju pos selanjutnya"
         }
 
         val altitudeValue = checkpoint.altitude ?: currentPost?.altitude
         val altitudeFormatted = if (altitudeValue != null && altitudeValue > 0) "$altitudeValue Mdpl" else "- Mdpl"
 
         return LocationDetailUi(
+            mapImageUrl = currentPost?.mapImageUrl,
             positionLabel = currentPost?.nama?.takeIf { it.isNotBlank() }
                 ?: checkpoint.name.takeIf { it.isNotBlank() }
                 ?: "Lokasi belum tersedia",
             postLabel = postLabel,
             placeName = placeName,
             altitudeText = altitudeFormatted,
-            distanceToNextLabel = if (nextPost != null) "Jarak menuju ${nextPost.nama}" else "Jarak menuju pos selanjutnya",
+            distanceToNextLabel = distanceLabel,
             distanceToNextValue = distanceText,
             averageEstimateValue = estimateText,
             statusText = when (checkpoint.state) {
@@ -132,14 +155,4 @@ internal object LocationDetailUiMapper {
 
     private fun extractPostNumber(name: String): Int? =
         Regex("(?i)pos\\s+(\\d+)").find(name)?.groupValues?.getOrNull(1)?.toIntOrNull()
-
-    /** Haversine formula dalam meter */
-    private fun calculateDistanceMeters(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
-        val earthRadius = 6371000.0 // meter
-        val dLat = Math.toRadians(lat2 - lat1)
-        val dLon = Math.toRadians(lon2 - lon1)
-        val a = sin(dLat / 2).pow(2) + cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) * sin(dLon / 2).pow(2)
-        val c = 2 * atan2(sqrt(a), sqrt(1 - a))
-        return earthRadius * c
-    }
 }

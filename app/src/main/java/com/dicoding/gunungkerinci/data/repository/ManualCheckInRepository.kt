@@ -1,43 +1,39 @@
 package com.dicoding.gunungkerinci.data.repository
 
-import com.dicoding.gunungkerinci.model.ManualCheckInData
+import com.dicoding.gunungkerinci.model.checkpointException
+import com.dicoding.gunungkerinci.model.CheckpointV2Data
 import com.dicoding.gunungkerinci.model.ManualCheckInRequest
 import com.dicoding.gunungkerinci.network.ApiService
 
 internal class ManualCheckInRepository(private val api: ApiService) {
 
-    /**
-     * Check-in manual — pendaki memilih pos dari daftar dan menekan tombol.
-     * Backend mencatat [isManualOverride] = true jika jarak > 500m.
-     */
-    suspend fun checkIn(
+    /** Check-in manual kontrak v2 (fase + idempotensi event). */
+    suspend fun checkInV2(
         token: String,
         postId: Int,
+        phase: String,
+        clientEventId: String,
+        recordedAt: String,
         latitude: Double,
         longitude: Double
-    ): Result<ManualCheckInData> = runCatching {
+    ): Result<CheckpointV2Data> = runCatching {
         val bearer = if (token.startsWith("Bearer ")) token else "Bearer $token"
-        val response = api.checkInManual(
+        val response = api.checkInManualV2(
             bearer,
             ManualCheckInRequest(
                 postId = postId,
                 latitude = latitude,
-                longitude = longitude
+                longitude = longitude,
+                phase = phase,
+                clientEventId = clientEventId,
+                recordedAt = recordedAt
             )
         )
         val body = response.body()
         if (response.isSuccessful && body?.success == true && body.data != null) {
             body.data
         } else {
-            val msg = body?.message
-                ?: when (response.code()) {
-                    403 -> "Tidak ada pendakian aktif"
-                    404 -> "Pos tidak ditemukan"
-                    409 -> "Sudah check-in di pos ini sebelumnya"
-                    422 -> "Data tidak valid"
-                    else -> "Check-in manual gagal (${response.code()})"
-                }
-            throw Exception(msg)
+            throw response.checkpointException("Check-in manual gagal")
         }
     }
 }

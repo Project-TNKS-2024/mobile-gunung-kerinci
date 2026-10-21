@@ -1,7 +1,7 @@
 package com.dicoding.gunungkerinci.network
 
 /**
- * Konfigurasi alamat backend untuk pengujian — disamakan dengan repo `mobile-gunung-kerinci-vibe-coding`.
+ * Konfigurasi alamat backend; BASE_URL saat ini menggunakan server production.
  *
  * Pilih BASE_URL sesuai cara menjalankan aplikasi:
  * - Emulator Android Studio    : "http://10.0.2.2:8000/"    (10.0.2.2 = localhost PC dilihat dari emulator)
@@ -12,9 +12,8 @@ package com.dicoding.gunungkerinci.network
  * Backend dijalankan dengan: php artisan serve --host=0.0.0.0 --port=8000
  *
  * Catatan:
- * - Nilai BASE_URL di repo vibe-coding sama-sama "http://127.0.0.1:8000/".
  * - FALLBACK_TOKEN debug di repo itu TIDAK disalin ke sini — token tidak boleh hard-code di aplikasi.
  */
 object DebugNetworkConfig {
-    const val BASE_URL = "http://127.0.0.1:8000/"
+    const val BASE_URL = "https://tnks.satriabahari.my.id/"
 }

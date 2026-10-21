@@ -242,41 +242,10 @@ class DetailDataPendakiActivity : AppCompatActivity() {
             DetailPendakiAdapter(listPendaki)
     }
 
-    private fun formatTanggalLahir(
-        tanggal: String?
-    ): String {
-
-        if (tanggal.isNullOrBlank()) {
-            return "-"
-        }
-
-        return try {
-
-            val input =
-                java.text.SimpleDateFormat(
-                    "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'",
-                    java.util.Locale.getDefault()
-                )
-
-            input.timeZone =
-                java.util.TimeZone.getTimeZone("UTC")
-
-            val output =
-                java.text.SimpleDateFormat(
-                    "dd - MM - yyyy",
-                    java.util.Locale.getDefault()
-                )
-
-            output.format(
-                input.parse(tanggal)!!
-            )
-
-        } catch (e: Exception) {
-
-            tanggal
-                .substringBefore("T")
-                .replace("-", " - ")
-        }
+    private fun formatTanggalLahir(tanggal: String?): String {
+        // Birthdays are calendar dates; never interpret them as UTC instants.
+        val date = com.dicoding.gunungkerinci.util.DateTimeFormat.calendarDate(tanggal?.substringBefore("T")) ?: return "-"
+        return "${date.substring(8, 10)} - ${date.substring(5, 7)} - ${date.take(4)}"
     }
 
     private fun buatAlamat(

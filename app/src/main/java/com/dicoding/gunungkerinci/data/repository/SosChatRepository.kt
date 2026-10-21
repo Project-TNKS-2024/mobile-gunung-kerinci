@@ -50,10 +50,22 @@ internal class SosChatRepository(
     }
 
     suspend fun getMessages(token: String, sosId: Int, page: Int? = null): Result<SosMessagesData> = runCatching {
+        var data = getMessagesPage(token, sosId, page)
+        if (page != null) return@runCatching data
+        val messages = data.messages.orEmpty().toMutableList()
+        var currentPage = data.pagination?.currentPage ?: 1
+        while (currentPage < (data.pagination?.lastPage ?: currentPage)) {
+            data = getMessagesPage(token, sosId, ++currentPage)
+            messages += data.messages.orEmpty()
+        }
+        data.copy(messages = messages.distinctBy { it.id })
+    }
+
+    private suspend fun getMessagesPage(token: String, sosId: Int, page: Int?): SosMessagesData {
         val response = api.getSosMessages(bearerOf(token), sosId, page)
         val body = response.body()
         if (response.isSuccessful && body?.success == true && body.data != null) {
-            body.data
+            return body.data
         } else {
             throw Exception(body?.message ?: messageFor(response.code()))
         }
